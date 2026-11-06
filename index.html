@@ -153,10 +153,6 @@ footer {
     cursor: pointer;
 }
 
-.auth-box button:hover {
-    opacity: 0.9;
-}
-
 #authMessage {
     text-align: center;
     margin-top: 15px;
@@ -174,7 +170,7 @@ footer {
 
 #adminDashboard {
     display: none;
-    max-width: 1000px;
+    max-width: 1100px;
     margin: 40px auto;
     padding: 30px;
     background: #101a2b;
@@ -195,13 +191,13 @@ footer {
 
 .admin-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
 }
 
 .admin-card {
     background: #121e30;
-    padding: 25px;
+    padding: 22px;
     border-radius: 12px;
     border: 1px solid #263750;
 }
@@ -216,36 +212,37 @@ footer {
     line-height: 1.7;
 }
 
-/* Subject Management */
+/* Management Sections */
 
-.subject-management {
-    margin-top: 35px;
+.management-section {
+    margin-top: 30px;
     padding: 25px;
     background: #121e30;
     border: 1px solid #263750;
     border-radius: 12px;
 }
 
-.subject-management h3 {
+.management-section h3 {
     color: #42d6b0;
     margin-bottom: 15px;
 }
 
-.subject-management p {
+.management-section p {
     color: #b8c5d8;
     line-height: 1.7;
     margin-bottom: 15px;
 }
 
-.subject-form {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+.management-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
 }
 
-.subject-form input {
-    flex: 1;
-    min-width: 200px;
+.management-form input,
+.management-form select,
+.management-form textarea {
+    width: 100%;
     padding: 13px;
     border: 1px solid #40516b;
     border-radius: 8px;
@@ -254,8 +251,13 @@ footer {
     font-size: 15px;
 }
 
-.subject-form button {
-    padding: 13px 22px;
+.management-form textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.management-form button {
+    padding: 13px 20px;
     border: none;
     border-radius: 8px;
     background: #42d6b0;
@@ -264,29 +266,41 @@ footer {
     cursor: pointer;
 }
 
-.subject-list {
+.management-form button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.management-list {
     margin-top: 25px;
 }
 
-.subject-item {
+.management-list h4 {
+    color: #42d6b0;
+    margin-bottom: 12px;
+}
+
+.list-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    padding: 15px;
+    padding: 14px;
     margin-top: 10px;
     background: #080e19;
     border: 1px solid #263750;
     border-radius: 8px;
 }
 
-.subject-item span {
-    color: white;
-    font-weight: bold;
+.list-item span {
     overflow-wrap: anywhere;
 }
 
-.delete-subject {
+.delete-button {
     padding: 8px 12px;
     border: none;
     border-radius: 6px;
@@ -295,10 +309,21 @@ footer {
     cursor: pointer;
 }
 
-.subject-status {
+.status {
     margin-top: 15px;
     color: #42d6b0;
+    line-height: 1.6;
     overflow-wrap: anywhere;
+}
+
+.question-option {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.question-option input {
+    flex: 1;
 }
 
 @media (max-width: 600px) {
@@ -317,10 +342,14 @@ footer {
 
     #adminDashboard {
         margin: 25px 12px;
-        padding: 20px;
+        padding: 18px;
     }
 
-    .subject-item {
+    .management-section {
+        padding: 18px;
+    }
+
+    .list-item {
         align-items: flex-start;
     }
 }
@@ -450,43 +479,81 @@ footer {
     <div class="admin-cards">
 
         <div class="admin-card">
-            <h3>📚 Manage Subjects</h3>
-            <p>Add and manage medical subjects.</p>
+            <h3>📖 Manage Modules</h3>
+            <p>Manage academic years.</p>
         </div>
 
         <div class="admin-card">
-            <h3>📖 Manage Modules</h3>
-            <p>Add modules inside each subject.</p>
+            <h3>📚 Manage Subjects</h3>
+            <p>Manage subjects inside each year.</p>
         </div>
 
         <div class="admin-card">
             <h3>🎓 Manage Lectures</h3>
-            <p>Add lectures inside each module.</p>
+            <p>Manage lectures inside each subject.</p>
         </div>
 
         <div class="admin-card">
             <h3>❓ Manage Questions</h3>
-            <p>Add and manage MCQ questions.</p>
+            <p>Manage Medschool and external questions.</p>
         </div>
 
     </div>
 
+
+    <!-- Manage Modules -->
+
+    <div class="management-section">
+
+        <h3>📖 Manage Modules</h3>
+
+        <p>Add and manage academic years.</p>
+
+        <form id="moduleForm" class="management-form">
+
+            <input
+                id="moduleName"
+                type="text"
+                placeholder="Example: First Year"
+                required
+            >
+
+            <button type="submit" id="addModuleButton">
+                + Add Module
+            </button>
+
+        </form>
+
+        <div id="moduleStatus" class="status"></div>
+
+        <div class="management-list">
+            <h4>Existing Modules</h4>
+            <div id="modulesList">Loading...</div>
+        </div>
+
+    </div>
+
+
     <!-- Manage Subjects -->
 
-    <div class="subject-management">
+    <div class="management-section">
 
         <h3>📚 Manage Subjects</h3>
 
         <p>
-            Add new medical subjects and manage your existing subjects.
+            Select an academic year and add its subjects.
         </p>
 
-        <form id="subjectForm" class="subject-form">
+        <form id="subjectForm" class="management-form">
+
+            <select id="subjectModule" required>
+                <option value="">Select Academic Year</option>
+            </select>
 
             <input
-                type="text"
                 id="subjectName"
-                placeholder="Enter subject name (e.g. Anatomy)"
+                type="text"
+                placeholder="Subject Name (e.g. Anatomy)"
                 required
             >
 
@@ -496,17 +563,141 @@ footer {
 
         </form>
 
-        <div id="subjectStatus" class="subject-status"></div>
+        <div id="subjectStatus" class="status"></div>
 
-        <div class="subject-list">
-
-            <h3>Existing Subjects</h3>
-
-            <div id="subjectsList">
-                Loading subjects...
-            </div>
-
+        <div class="management-list">
+            <h4>Existing Subjects</h4>
+            <div id="subjectsList">Loading...</div>
         </div>
+
+    </div>
+
+
+    <!-- Manage Lectures -->
+
+    <div class="management-section">
+
+        <h3>🎓 Manage Lectures</h3>
+
+        <p>
+            Select a subject and add its lectures.
+        </p>
+
+        <form id="lectureForm" class="management-form">
+
+            <select id="lectureModule" required>
+                <option value="">Select Academic Year</option>
+            </select>
+
+            <select id="lectureSubject" required>
+                <option value="">Select Subject</option>
+            </select>
+
+            <input
+                id="lectureName"
+                type="text"
+                placeholder="Lecture Name"
+                required
+            >
+
+            <button type="submit" id="addLectureButton">
+                + Add Lecture
+            </button>
+
+        </form>
+
+        <div id="lectureStatus" class="status"></div>
+
+        <div class="management-list">
+            <h4>Existing Lectures</h4>
+            <div id="lecturesList">Loading...</div>
+        </div>
+
+    </div>
+
+
+    <!-- Manage Questions -->
+
+    <div class="management-section">
+
+        <h3>❓ Manage Questions</h3>
+
+        <p>
+            Add MCQ questions to a specific lecture.
+            Questions are saved as unpublished by default.
+        </p>
+
+        <form id="questionForm" class="management-form">
+
+            <select id="questionModule" required>
+                <option value="">Select Academic Year</option>
+            </select>
+
+            <select id="questionSubject" required>
+                <option value="">Select Subject</option>
+            </select>
+
+            <select id="questionLecture" required>
+                <option value="">Select Lecture</option>
+            </select>
+
+            <select id="questionCategory" required>
+                <option value="Medschool">Medschool Questions</option>
+                <option value="Seminar & Old Exams">
+                    Seminar & Old Exams
+                </option>
+            </select>
+
+            <select id="questionDifficulty" required>
+                <option value="Easy">Easy</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="Hard">Hard</option>
+            </select>
+
+            <textarea
+                id="questionText"
+                class="full-width"
+                placeholder="Write the question here..."
+                required
+            ></textarea>
+
+            <input id="optionA" type="text"
+                placeholder="Option A" required>
+
+            <input id="optionB" type="text"
+                placeholder="Option B" required>
+
+            <input id="optionC" type="text"
+                placeholder="Option C" required>
+
+            <input id="optionD" type="text"
+                placeholder="Option D" required>
+
+            <select id="correctOption" required>
+                <option value="">Select Correct Answer</option>
+                <option value="0">A</option>
+                <option value="1">B</option>
+                <option value="2">C</option>
+                <option value="3">D</option>
+            </select>
+
+            <textarea
+                id="questionExplanation"
+                class="full-width"
+                placeholder="Write the explanation..."
+            ></textarea>
+
+            <button
+                type="submit"
+                id="addQuestionButton"
+                class="full-width"
+            >
+                + Save Question
+            </button>
+
+        </form>
+
+        <div id="questionStatus" class="status"></div>
 
     </div>
 
@@ -516,15 +707,20 @@ footer {
     Medschool © 2026 | Medical Learning Platform
 </footer>
 
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
-// Supabase Configuration
+// ==================================
+// SUPABASE CONFIGURATION
+// ==================================
 
-const SUPABASE_URL = "https://uuyxivqvmvubixuduhxr.supabase.co";
+const SUPABASE_URL =
+"https://uuyxivqvmvubixuduhxr.supabase.co";
 
-const SUPABASE_KEY = "sb_publishable_xEFgiI3DDic4Bjsz82XKEQ__1-wFwdG";
+const SUPABASE_KEY =
+"sb_publishable_xEFgiI3DDic4Bjsz82XKEQ__1-wFwdG";
 
 const supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
@@ -532,48 +728,47 @@ const supabaseClient = window.supabase.createClient(
 );
 
 
-// Main Elements
+// ==================================
+// MAIN ELEMENTS
+// ==================================
 
 const authMessage = document.getElementById("authMessage");
 const userRole = document.getElementById("userRole");
 const adminDashboard = document.getElementById("adminDashboard");
 
-const subjectForm = document.getElementById("subjectForm");
-const subjectName = document.getElementById("subjectName");
-const subjectStatus = document.getElementById("subjectStatus");
+const modulesList = document.getElementById("modulesList");
 const subjectsList = document.getElementById("subjectsList");
-const addSubjectButton = document.getElementById("addSubjectButton");
+const lecturesList = document.getElementById("lecturesList");
 
 
-// Admin Dashboard Functions
+// ==================================
+// DASHBOARD VISIBILITY
+// ==================================
 
 function hideAdminDashboard() {
-
     adminDashboard.style.setProperty(
         "display",
         "none",
         "important"
     );
-
 }
 
 function showAdminDashboard() {
-
     adminDashboard.style.setProperty(
         "display",
         "block",
         "important"
     );
-
 }
 
 
-// Check User Role
+// ==================================
+// ROLE CHECK
+// ==================================
 
 async function showUserRole() {
 
     hideAdminDashboard();
-
     userRole.textContent = "";
 
     const {
@@ -581,9 +776,7 @@ async function showUserRole() {
         error: userError
     } = await supabaseClient.auth.getUser();
 
-    if (userError || !user) {
-        return;
-    }
+    if (userError || !user) return;
 
     const { data, error } = await supabaseClient
         .from("profiles")
@@ -595,12 +788,10 @@ async function showUserRole() {
 
         userRole.textContent = "تعذر تحديد الصلاحية";
 
-        console.error("Profile error:", error);
+        console.error(error);
 
         return;
     }
-
-    console.log("Current user role:", data.role);
 
     if (data.role === "admin") {
 
@@ -608,7 +799,7 @@ async function showUserRole() {
 
         showAdminDashboard();
 
-        await loadSubjects();
+        await refreshAll();
 
     } else {
 
@@ -617,25 +808,22 @@ async function showUserRole() {
         hideAdminDashboard();
 
     }
-
 }
 
 
-// Check Session On Page Load
+// ==================================
+// AUTH STATE
+// ==================================
 
 showUserRole();
 
+supabaseClient.auth.onAuthStateChange((event) => {
 
-// Listen To Login And Logout
-
-supabaseClient.auth.onAuthStateChange((event, session) => {
-
-    if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
-
-        setTimeout(() => {
-            showUserRole();
-        }, 0);
-
+    if (
+        event === "SIGNED_IN" ||
+        event === "INITIAL_SESSION"
+    ) {
+        setTimeout(() => showUserRole(), 0);
     }
 
     if (event === "SIGNED_OUT") {
@@ -644,14 +832,18 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
 
         hideAdminDashboard();
 
+        modulesList.innerHTML = "";
         subjectsList.innerHTML = "";
+        lecturesList.innerHTML = "";
 
     }
 
 });
 
 
-// Signup
+// ==================================
+// SIGN UP
+// ==================================
 
 document.getElementById("signupForm")
 .addEventListener("submit", async function(e) {
@@ -660,11 +852,14 @@ document.getElementById("signupForm")
 
     authMessage.textContent = "جاري إنشاء الحساب...";
 
-    const name = document.getElementById("signupName").value.trim();
+    const name =
+        document.getElementById("signupName").value.trim();
 
-    const email = document.getElementById("signupEmail").value.trim();
+    const email =
+        document.getElementById("signupEmail").value.trim();
 
-    const password = document.getElementById("signupPassword").value;
+    const password =
+        document.getElementById("signupPassword").value;
 
     const { error } = await supabaseClient.auth.signUp({
 
@@ -673,12 +868,10 @@ document.getElementById("signupForm")
 
         options: {
 
-            data: {
-                full_name: name
-            },
+            data: { full_name: name },
 
             emailRedirectTo:
-                "https://fomscu.github.io/FOMSCU-Platform/"
+            "https://fomscu.github.io/FOMSCU-Platform/"
 
         }
 
@@ -691,7 +884,9 @@ document.getElementById("signupForm")
 });
 
 
-// Login
+// ==================================
+// LOGIN
+// ==================================
 
 document.getElementById("loginForm")
 .addEventListener("submit", async function(e) {
@@ -700,9 +895,11 @@ document.getElementById("loginForm")
 
     authMessage.textContent = "جاري تسجيل الدخول...";
 
-    const email = document.getElementById("loginEmail").value.trim();
+    const email =
+        document.getElementById("loginEmail").value.trim();
 
-    const password = document.getElementById("loginPassword").value;
+    const password =
+        document.getElementById("loginPassword").value;
 
     const { error } = await supabaseClient.auth.signInWithPassword({
 
@@ -727,7 +924,9 @@ document.getElementById("loginForm")
 });
 
 
-// Logout
+// ==================================
+// LOGOUT
+// ==================================
 
 document.getElementById("logoutButton")
 .addEventListener("click", async function() {
@@ -745,116 +944,365 @@ document.getElementById("logoutButton")
 });
 
 
-// Load Subjects From Supabase
+// ==================================
+// HELPER FUNCTIONS
+// ==================================
 
-async function loadSubjects() {
+function setStatus(id, message) {
 
-    subjectsList.innerHTML = "جاري تحميل المواد...";
+    document.getElementById(id).textContent = message;
 
-    const { data, error } = await supabaseClient
-        .from("subjects")
-        .select("id, name")
-        .order("id", { ascending: true });
+}
 
-    if (error) {
+function setLoading(buttonId, loading) {
 
-        subjectsList.textContent =
-            "حدث خطأ أثناء تحميل المواد: " + error.message;
+    const button = document.getElementById(buttonId);
 
-        console.error("Load subjects error:", error);
+    button.disabled = loading;
 
-        return;
+}
+
+function addListItem(container, text, onDelete) {
+
+    const item = document.createElement("div");
+    item.className = "list-item";
+
+    const label = document.createElement("span");
+    label.textContent = text;
+
+    item.appendChild(label);
+
+    if (onDelete) {
+
+        const button = document.createElement("button");
+
+        button.className = "delete-button";
+        button.textContent = "Delete";
+
+        button.addEventListener("click", onDelete);
+
+        item.appendChild(button);
 
     }
 
-    subjectsList.innerHTML = "";
+    container.appendChild(item);
 
-    if (!data || data.length === 0) {
+}
 
-        subjectsList.textContent = "لا توجد مواد دراسية حتى الآن.";
+function fillSelect(selectId, items, placeholder) {
 
-        return;
+    const select = document.getElementById(selectId);
 
-    }
+    select.innerHTML = "";
 
-    data.forEach(subject => {
+    const firstOption = document.createElement("option");
 
-        const item = document.createElement("div");
+    firstOption.value = "";
+    firstOption.textContent = placeholder;
 
-        item.className = "subject-item";
+    select.appendChild(firstOption);
 
-        const name = document.createElement("span");
+    items.forEach(item => {
 
-        name.textContent = "📚 " + subject.name;
+        const option = document.createElement("option");
 
-        const deleteButton = document.createElement("button");
+        option.value = item.id;
+        option.textContent = item.name;
 
-        deleteButton.className = "delete-subject";
-
-        deleteButton.textContent = "Delete";
-
-        deleteButton.addEventListener("click", function() {
-
-            deleteSubject(subject.id, subject.name);
-
-        });
-
-        item.appendChild(name);
-
-        item.appendChild(deleteButton);
-
-        subjectsList.appendChild(item);
+        select.appendChild(option);
 
     });
 
 }
 
 
-// Add New Subject
+// ==================================
+// DATA ARRAYS
+// ==================================
 
-subjectForm.addEventListener("submit", async function(e) {
+let modulesData = [];
+let subjectsData = [];
+let lecturesData = [];
+
+
+// ==================================
+// LOAD MODULES
+// ==================================
+
+async function loadModules() {
+
+    modulesList.textContent = "جاري تحميل السنوات...";
+
+    const { data, error } = await supabaseClient
+        .from("modules")
+        .select("id, name")
+        .order("id");
+
+    if (error) {
+
+        modulesList.textContent = error.message;
+
+        console.error(error);
+
+        return;
+
+    }
+
+    modulesData = data || [];
+
+    modulesList.innerHTML = "";
+
+    if (!modulesData.length) {
+
+        modulesList.textContent = "لا توجد سنوات دراسية.";
+
+    }
+
+    modulesData.forEach(module => {
+
+        addListItem(
+            modulesList,
+            "📖 " + module.name,
+            () => deleteModule(module.id, module.name)
+        );
+
+    });
+
+    fillSelect(
+        "subjectModule",
+        modulesData,
+        "Select Academic Year"
+    );
+
+    fillSelect(
+        "lectureModule",
+        modulesData,
+        "Select Academic Year"
+    );
+
+    fillSelect(
+        "questionModule",
+        modulesData,
+        "Select Academic Year"
+    );
+
+}
+
+
+// ==================================
+// ADD MODULE
+// ==================================
+
+document.getElementById("moduleForm")
+.addEventListener("submit", async function(e) {
 
     e.preventDefault();
 
-    const name = subjectName.value.trim();
+    const name =
+        document.getElementById("moduleName").value.trim();
 
-    if (!name) {
+    if (!name) return;
 
-        subjectStatus.textContent = "من فضلك اكتب اسم المادة.";
+    setLoading("addModuleButton", true);
 
-        return;
+    setStatus("moduleStatus", "جاري إضافة السنة...");
 
-    }
-
-    addSubjectButton.disabled = true;
-
-    subjectStatus.textContent = "جاري إضافة المادة...";
-
-    const { data: existingSubjects, error: checkError } =
-        await supabaseClient
-            .from("subjects")
-            .select("id, name");
-
-    if (checkError) {
-
-        subjectStatus.textContent =
-            "حدث خطأ: " + checkError.message;
-
-        addSubjectButton.disabled = false;
-
-        return;
-
-    }
-
-    const duplicate = existingSubjects.some(subject =>
-        subject.name.trim().toLowerCase() === name.toLowerCase()
+    const duplicate = modulesData.some(item =>
+        item.name.toLowerCase() === name.toLowerCase()
     );
 
     if (duplicate) {
 
-        subjectStatus.textContent = "هذه المادة موجودة بالفعل.";
+        setStatus("moduleStatus", "السنة موجودة بالفعل.");
 
-        addSubjectButton.disabled = false;
+        setLoading("addModuleButton", false);
+
+        return;
+
+    }
+
+    const { error } = await supabaseClient
+        .from("modules")
+        .insert({ name });
+
+    if (error) {
+
+        setStatus("moduleStatus", error.message);
+
+    } else {
+
+        setStatus("moduleStatus", "تمت إضافة السنة بنجاح.");
+
+        this.reset();
+
+        await loadModules();
+
+    }
+
+    setLoading("addModuleButton", false);
+
+});
+
+
+// ==================================
+// DELETE MODULE
+// ==================================
+
+async function deleteModule(id, name) {
+
+    const confirmed = confirm(
+        "هل تريد حذف " + name +
+        "؟ قد يؤدي ذلك لحذف المواد والمحاضرات المرتبطة بها."
+    );
+
+    if (!confirmed) return;
+
+    const { error } = await supabaseClient
+        .from("modules")
+        .delete()
+        .eq("id", id);
+
+    if (error) {
+
+        setStatus("moduleStatus", error.message);
+
+    } else {
+
+        setStatus("moduleStatus", "تم حذف السنة.");
+
+        await refreshAll();
+
+    }
+
+}
+
+
+// ==================================
+// LOAD SUBJECTS
+// ==================================
+
+async function loadSubjects() {
+
+    subjectsList.textContent = "جاري تحميل المواد...";
+
+    const { data, error } = await supabaseClient
+        .from("subjects")
+        .select("id, name, module_id")
+        .order("id");
+
+    if (error) {
+
+        subjectsList.textContent = error.message;
+
+        console.error(error);
+
+        return;
+
+    }
+
+    subjectsData = data || [];
+
+    subjectsList.innerHTML = "";
+
+    if (!subjectsData.length) {
+
+        subjectsList.textContent = "لا توجد مواد دراسية.";
+
+    }
+
+    subjectsData.forEach(subject => {
+
+        const module = modulesData.find(
+            item => item.id === subject.module_id
+        );
+
+        const yearName = module ? module.name : "Unknown Year";
+
+        addListItem(
+            subjectsList,
+            "📚 " + subject.name + " — " + yearName,
+            () => deleteSubject(subject.id, subject.name)
+        );
+
+    });
+
+    updateSubjectSelects();
+
+}
+
+
+// ==================================
+// UPDATE SUBJECT SELECTS
+// ==================================
+
+function updateSubjectSelects() {
+
+    const lectureModuleId =
+        document.getElementById("lectureModule").value;
+
+    const questionModuleId =
+        document.getElementById("questionModule").value;
+
+    const lectureSubjects = subjectsData.filter(subject =>
+        String(subject.module_id) === lectureModuleId
+    );
+
+    const questionSubjects = subjectsData.filter(subject =>
+        String(subject.module_id) === questionModuleId
+    );
+
+    fillSelect(
+        "lectureSubject",
+        lectureSubjects,
+        "Select Subject"
+    );
+
+    fillSelect(
+        "questionSubject",
+        questionSubjects,
+        "Select Subject"
+    );
+
+    fillSelect(
+        "questionLecture",
+        [],
+        "Select Lecture"
+    );
+
+}
+
+
+// ==================================
+// ADD SUBJECT
+// ==================================
+
+document.getElementById("subjectForm")
+.addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+    const name =
+        document.getElementById("subjectName").value.trim();
+
+    const moduleId =
+        document.getElementById("subjectModule").value;
+
+    if (!name || !moduleId) return;
+
+    setLoading("addSubjectButton", true);
+
+    setStatus("subjectStatus", "جاري إضافة المادة...");
+
+    const duplicate = subjectsData.some(subject =>
+        subject.name.toLowerCase() === name.toLowerCase() &&
+        String(subject.module_id) === moduleId
+    );
+
+    if (duplicate) {
+
+        setStatus("subjectStatus", "المادة موجودة بالفعل في هذه السنة.");
+
+        setLoading("addSubjectButton", false);
 
         return;
 
@@ -862,49 +1310,42 @@ subjectForm.addEventListener("submit", async function(e) {
 
     const { error } = await supabaseClient
         .from("subjects")
-        .insert([
-            {
-                name: name
-            }
-        ]);
+        .insert({
+            name,
+            module_id: Number(moduleId)
+        });
 
     if (error) {
 
-        subjectStatus.textContent =
-            "فشل إضافة المادة: " + error.message;
-
-        console.error("Add subject error:", error);
+        setStatus("subjectStatus", error.message);
 
     } else {
 
-        subjectStatus.textContent =
-            "تمت إضافة المادة بنجاح!";
+        setStatus("subjectStatus", "تمت إضافة المادة بنجاح.");
 
-        subjectName.value = "";
+        this.reset();
 
-        await loadSubjects();
+        await refreshAll();
 
     }
 
-    addSubjectButton.disabled = false;
+    setLoading("addSubjectButton", false);
 
 });
 
 
-// Delete Subject
+// ==================================
+// DELETE SUBJECT
+// ==================================
 
 async function deleteSubject(id, name) {
 
     const confirmed = confirm(
-        "هل أنت متأكد من حذف مادة " + name +
-        "؟ قد يؤثر الحذف على الوحدات والمحاضرات والأسئلة المرتبطة بها."
+        "هل تريد حذف مادة " + name +
+        "؟ قد يؤدي ذلك لحذف المحاضرات التابعة لها."
     );
 
-    if (!confirmed) {
-        return;
-    }
-
-    subjectStatus.textContent = "جاري حذف المادة...";
+    if (!confirmed) return;
 
     const { error } = await supabaseClient
         .from("subjects")
@@ -913,18 +1354,396 @@ async function deleteSubject(id, name) {
 
     if (error) {
 
-        subjectStatus.textContent =
-            "فشل حذف المادة: " + error.message;
+        setStatus("subjectStatus", error.message);
 
-        console.error("Delete subject error:", error);
+    } else {
+
+        setStatus("subjectStatus", "تم حذف المادة.");
+
+        await refreshAll();
+
+    }
+
+}
+
+
+// ==================================
+// SUBJECT YEAR CHANGE
+// ==================================
+
+document.getElementById("lectureModule")
+.addEventListener("change", updateSubjectSelects);
+
+document.getElementById("questionModule")
+.addEventListener("change", updateSubjectSelects);
+
+
+// ==================================
+// LOAD LECTURES
+// ==================================
+
+async function loadLectures() {
+
+    lecturesList.textContent = "جاري تحميل المحاضرات...";
+
+    const { data, error } = await supabaseClient
+        .from("lectures")
+        .select("id, name, subject_id")
+        .order("id");
+
+    if (error) {
+
+        lecturesList.textContent = error.message;
+
+        console.error(error);
 
         return;
 
     }
 
-    subjectStatus.textContent = "تم حذف المادة.";
+    lecturesData = data || [];
+
+    lecturesList.innerHTML = "";
+
+    if (!lecturesData.length) {
+
+        lecturesList.textContent = "لا توجد محاضرات.";
+
+    }
+
+    lecturesData.forEach(lecture => {
+
+        const subject = subjectsData.find(
+            item => item.id === lecture.subject_id
+        );
+
+        const subjectName = subject
+            ? subject.name
+            : "Unknown Subject";
+
+        addListItem(
+            lecturesList,
+            "🎓 " + lecture.name + " — " + subjectName,
+            () => deleteLecture(lecture.id, lecture.name)
+        );
+
+    });
+
+    updateLectureSelect();
+
+}
+
+
+// ==================================
+// UPDATE LECTURE SELECT
+// ==================================
+
+function updateLectureSelect() {
+
+    const subjectId =
+        document.getElementById("questionSubject").value;
+
+    const availableLectures = lecturesData
+        .filter(lecture =>
+            String(lecture.subject_id) === subjectId
+        )
+        .map(lecture => ({
+            id: lecture.id,
+            name: lecture.name
+        }));
+
+    fillSelect(
+        "questionLecture",
+        availableLectures,
+        "Select Lecture"
+    );
+
+}
+
+
+// ==================================
+// ADD LECTURE
+// ==================================
+
+document.getElementById("lectureForm")
+.addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+    const subjectId =
+        document.getElementById("lectureSubject").value;
+
+    const name =
+        document.getElementById("lectureName").value.trim();
+
+    if (!subjectId || !name) return;
+
+    setLoading("addLectureButton", true);
+
+    setStatus("lectureStatus", "جاري إضافة المحاضرة...");
+
+    const duplicate = lecturesData.some(lecture =>
+        lecture.name.toLowerCase() === name.toLowerCase() &&
+        String(lecture.subject_id) === subjectId
+    );
+
+    if (duplicate) {
+
+        setStatus("lectureStatus", "المحاضرة موجودة بالفعل.");
+
+        setLoading("addLectureButton", false);
+
+        return;
+
+    }
+
+    const { error } = await supabaseClient
+        .from("lectures")
+        .insert({
+            name,
+            subject_id: Number(subjectId)
+        });
+
+    if (error) {
+
+        setStatus("lectureStatus", error.message);
+
+    } else {
+
+        setStatus("lectureStatus", "تمت إضافة المحاضرة بنجاح.");
+
+        this.reset();
+
+        await refreshAll();
+
+    }
+
+    setLoading("addLectureButton", false);
+
+});
+
+
+// ==================================
+// DELETE LECTURE
+// ==================================
+
+async function deleteLecture(id, name) {
+
+    const confirmed = confirm(
+        "هل تريد حذف المحاضرة " + name +
+        "؟ الأسئلة المرتبطة بها قد تفقد ارتباطها بالمحاضرة."
+    );
+
+    if (!confirmed) return;
+
+    const { error } = await supabaseClient
+        .from("lectures")
+        .delete()
+        .eq("id", id);
+
+    if (error) {
+
+        setStatus("lectureStatus", error.message);
+
+    } else {
+
+        setStatus("lectureStatus", "تم حذف المحاضرة.");
+
+        await refreshAll();
+
+    }
+
+}
+
+
+// ==================================
+// QUESTION SELECT CHANGES
+// ==================================
+
+document.getElementById("questionSubject")
+.addEventListener("change", updateLectureSelect);
+
+
+// ==================================
+// ADD QUESTION
+// ==================================
+
+document.getElementById("questionForm")
+.addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+    const moduleId =
+        document.getElementById("questionModule").value;
+
+    const subjectId =
+        document.getElementById("questionSubject").value;
+
+    const lectureId =
+        document.getElementById("questionLecture").value;
+
+    const category =
+        document.getElementById("questionCategory").value;
+
+    const difficulty =
+        document.getElementById("questionDifficulty").value;
+
+    const questionText =
+        document.getElementById("questionText").value.trim();
+
+    const options = [
+        document.getElementById("optionA").value.trim(),
+        document.getElementById("optionB").value.trim(),
+        document.getElementById("optionC").value.trim(),
+        document.getElementById("optionD").value.trim()
+    ];
+
+    const correctOption =
+        document.getElementById("correctOption").value;
+
+    const explanation =
+        document.getElementById("questionExplanation").value.trim();
+
+    if (
+        !moduleId ||
+        !subjectId ||
+        !lectureId ||
+        !questionText ||
+        options.some(option => !option) ||
+        correctOption === ""
+    ) {
+
+        setStatus(
+            "questionStatus",
+            "من فضلك أكمل جميع البيانات المطلوبة."
+        );
+
+        return;
+
+    }
+
+    setLoading("addQuestionButton", true);
+
+    setStatus("questionStatus", "جاري حفظ السؤال...");
+
+    // Verify that the selected lecture belongs to the selected subject
+    // and that the subject belongs to the selected academic year.
+
+    const selectedSubject = subjectsData.find(subject =>
+        String(subject.id) === subjectId &&
+        String(subject.module_id) === moduleId
+    );
+
+    const selectedLecture = lecturesData.find(lecture =>
+        String(lecture.id) === lectureId &&
+        String(lecture.subject_id) === subjectId
+    );
+
+    if (!selectedSubject || !selectedLecture) {
+
+        setStatus(
+            "questionStatus",
+            "الاختيارات غير متطابقة. اختر السنة والمادة والمحاضرة مرة أخرى."
+        );
+
+        setLoading("addQuestionButton", false);
+
+        return;
+
+    }
+
+    // Insert question without its answer.
+
+    const { data: insertedQuestion, error: questionError } =
+        await supabaseClient
+            .from("questions")
+            .insert({
+
+                module_id: Number(moduleId),
+
+                lecture_id: Number(lectureId),
+
+                question_text: questionText,
+
+                options: options,
+
+                difficulty: difficulty,
+
+                question_category: category,
+
+                is_published: false
+
+            })
+            .select("id")
+            .single();
+
+    if (questionError) {
+
+        setStatus(
+            "questionStatus",
+            "فشل حفظ السؤال: " + questionError.message
+        );
+
+        console.error(questionError);
+
+        setLoading("addQuestionButton", false);
+
+        return;
+
+    }
+
+    // Store the correct answer separately.
+
+    const { error: answerError } = await supabaseClient
+        .from("question_answers")
+        .insert({
+
+            question_id: insertedQuestion.id,
+
+            correct_option: Number(correctOption),
+
+            explanation: explanation
+
+        });
+
+    if (answerError) {
+
+        setStatus(
+            "questionStatus",
+            "تم حفظ السؤال، لكن فشل حفظ الإجابة والشرح. " +
+            "رقم السؤال: " + insertedQuestion.id +
+            " — الخطأ: " + answerError.message
+        );
+
+        console.error(answerError);
+
+    } else {
+
+        setStatus(
+            "questionStatus",
+            "تم حفظ السؤال والإجابة والشرح بنجاح. السؤال غير منشور حتى الآن."
+        );
+
+        this.reset();
+
+    }
+
+    setLoading("addQuestionButton", false);
+
+});
+
+
+// ==================================
+// REFRESH ALL DATA
+// ==================================
+
+async function refreshAll() {
+
+    await loadModules();
 
     await loadSubjects();
+
+    await loadLectures();
 
 }
 

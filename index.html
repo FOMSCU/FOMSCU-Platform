@@ -1,8 +1,10 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Medschool | Medical Learning Platform</title>
 
 <style>
@@ -117,6 +119,7 @@ footer {
 }
 
 /* Authentication */
+
 .auth-box {
     max-width: 420px;
     margin: 40px auto;
@@ -150,6 +153,10 @@ footer {
     cursor: pointer;
 }
 
+.auth-box button:hover {
+    opacity: 0.9;
+}
+
 #authMessage {
     text-align: center;
     margin-top: 15px;
@@ -164,6 +171,7 @@ footer {
 }
 
 /* Admin Dashboard */
+
 #adminDashboard {
     display: none;
     max-width: 1000px;
@@ -208,6 +216,91 @@ footer {
     line-height: 1.7;
 }
 
+/* Subject Management */
+
+.subject-management {
+    margin-top: 35px;
+    padding: 25px;
+    background: #121e30;
+    border: 1px solid #263750;
+    border-radius: 12px;
+}
+
+.subject-management h3 {
+    color: #42d6b0;
+    margin-bottom: 15px;
+}
+
+.subject-management p {
+    color: #b8c5d8;
+    line-height: 1.7;
+    margin-bottom: 15px;
+}
+
+.subject-form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.subject-form input {
+    flex: 1;
+    min-width: 200px;
+    padding: 13px;
+    border: 1px solid #40516b;
+    border-radius: 8px;
+    background: #080e19;
+    color: white;
+    font-size: 15px;
+}
+
+.subject-form button {
+    padding: 13px 22px;
+    border: none;
+    border-radius: 8px;
+    background: #42d6b0;
+    color: #08131b;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.subject-list {
+    margin-top: 25px;
+}
+
+.subject-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    margin-top: 10px;
+    background: #080e19;
+    border: 1px solid #263750;
+    border-radius: 8px;
+}
+
+.subject-item span {
+    color: white;
+    font-weight: bold;
+    overflow-wrap: anywhere;
+}
+
+.delete-subject {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background: #c0392b;
+    color: white;
+    cursor: pointer;
+}
+
+.subject-status {
+    margin-top: 15px;
+    color: #42d6b0;
+    overflow-wrap: anywhere;
+}
+
 @media (max-width: 600px) {
     header {
         flex-direction: column;
@@ -226,6 +319,10 @@ footer {
         margin: 25px 12px;
         padding: 20px;
     }
+
+    .subject-item {
+        align-items: flex-start;
+    }
 }
 </style>
 </head>
@@ -234,6 +331,7 @@ footer {
 
 <header>
     <div class="logo">MEDSCHOOL</div>
+
     <nav>
         <a href="#">Home</a>
         <a href="#courses">Courses</a>
@@ -243,19 +341,23 @@ footer {
 
 <section class="hero">
     <h1>Welcome to <span>MEDSCHOOL</span></h1>
+
     <p>
         Your Medical Learning Hub.
         Study smarter, practice better,
         and improve your medical knowledge
         with our educational platform.
     </p>
+
     <a href="#courses" class="button">Explore Courses</a>
 </section>
 
 <section class="container" id="courses">
+
     <h2>Learning Resources</h2>
 
     <div class="cards">
+
         <div class="card">
             <h3>📚 Medical Lectures</h3>
             <p>Explore medical subjects and study materials.</p>
@@ -275,12 +377,16 @@ footer {
             <h3>📊 My Progress</h3>
             <p>Track your learning progress and exam results.</p>
         </div>
+
     </div>
 </section>
 
 <!-- Authentication -->
+
 <div class="auth-box">
+
     <h2>Medschool</h2>
+
     <p style="text-align:center;margin:10px 0;">
         أهلاً بيك في منصة Medschool
     </p>
@@ -288,6 +394,7 @@ footer {
     <h3>إنشاء حساب جديد</h3>
 
     <form id="signupForm">
+
         <input id="signupName" type="text"
             placeholder="الاسم بالكامل" required>
 
@@ -299,6 +406,7 @@ footer {
             minlength="6" required>
 
         <button type="submit">إنشاء حساب</button>
+
     </form>
 
     <hr style="margin:20px 0;">
@@ -306,6 +414,7 @@ footer {
     <h3>تسجيل الدخول</h3>
 
     <form id="loginForm">
+
         <input id="loginEmail" type="email"
             placeholder="البريد الإلكتروني" required>
 
@@ -313,6 +422,7 @@ footer {
             placeholder="كلمة المرور" required>
 
         <button type="submit">دخول</button>
+
     </form>
 
     <button id="logoutButton" type="button">
@@ -321,9 +431,11 @@ footer {
 
     <p id="authMessage"></p>
     <p id="userRole"></p>
+
 </div>
 
 <!-- Admin Dashboard -->
+
 <section id="adminDashboard">
 
     <h2 class="dashboard-title">
@@ -358,6 +470,46 @@ footer {
         </div>
 
     </div>
+
+    <!-- Manage Subjects -->
+
+    <div class="subject-management">
+
+        <h3>📚 Manage Subjects</h3>
+
+        <p>
+            Add new medical subjects and manage your existing subjects.
+        </p>
+
+        <form id="subjectForm" class="subject-form">
+
+            <input
+                type="text"
+                id="subjectName"
+                placeholder="Enter subject name (e.g. Anatomy)"
+                required
+            >
+
+            <button type="submit" id="addSubjectButton">
+                + Add Subject
+            </button>
+
+        </form>
+
+        <div id="subjectStatus" class="subject-status"></div>
+
+        <div class="subject-list">
+
+            <h3>Existing Subjects</h3>
+
+            <div id="subjectsList">
+                Loading subjects...
+            </div>
+
+        </div>
+
+    </div>
+
 </section>
 
 <footer>
@@ -367,7 +519,11 @@ footer {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
+// Supabase Configuration
+
 const SUPABASE_URL = "https://uuyxivqvmvubixuduhxr.supabase.co";
+
 const SUPABASE_KEY = "sb_publishable_xEFgiI3DDic4Bjsz82XKEQ__1-wFwdG";
 
 const supabaseClient = window.supabase.createClient(
@@ -375,27 +531,55 @@ const supabaseClient = window.supabase.createClient(
     SUPABASE_KEY
 );
 
+
+// Main Elements
+
 const authMessage = document.getElementById("authMessage");
 const userRole = document.getElementById("userRole");
 const adminDashboard = document.getElementById("adminDashboard");
 
-// إظهار لوحة الأدمن أو إخفاؤها
+const subjectForm = document.getElementById("subjectForm");
+const subjectName = document.getElementById("subjectName");
+const subjectStatus = document.getElementById("subjectStatus");
+const subjectsList = document.getElementById("subjectsList");
+const addSubjectButton = document.getElementById("addSubjectButton");
+
+
+// Admin Dashboard Functions
+
 function hideAdminDashboard() {
-    adminDashboard.style.setProperty("display", "none", "important");
+
+    adminDashboard.style.setProperty(
+        "display",
+        "none",
+        "important"
+    );
+
 }
 
 function showAdminDashboard() {
-    adminDashboard.style.setProperty("display", "block", "important");
+
+    adminDashboard.style.setProperty(
+        "display",
+        "block",
+        "important"
+    );
+
 }
 
-// فحص صلاحية المستخدم
+
+// Check User Role
+
 async function showUserRole() {
 
     hideAdminDashboard();
+
     userRole.textContent = "";
 
-    const { data: { user }, error: userError } =
-        await supabaseClient.auth.getUser();
+    const {
+        data: { user },
+        error: userError
+    } = await supabaseClient.auth.getUser();
 
     if (userError || !user) {
         return;
@@ -408,8 +592,11 @@ async function showUserRole() {
         .single();
 
     if (error || !data) {
+
         userRole.textContent = "تعذر تحديد الصلاحية";
+
         console.error("Profile error:", error);
+
         return;
     }
 
@@ -418,36 +605,54 @@ async function showUserRole() {
     if (data.role === "admin") {
 
         userRole.textContent = "Admin - مدير المنصة";
+
         showAdminDashboard();
+
+        await loadSubjects();
 
     } else {
 
         userRole.textContent = "Student - طالب";
+
         hideAdminDashboard();
 
     }
+
 }
 
-// فحص الجلسة عند فتح الموقع
+
+// Check Session On Page Load
+
 showUserRole();
 
-// متابعة تغييرات تسجيل الدخول والخروج
+
+// Listen To Login And Logout
+
 supabaseClient.auth.onAuthStateChange((event, session) => {
 
     if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
+
         setTimeout(() => {
             showUserRole();
         }, 0);
+
     }
 
     if (event === "SIGNED_OUT") {
+
         userRole.textContent = "";
+
         hideAdminDashboard();
+
+        subjectsList.innerHTML = "";
+
     }
 
 });
 
-// إنشاء حساب جديد
+
+// Signup
+
 document.getElementById("signupForm")
 .addEventListener("submit", async function(e) {
 
@@ -456,17 +661,27 @@ document.getElementById("signupForm")
     authMessage.textContent = "جاري إنشاء الحساب...";
 
     const name = document.getElementById("signupName").value.trim();
+
     const email = document.getElementById("signupEmail").value.trim();
+
     const password = document.getElementById("signupPassword").value;
 
     const { error } = await supabaseClient.auth.signUp({
+
         email,
         password,
+
         options: {
-            data: { full_name: name },
+
+            data: {
+                full_name: name
+            },
+
             emailRedirectTo:
                 "https://fomscu.github.io/FOMSCU-Platform/"
+
         }
+
     });
 
     authMessage.textContent = error
@@ -475,7 +690,9 @@ document.getElementById("signupForm")
 
 });
 
-// تسجيل الدخول
+
+// Login
+
 document.getElementById("loginForm")
 .addEventListener("submit", async function(e) {
 
@@ -484,16 +701,22 @@ document.getElementById("loginForm")
     authMessage.textContent = "جاري تسجيل الدخول...";
 
     const email = document.getElementById("loginEmail").value.trim();
+
     const password = document.getElementById("loginPassword").value;
 
     const { error } = await supabaseClient.auth.signInWithPassword({
+
         email,
         password
+
     });
 
     if (error) {
+
         authMessage.textContent = error.message;
+
         return;
+
     }
 
     authMessage.textContent =
@@ -503,7 +726,9 @@ document.getElementById("loginForm")
 
 });
 
-// تسجيل الخروج
+
+// Logout
+
 document.getElementById("logoutButton")
 .addEventListener("click", async function() {
 
@@ -514,10 +739,197 @@ document.getElementById("logoutButton")
         : "تم تسجيل الخروج.";
 
     userRole.textContent = "";
+
     hideAdminDashboard();
 
 });
+
+
+// Load Subjects From Supabase
+
+async function loadSubjects() {
+
+    subjectsList.innerHTML = "جاري تحميل المواد...";
+
+    const { data, error } = await supabaseClient
+        .from("subjects")
+        .select("id, name")
+        .order("id", { ascending: true });
+
+    if (error) {
+
+        subjectsList.textContent =
+            "حدث خطأ أثناء تحميل المواد: " + error.message;
+
+        console.error("Load subjects error:", error);
+
+        return;
+
+    }
+
+    subjectsList.innerHTML = "";
+
+    if (!data || data.length === 0) {
+
+        subjectsList.textContent = "لا توجد مواد دراسية حتى الآن.";
+
+        return;
+
+    }
+
+    data.forEach(subject => {
+
+        const item = document.createElement("div");
+
+        item.className = "subject-item";
+
+        const name = document.createElement("span");
+
+        name.textContent = "📚 " + subject.name;
+
+        const deleteButton = document.createElement("button");
+
+        deleteButton.className = "delete-subject";
+
+        deleteButton.textContent = "Delete";
+
+        deleteButton.addEventListener("click", function() {
+
+            deleteSubject(subject.id, subject.name);
+
+        });
+
+        item.appendChild(name);
+
+        item.appendChild(deleteButton);
+
+        subjectsList.appendChild(item);
+
+    });
+
+}
+
+
+// Add New Subject
+
+subjectForm.addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+    const name = subjectName.value.trim();
+
+    if (!name) {
+
+        subjectStatus.textContent = "من فضلك اكتب اسم المادة.";
+
+        return;
+
+    }
+
+    addSubjectButton.disabled = true;
+
+    subjectStatus.textContent = "جاري إضافة المادة...";
+
+    const { data: existingSubjects, error: checkError } =
+        await supabaseClient
+            .from("subjects")
+            .select("id, name");
+
+    if (checkError) {
+
+        subjectStatus.textContent =
+            "حدث خطأ: " + checkError.message;
+
+        addSubjectButton.disabled = false;
+
+        return;
+
+    }
+
+    const duplicate = existingSubjects.some(subject =>
+        subject.name.trim().toLowerCase() === name.toLowerCase()
+    );
+
+    if (duplicate) {
+
+        subjectStatus.textContent = "هذه المادة موجودة بالفعل.";
+
+        addSubjectButton.disabled = false;
+
+        return;
+
+    }
+
+    const { error } = await supabaseClient
+        .from("subjects")
+        .insert([
+            {
+                name: name
+            }
+        ]);
+
+    if (error) {
+
+        subjectStatus.textContent =
+            "فشل إضافة المادة: " + error.message;
+
+        console.error("Add subject error:", error);
+
+    } else {
+
+        subjectStatus.textContent =
+            "تمت إضافة المادة بنجاح!";
+
+        subjectName.value = "";
+
+        await loadSubjects();
+
+    }
+
+    addSubjectButton.disabled = false;
+
+});
+
+
+// Delete Subject
+
+async function deleteSubject(id, name) {
+
+    const confirmed = confirm(
+        "هل أنت متأكد من حذف مادة " + name +
+        "؟ قد يؤثر الحذف على الوحدات والمحاضرات والأسئلة المرتبطة بها."
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    subjectStatus.textContent = "جاري حذف المادة...";
+
+    const { error } = await supabaseClient
+        .from("subjects")
+        .delete()
+        .eq("id", id);
+
+    if (error) {
+
+        subjectStatus.textContent =
+            "فشل حذف المادة: " + error.message;
+
+        console.error("Delete subject error:", error);
+
+        return;
+
+    }
+
+    subjectStatus.textContent = "تم حذف المادة.";
+
+    await loadSubjects();
+
+}
+
 </script>
 
 </body>
 </html>
+```

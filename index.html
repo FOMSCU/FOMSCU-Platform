@@ -194,5 +194,110 @@ Medschool © 2026 | Medical Learning Platform
     SUPABASE_KEY
   );
 </script>
+<style>
+  .auth-box {
+    max-width: 420px;
+    margin: 40px auto;
+    padding: 25px;
+    background: white;
+    color: #17233b;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px #0002;
+    font-family: Arial, sans-serif;
+  }
+  .auth-box h2 { text-align: center; }
+  .auth-box input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 13px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  .auth-box button {
+    width: 100%;
+    padding: 13px;
+    margin-top: 10px;
+    border: 0;
+    border-radius: 8px;
+    background: #087f8c;
+    color: white;
+    cursor: pointer;
+  }
+  #authMessage { text-align: center; margin-top: 15px; }
+</style>
+
+<div class="auth-box">
+  <h2>Medschool</h2>
+  <p style="text-align:center">أهلاً بيك في منصة Medschool</p>
+
+  <h3>إنشاء حساب جديد</h3>
+  <form id="signupForm">
+    <input id="signupName" type="text" placeholder="الاسم بالكامل" required>
+    <input id="signupEmail" type="email" placeholder="البريد الإلكتروني" required>
+    <input id="signupPassword" type="password" placeholder="كلمة المرور (6 أحرف على الأقل)" minlength="6" required>
+    <button type="submit">إنشاء حساب</button>
+  </form>
+
+  <hr>
+
+  <h3>تسجيل الدخول</h3>
+  <form id="loginForm">
+    <input id="loginEmail" type="email" placeholder="البريد الإلكتروني" required>
+    <input id="loginPassword" type="password" placeholder="كلمة المرور" required>
+    <button type="submit">دخول</button>
+  </form>
+
+  <button id="logoutButton" type="button">تسجيل الخروج</button>
+  <p id="authMessage"></p>
+</div>
+
+<script>
+  const authMessage = document.getElementById("authMessage");
+
+  document.getElementById("signupForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    authMessage.textContent = "جاري إنشاء الحساب...";
+
+    const name = document.getElementById("signupName").value;
+    const email = document.getElementById("signupEmail").value;
+    const password = document.getElementById("signupPassword").value;
+
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: name },
+        emailRedirectTo: "https://fomscu.github.io/FOMSCU-Platform/"
+      }
+    });
+
+    authMessage.textContent = error
+      ? error.message
+      : "تم إنشاء الحساب! راجع بريدك الإلكتروني لتأكيد التسجيل.";
+  });
+
+  document.getElementById("loginForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    authMessage.textContent = "جاري تسجيل الدخول...";
+
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    authMessage.textContent = error
+      ? error.message
+      : "تم تسجيل الدخول بنجاح! أهلاً بيك في Medschool.";
+  });
+
+  document.getElementById("logoutButton").addEventListener("click", async function() {
+    const { error } = await supabaseClient.auth.signOut();
+    authMessage.textContent = error ? error.message : "تم تسجيل الخروج.";
+  });
+</script>
 </body>
 </html>

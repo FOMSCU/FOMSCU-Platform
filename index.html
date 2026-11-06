@@ -256,6 +256,34 @@ Medschool © 2026 | Medical Learning Platform
 <script>
   const authMessage = document.getElementById("authMessage");
 
+async function showUserRole() {
+  const { data: { user } } = await supabaseClient.auth.getUser();
+
+  const roleElement = document.getElementById("userRole");
+
+  if (!user) {
+    roleElement.textContent = "";
+    return;
+  }
+
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (error) {
+    roleElement.textContent = "تعذر تحديد الصلاحية";
+    console.error(error);
+    return;
+  }
+
+  roleElement.textContent =
+    data.role === "admin" ? "Admin - مدير المنصة" : "Student - طالب";
+}
+
+showUserRole();
+    
   document.getElementById("signupForm").addEventListener("submit", async function(e) {
     e.preventDefault();
     authMessage.textContent = "جاري إنشاء الحساب...";

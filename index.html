@@ -1,5 +1,5 @@
-<!DOCTYPE html>
 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -116,76 +116,8 @@ footer {
     color: #8190a5;
     border-top: 1px solid #25344b;
 }
-</style>
 
-</head>
-
-<body>
-
-<header>
-<div class="logo">MEDSCHOOL</div>
-<nav>
-<a href="#">Home</a>
-<a href="#courses">Courses</a>
-<a href="#exams">Exams</a>
-</nav>
-</header>
-
-<section class="hero">
-<h1>Welcome to <span>MEDSCHOOL</span></h1>
-<p>
-Your Medical Learning Hub.
-Study smarter, practice better,
-and improve your medical knowledge
-with our educational platform.
-</p>
-<a href="#courses" class="button">Explore Courses</a>
-</section>
-
-<section class="container" id="courses">
-<h2>Learning Resources</h2>
-<div class="cards">
-
-<div class="card">
-<h3>📚 Medical Lectures</h3>
-<p>Explore medical subjects and study materials.</p>
-</div>
-
-<div class="card" id="exams">
-<h3>📝 MCQ Bank</h3>
-<p>Practice medical questions and test your knowledge.</p>
-</div>
-
-<div class="card">
-<h3>🎯 Mock Exams</h3>
-<p>Take timed exams and evaluate your performance.</p>
-</div>
-
-<div class="card">
-<h3>📊 My Progress</h3>
-<p>Track your learning progress and exam results.</p>
-</div>
-
-</div>
-</section>
-
-<footer>
-Medschool © 2026 | Medical Learning Platform
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-const SUPABASE_URL = "https://uuyxivqvmvubixuduhxr.supabase.co";
-const SUPABASE_KEY = "sb_publishable_xEFgiI3DDic4Bjsz82XKEQ__1-wFwdG";
-
-const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-);
-</script>
-
-<style>
+/* Authentication */
 .auth-box {
     max-width: 420px;
     margin: 40px auto;
@@ -194,7 +126,6 @@ const supabaseClient = window.supabase.createClient(
     color: #17233b;
     border-radius: 16px;
     box-shadow: 0 4px 20px #0002;
-    font-family: Arial, sans-serif;
 }
 
 .auth-box h2 {
@@ -203,7 +134,6 @@ const supabaseClient = window.supabase.createClient(
 
 .auth-box input {
     width: 100%;
-    box-sizing: border-box;
     padding: 13px;
     margin: 8px 0;
     border: 1px solid #ccc;
@@ -224,48 +154,243 @@ const supabaseClient = window.supabase.createClient(
 #authMessage {
     text-align: center;
     margin-top: 15px;
+    overflow-wrap: anywhere;
+}
+
+#userRole {
+    text-align: center;
+    font-weight: bold;
+    color: #087f8c;
+    margin-top: 10px;
+}
+
+/* Admin Dashboard */
+#adminDashboard {
+    display: none;
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #101a2b;
+    border: 1px solid #263750;
+    border-radius: 15px;
+}
+
+.dashboard-title {
+    color: #42d6b0;
+    margin-bottom: 15px;
+}
+
+.dashboard-description {
+    color: #b8c5d8;
+    margin-bottom: 25px;
+    line-height: 1.7;
+}
+
+.admin-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.admin-card {
+    background: #121e30;
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid #263750;
+}
+
+.admin-card h3 {
+    color: #42d6b0;
+    margin-bottom: 12px;
+}
+
+.admin-card p {
+    color: #b8c5d8;
+    line-height: 1.7;
+}
+
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    nav a {
+        margin: 0 8px;
+    }
+
+    .hero h1 {
+        font-size: 34px;
+    }
+
+    #adminDashboard {
+        margin: 25px 12px;
+        padding: 20px;
+    }
 }
 </style>
+</head>
 
+<body>
+
+<header>
+    <div class="logo">MEDSCHOOL</div>
+    <nav>
+        <a href="#">Home</a>
+        <a href="#courses">Courses</a>
+        <a href="#exams">Exams</a>
+    </nav>
+</header>
+
+<section class="hero">
+    <h1>Welcome to <span>MEDSCHOOL</span></h1>
+    <p>
+        Your Medical Learning Hub.
+        Study smarter, practice better,
+        and improve your medical knowledge
+        with our educational platform.
+    </p>
+    <a href="#courses" class="button">Explore Courses</a>
+</section>
+
+<section class="container" id="courses">
+    <h2>Learning Resources</h2>
+
+    <div class="cards">
+        <div class="card">
+            <h3>📚 Medical Lectures</h3>
+            <p>Explore medical subjects and study materials.</p>
+        </div>
+
+        <div class="card" id="exams">
+            <h3>📝 MCQ Bank</h3>
+            <p>Practice medical questions and test your knowledge.</p>
+        </div>
+
+        <div class="card">
+            <h3>🎯 Mock Exams</h3>
+            <p>Take timed exams and evaluate your performance.</p>
+        </div>
+
+        <div class="card">
+            <h3>📊 My Progress</h3>
+            <p>Track your learning progress and exam results.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Authentication -->
 <div class="auth-box">
-<h2>Medschool</h2>
-<p style="text-align:center">أهلاً بيك في منصة Medschool</p>
+    <h2>Medschool</h2>
+    <p style="text-align:center;margin:10px 0;">
+        أهلاً بيك في منصة Medschool
+    </p>
 
-<h3>إنشاء حساب جديد</h3>
-<form id="signupForm">
-<input id="signupName" type="text" placeholder="الاسم بالكامل" required>
-<input id="signupEmail" type="email" placeholder="البريد الإلكتروني" required>
-<input id="signupPassword" type="password" placeholder="كلمة المرور (6 أحرف على الأقل)" minlength="6" required>
-<button type="submit">إنشاء حساب</button>
-</form>
+    <h3>إنشاء حساب جديد</h3>
 
-<hr>
+    <form id="signupForm">
+        <input id="signupName" type="text"
+            placeholder="الاسم بالكامل" required>
 
-<h3>تسجيل الدخول</h3>
-<form id="loginForm">
-<input id="loginEmail" type="email" placeholder="البريد الإلكتروني" required>
-<input id="loginPassword" type="password" placeholder="كلمة المرور" required>
-<button type="submit">دخول</button>
-</form>
+        <input id="signupEmail" type="email"
+            placeholder="البريد الإلكتروني" required>
 
-<button id="logoutButton" type="button">تسجيل الخروج</button>
+        <input id="signupPassword" type="password"
+            placeholder="كلمة المرور (6 أحرف على الأقل)"
+            minlength="6" required>
 
-<p id="authMessage"></p>
-<p id="userRole" style="text-align:center;font-weight:bold;color:#087f8c;"></p>
+        <button type="submit">إنشاء حساب</button>
+    </form>
+
+    <hr style="margin:20px 0;">
+
+    <h3>تسجيل الدخول</h3>
+
+    <form id="loginForm">
+        <input id="loginEmail" type="email"
+            placeholder="البريد الإلكتروني" required>
+
+        <input id="loginPassword" type="password"
+            placeholder="كلمة المرور" required>
+
+        <button type="submit">دخول</button>
+    </form>
+
+    <button id="logoutButton" type="button">
+        تسجيل الخروج
+    </button>
+
+    <p id="authMessage"></p>
+    <p id="userRole"></p>
 </div>
 
-<script>
-const authMessage = document.getElementById("authMessage");
+<!-- Admin Dashboard -->
+<section id="adminDashboard">
 
-// عرض صلاحية المستخدم
+    <h2 class="dashboard-title">
+        🛠️ Admin Dashboard
+    </h2>
+
+    <p class="dashboard-description">
+        Welcome to Medschool Administration Panel.
+        Manage your medical learning platform from here.
+    </p>
+
+    <div class="admin-cards">
+
+        <div class="admin-card">
+            <h3>📚 Manage Subjects</h3>
+            <p>Add and manage medical subjects.</p>
+        </div>
+
+        <div class="admin-card">
+            <h3>📖 Manage Modules</h3>
+            <p>Add modules inside each subject.</p>
+        </div>
+
+        <div class="admin-card">
+            <h3>🎓 Manage Lectures</h3>
+            <p>Add lectures inside each module.</p>
+        </div>
+
+        <div class="admin-card">
+            <h3>❓ Manage Questions</h3>
+            <p>Add and manage MCQ questions.</p>
+        </div>
+
+    </div>
+
+</section>
+
+<footer>
+    Medschool © 2026 | Medical Learning Platform
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://uuyxivqvmvubixuduhxr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_xEFgiI3DDic4Bjsz82XKEQ__1-wFwdG";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+const authMessage = document.getElementById("authMessage");
+const userRole = document.getElementById("userRole");
+const adminDashboard = document.getElementById("adminDashboard");
+
+// عرض صلاحية المستخدم والتحكم في لوحة الأدمن
 async function showUserRole() {
+
+    adminDashboard.style.display = "none";
+    userRole.textContent = "";
+
     const { data: { user }, error: userError } =
         await supabaseClient.auth.getUser();
 
-    const roleElement = document.getElementById("userRole");
-
     if (userError || !user) {
-        roleElement.textContent = "";
         return;
     }
 
@@ -275,23 +400,32 @@ async function showUserRole() {
         .eq("id", user.id)
         .single();
 
-    if (error) {
-        roleElement.textContent = "تعذر تحديد الصلاحية";
+    if (error || !data) {
+        userRole.textContent = "تعذر تحديد الصلاحية";
         console.error(error);
         return;
     }
 
-    roleElement.textContent =
-        data.role === "admin"
-        ? "Admin - مدير المنصة"
-        : "Student - طالب";
+    if (data.role === "admin") {
+
+        userRole.textContent = "Admin - مدير المنصة";
+        adminDashboard.style.display = "block";
+
+    } else {
+
+        userRole.textContent = "Student - طالب";
+        adminDashboard.style.display = "none";
+
+    }
 }
 
 // فحص الجلسة عند فتح الموقع
 showUserRole();
 
 // إنشاء حساب جديد
-document.getElementById("signupForm").addEventListener("submit", async function(e) {
+document.getElementById("signupForm")
+.addEventListener("submit", async function(e) {
+
     e.preventDefault();
 
     authMessage.textContent = "جاري إنشاء الحساب...";
@@ -305,17 +439,21 @@ document.getElementById("signupForm").addEventListener("submit", async function(
         password,
         options: {
             data: { full_name: name },
-            emailRedirectTo: "https://fomscu.github.io/FOMSCU-Platform/"
+            emailRedirectTo:
+                "https://fomscu.github.io/FOMSCU-Platform/"
         }
     });
 
     authMessage.textContent = error
         ? error.message
         : "تم إنشاء الحساب! راجع بريدك الإلكتروني لتأكيد التسجيل.";
+
 });
 
 // تسجيل الدخول
-document.getElementById("loginForm").addEventListener("submit", async function(e) {
+document.getElementById("loginForm")
+.addEventListener("submit", async function(e) {
+
     e.preventDefault();
 
     authMessage.textContent = "جاري تسجيل الدخول...";
@@ -337,17 +475,22 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
         "تم تسجيل الدخول بنجاح! أهلاً بيك في Medschool.";
 
     await showUserRole();
+
 });
 
 // تسجيل الخروج
-document.getElementById("logoutButton").addEventListener("click", async function() {
+document.getElementById("logoutButton")
+.addEventListener("click", async function() {
+
     const { error } = await supabaseClient.auth.signOut();
 
     authMessage.textContent = error
         ? error.message
         : "تم تسجيل الخروج.";
 
-    document.getElementById("userRole").textContent = "";
+    userRole.textContent = "";
+    adminDashboard.style.display = "none";
+
 });
 </script>
 

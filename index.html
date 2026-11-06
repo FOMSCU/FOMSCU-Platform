@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Medschool | Medical Learning Platform</title>
+
+<style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #080e19;
+    color: white;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 8%;
+    background: #101a2b;
+    border-bottom: 1px solid #25344b;
+}
+
+.logo {
+    font-size: 27px;
+    font-weight: bold;
+    color: #42d6b0;
+}
+
+nav a {
+    color: #b8c5d8;
+    text-decoration: none;
+    margin-left: 25px;
+}
+
+.hero {
+    padding: 90px 8%;
+    background: linear-gradient(120deg, #101a2b, #123c46);
+}
+
+.hero h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.hero h1 span {
+    color: #42d6b0;
+}
+
+.hero p {
+    color: #bdc9d9;
+    font-size: 18px;
+    line-height: 1.8;
+    max-width: 600px;
+}
+
+.button {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 14px 28px;
+    background: #42d6b0;
+    color: #08131b;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.container {
+    padding: 60px 8%;
+}
+
+.container h2 {
+    font-size: 30px;
+    margin-bottom: 30px;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 22px;
+}
+
+.card {
+    background: #121e30;
+    padding: 30px;
+    border-radius: 14px;
+    border: 1px solid #263750;
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    border-color: #42d6b0;
+}
+
+.card h3 {
+    color: #42d6b0;
+    margin-bottom: 15px;
+}
+
+.card p {
+    color: #b8c5d8;
+    line-height: 1.7;
+}
+
+footer {
+    text-align: center;
+    padding: 30px;
+    color: #8190a5;
+    border-top: 1px solid #25344b;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">MEDSCHOOL</div>
+
+<nav>
+<a href="#">Home</a>
+<a href="#courses">Courses</a>
+<a href="#exams">Exams</a>
+</nav>
+
+</header>
+
+<section class="hero">
+
+<h1>Welcome to <span>MEDSCHOOL</span></h1>
+
+<p>
+Your Medical Learning Hub.
+Study smarter, practice better,
+and improve your medical knowledge
+with our educational platform.
+</p>
+
+<a href="#courses" class="button">Explore Courses</a>
+
+</section>
+
+<section class="container" id="courses">
+
+<h2>Learning Resources</h2>
+
+<div class="cards">
+
+<div class="card">
+<h3>📚 Medical Lectures</h3>
+<p>Explore medical subjects and study materials.</p>
+</div>
+
+<div class="card" id="exams">
+<h3>📝 MCQ Bank</h3>
+<p>Practice medical questions and test your knowledge.</p>
+</div>
+
+<div class="card">
+<h3>🎯 Mock Exams</h3>
+<p>Take timed exams and evaluate your performance.</p>
+</div>
+
+<div class="card">
+<h3>📊 My Progress</h3>
+<p>Track your learning progress and exam results.</p>
+</div>
+
+</div>
+
+</section>
+
+<footer>
+Medschool © 2026 | Medical Learning Platform
+</footer>
+
+</body>
+</html>

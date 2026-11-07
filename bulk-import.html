@@ -1,0 +1,336 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medschool | Bulk Import</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #080e19;
+    color: white;
+    padding: 25px;
+}
+
+.container {
+    max-width: 850px;
+    margin: auto;
+}
+
+h1 {
+    color: #20c7b5;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #aab7c8;
+    margin-bottom: 30px;
+}
+
+.card {
+    background: #111d30;
+    border: 1px solid #24364d;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin: 15px 0 8px;
+    font-weight: bold;
+}
+
+select, input[type="file"] {
+    width: 100%;
+    padding: 13px;
+    border-radius: 8px;
+    border: 1px solid #354861;
+    background: #080e19;
+    color: white;
+}
+
+button {
+    background: #16a99a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 13px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 18px;
+}
+
+button:hover {
+    background: #12877d;
+}
+
+#status {
+    margin-top: 18px;
+    color: #20c7b5;
+    line-height: 1.6;
+}
+
+.question {
+    background: #0b1423;
+    padding: 18px;
+    border-radius: 10px;
+    margin-top: 15px;
+    border: 1px solid #263950;
+}
+
+.question p {
+    margin: 9px 0;
+    line-height: 1.6;
+}
+
+.correct {
+    color: #20c7b5;
+    font-weight: bold;
+}
+
+#preview {
+    display: none;
+}
+
+.back {
+    color: #20c7b5;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 25px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<a class="back" href="index.html">← Back to Medschool</a>
+
+<h1>Bulk Question Import</h1>
+<p class="subtitle">
+Upload one PDF containing questions, answers and explanations.
+</p>
+
+<div class="card">
+
+<h2>Import Settings</h2>
+
+<label>Academic Year</label>
+<select id="moduleSelect">
+<option value="">Select Academic Year</option>
+</select>
+
+<label>Subject</label>
+<select id="subjectSelect">
+<option value="">Select Subject</option>
+</select>
+
+<label>Lecture</label>
+<select id="lectureSelect">
+<option value="">Select Lecture</option>
+</select>
+
+<label>Question Category</label>
+<select id="category">
+<option value="Medschool">Medschool</option>
+<option value="Seminar & Old Exams">Seminar & Old Exams</option>
+</select>
+
+<label>Upload Questions PDF</label>
+<input type="file" id="pdfFile" accept=".pdf,application/pdf">
+
+<button id="previewBtn">Prepare Preview</button>
+
+<p id="status"></p>
+
+</div>
+
+<div class="card" id="preview">
+
+<h2>Questions Preview</h2>
+<p id="previewInfo"></p>
+<div id="questionsList"></div>
+
+<button id="importBtn">Import All Questions</button>
+
+</div>
+
+</div>
+
+<script>
+const SUPABASE_URL =
+"https://uuyxivqvmvubixuduhxr.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_xEFgiI3DDic4Bjsz82XKEQ__1-wFwdG";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+const moduleSelect = document.getElementById("moduleSelect");
+const subjectSelect = document.getElementById("subjectSelect");
+const lectureSelect = document.getElementById("lectureSelect");
+const pdfFile = document.getElementById("pdfFile");
+const statusBox = document.getElementById("status");
+
+let parsedQuestions = [];
+
+async function checkAdmin() {
+    const { data: { user } } =
+        await supabaseClient.auth.getUser();
+
+    if (!user) {
+        statusBox.textContent = "Please log in first.";
+        return false;
+    }
+
+    const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+    if (error || data?.role !== "admin") {
+        statusBox.textContent = "Admin access required.";
+        return false;
+    }
+
+    return true;
+}
+
+async function loadModules() {
+    const { data, error } = await supabaseClient
+        .from("modules")
+        .select("id,name")
+        .order("id");
+
+    if (error) {
+        statusBox.textContent = error.message;
+        return;
+    }
+
+    data.forEach(item => {
+        const option = document.createElement("option");
+        option.value = item.id;
+        option.textContent = item.name;
+        moduleSelect.appendChild(option);
+    });
+}
+
+async function loadSubjects() {
+    subjectSelect.innerHTML =
+        '<option value="">Select Subject</option>';
+
+    lectureSelect.innerHTML =
+        '<option value="">Select Lecture</option>';
+
+    if (!moduleSelect.value) return;
+
+    const { data, error } = await supabaseClient
+        .from("subjects")
+        .select("id,name")
+        .eq("module_id", moduleSelect.value)
+        .order("name");
+
+    if (error) {
+        statusBox.textContent = error.message;
+        return;
+    }
+
+    data.forEach(item => {
+        const option = document.createElement("option");
+        option.value = item.id;
+        option.textContent = item.name;
+        subjectSelect.appendChild(option);
+    });
+}
+
+async function loadLectures() {
+    lectureSelect.innerHTML =
+        '<option value="">Select Lecture</option>';
+
+    if (!subjectSelect.value) return;
+
+    const { data, error } = await supabaseClient
+        .from("lectures")
+        .select("id,name")
+        .eq("subject_id", subjectSelect.value)
+        .order("id");
+
+    if (error) {
+        statusBox.textContent = error.message;
+        return;
+    }
+
+    data.forEach(item => {
+        const option = document.createElement("option");
+        option.value = item.id;
+        option.textContent = item.name;
+        lectureSelect.appendChild(option);
+    });
+}
+
+moduleSelect.addEventListener("change", loadSubjects);
+subjectSelect.addEventListener("change", loadLectures);
+
+document.getElementById("previewBtn")
+.addEventListener("click", async () => {
+
+    const isAdmin = await checkAdmin();
+    if (!isAdmin) return;
+
+    if (!moduleSelect.value ||
+        !subjectSelect.value ||
+        !lectureSelect.value ||
+        !pdfFile.files.length) {
+
+        statusBox.textContent =
+            "Please select the year, subject, lecture and PDF.";
+        return;
+    }
+
+    statusBox.textContent =
+        "Settings are ready. PDF extraction will be connected next.";
+
+    document.getElementById("preview").style.display = "block";
+
+    document.getElementById("previewInfo").textContent =
+        "Selected file: " + pdfFile.files[0].name;
+
+    document.getElementById("questionsList").textContent =
+        "PDF parser is not connected yet. No questions have been imported.";
+});
+
+document.getElementById("importBtn")
+.addEventListener("click", () => {
+    statusBox.textContent =
+        "Import is not enabled yet. We will activate it after PDF extraction and review are ready.";
+});
+
+async function start() {
+    const isAdmin = await checkAdmin();
+
+    if (isAdmin) {
+        await loadModules();
+    }
+}
+
+start();
+</script>
+
+</body>
+</html>

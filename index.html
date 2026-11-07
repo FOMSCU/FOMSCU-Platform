@@ -63,13 +63,15 @@ nav a {
 
 .button {
     display: inline-block;
-    margin-top: 30px;
+    margin-top: 20px;
     padding: 14px 28px;
     background: #42d6b0;
     color: #08131b;
     text-decoration: none;
     border-radius: 8px;
     font-weight: bold;
+    border: none;
+    cursor: pointer;
 }
 
 .container {
@@ -269,20 +271,84 @@ nav a {
     overflow-wrap: anywhere;
 }
 
-.delete-button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 6px;
-    background: #c0392b;
-    color: white;
-    cursor: pointer;
-}
-
 .status {
     margin-top: 15px;
     color: #42d6b0;
     line-height: 1.6;
     overflow-wrap: anywhere;
+}
+
+#quizSection {
+    display: none;
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #101a2b;
+    border: 1px solid #42d6b0;
+    border-radius: 15px;
+}
+
+.quiz-question {
+    background: #121e30;
+    border: 1px solid #263750;
+    border-radius: 12px;
+    padding: 25px;
+    margin-top: 20px;
+}
+
+.quiz-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #080e19;
+    border: 1px solid #40516b;
+    padding: 15px;
+    margin-top: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    line-height: 1.5;
+}
+
+.quiz-option:hover {
+    border-color: #42d6b0;
+}
+
+.quiz-option input {
+    accent-color: #42d6b0;
+    width: 18px;
+    height: 18px;
+}
+
+.quiz-feedback {
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 8px;
+    line-height: 1.7;
+}
+
+.quiz-correct {
+    background: #123c30;
+    border: 1px solid #42d6b0;
+}
+
+.quiz-wrong {
+    background: #421e25;
+    border: 1px solid #e57373;
+}
+
+.quiz-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.quiz-actions button {
+    margin-top: 0;
+}
+
+.hidden {
+    display: none !important;
 }
 
 footer {
@@ -306,7 +372,8 @@ footer {
         font-size: 34px;
     }
 
-    #adminDashboard {
+    #adminDashboard,
+    #quizSection {
         margin: 25px 12px;
         padding: 18px;
     }
@@ -325,7 +392,7 @@ footer {
     <nav>
         <a href="#">Home</a>
         <a href="#courses">Courses</a>
-        <a href="#exams">Exams</a>
+        <a href="#quizSection">MCQ Bank</a>
     </nav>
 </header>
 
@@ -349,7 +416,7 @@ footer {
             <p>Explore medical subjects and study materials.</p>
         </div>
 
-        <div class="card" id="exams">
+        <div class="card">
             <h3>📝 MCQ Bank</h3>
             <p>Practice medical questions and test your knowledge.</p>
         </div>
@@ -412,6 +479,86 @@ footer {
     <p id="authMessage"></p>
     <p id="userRole"></p>
 </div>
+
+<!-- QUIZ INTERFACE: ADMIN AND STUDENTS -->
+
+<section id="quizSection">
+
+    <h2 class="dashboard-title">📝 Medschool MCQ Bank</h2>
+
+    <p class="dashboard-description">
+        اختار السنة والموديول والمادة والمحاضرة
+        ونوع الأسئلة لبدء الحل.
+    </p>
+
+    <div class="management-form">
+
+        <select id="quizYear">
+            <option value="">Select Academic Year</option>
+        </select>
+
+        <select id="quizModule" disabled>
+            <option value="">Select Module</option>
+        </select>
+
+        <select id="quizSubject" disabled>
+            <option value="">Select Subject</option>
+        </select>
+
+        <select id="quizLecture" disabled>
+            <option value="">Select Lecture</option>
+        </select>
+
+        <select id="quizCategory" disabled>
+            <option value="">Select Question Bank</option>
+            <option value="Medschool MCQ">Medschool MCQ</option>
+            <option value="Seminars and Old Exams MCQ">
+                Seminars and Old Exams MCQ
+            </option>
+        </select>
+
+        <button type="button" id="startQuizButton"
+            class="full-width" disabled>
+            Start Solving
+        </button>
+
+    </div>
+
+    <div id="quizStatus" class="status"></div>
+
+    <div id="quizArea" class="hidden">
+
+        <div class="quiz-question">
+
+            <h3 id="quizProgress" style="color:#42d6b0;"></h3>
+
+            <h3 id="quizQuestionText"
+                style="margin-top:20px;line-height:1.7;">
+            </h3>
+
+            <div id="quizOptions"></div>
+
+            <div id="quizFeedback"></div>
+
+            <div class="quiz-actions">
+
+                <button type="button" id="submitAnswerButton"
+                    class="button">
+                    Submit Answer
+                </button>
+
+                <button type="button" id="nextQuestionButton"
+                    class="button hidden">
+                    Next Question
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
 
 <!-- ADMIN DASHBOARD -->
 
@@ -653,6 +800,7 @@ const supabaseClient = window.supabase.createClient(
 const authMessage = document.getElementById("authMessage");
 const userRole = document.getElementById("userRole");
 const adminDashboard = document.getElementById("adminDashboard");
+const quizSection = document.getElementById("quizSection");
 
 const modulesList = document.getElementById("modulesList");
 const subjectsList = document.getElementById("subjectsList");
@@ -668,6 +816,13 @@ let modulesData = [];
 let subjectsData = [];
 let relationsData = [];
 let lecturesData = [];
+
+let quizQuestions = [];
+let currentQuestionIndex = 0;
+let currentUser = null;
+let currentUserRole = null;
+let currentQuestionAnswered = false;
+let quizScore = 0;
 
 
 // ==================================
@@ -725,6 +880,18 @@ function showAdminDashboard() {
     adminDashboard.style.setProperty("display", "block", "important");
 }
 
+function resetSelect(id, placeholder) {
+    const select = document.getElementById(id);
+    select.innerHTML = "";
+
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = placeholder;
+
+    select.appendChild(option);
+    select.disabled = true;
+}
+
 
 // ==================================
 // AUTH ROLE
@@ -733,6 +900,7 @@ function showAdminDashboard() {
 async function showUserRole() {
 
     hideAdminDashboard();
+    quizSection.style.display = "none";
     userRole.textContent = "";
 
     const {
@@ -740,7 +908,13 @@ async function showUserRole() {
         error: userError
     } = await supabaseClient.auth.getUser();
 
-    if (userError || !user) return;
+    if (userError || !user) {
+        currentUser = null;
+        currentUserRole = null;
+        return;
+    }
+
+    currentUser = user;
 
     const { data, error } = await supabaseClient
         .from("profiles")
@@ -756,10 +930,11 @@ async function showUserRole() {
         return;
     }
 
+    currentUserRole = data.role;
+
     if (data.role === "admin") {
 
         userRole.textContent = "Admin - مدير المنصة";
-
         showAdminDashboard();
 
         await refreshAll();
@@ -769,6 +944,11 @@ async function showUserRole() {
         userRole.textContent = "Student - طالب";
         hideAdminDashboard();
     }
+
+    // Both admin and students can use the quiz interface.
+    quizSection.style.display = "block";
+
+    await loadQuizCurriculum();
 }
 
 showUserRole();
@@ -781,13 +961,20 @@ supabaseClient.auth.onAuthStateChange((event) => {
 
     if (event === "SIGNED_OUT") {
 
+        currentUser = null;
+        currentUserRole = null;
+
         userRole.textContent = "";
 
         hideAdminDashboard();
 
+        quizSection.style.display = "none";
+
         modulesList.innerHTML = "";
         subjectsList.innerHTML = "";
         lecturesList.innerHTML = "";
+
+        resetQuiz();
     }
 });
 
@@ -870,7 +1057,13 @@ document.getElementById("logoutButton")
         : "تم تسجيل الخروج.";
 
     userRole.textContent = "";
+    currentUser = null;
+    currentUserRole = null;
+
     hideAdminDashboard();
+    quizSection.style.display = "none";
+
+    resetQuiz();
 });
 
 
@@ -931,7 +1124,7 @@ async function loadModules() {
     modulesData.forEach(module => {
 
         const year = yearsData.find(
-            y => y.id === module.year_id
+            y => String(y.id) === String(module.year_id)
         );
 
         addListItem(
@@ -1012,6 +1205,7 @@ document.getElementById("moduleForm")
         this.reset();
 
         await refreshAll();
+        await loadQuizCurriculum();
     }
 
     setLoading("addModuleButton", false);
@@ -1067,17 +1261,17 @@ async function loadRelations() {
     relationsData.forEach(relation => {
 
         const subject = subjectsData.find(
-            s => s.id === relation.subject_id
+            s => String(s.id) === String(relation.subject_id)
         );
 
         const module = modulesData.find(
-            m => m.id === relation.module_id
+            m => String(m.id) === String(relation.module_id)
         );
 
         if (subject && module) {
 
             const year = yearsData.find(
-                y => y.id === module.year_id
+                y => String(y.id) === String(module.year_id)
             );
 
             addListItem(
@@ -1106,10 +1300,10 @@ function updateAllSubjectSelects() {
 
         const relatedSubjectIds = relationsData
             .filter(r => String(r.module_id) === selectedModule)
-            .map(r => r.subject_id);
+            .map(r => String(r.subject_id));
 
         const availableSubjects = subjectsData
-            .filter(s => relatedSubjectIds.includes(s.id));
+            .filter(s => relatedSubjectIds.includes(String(s.id)));
 
         fillSelect(subjectId, availableSubjects, "Select Subject");
     });
@@ -1169,7 +1363,7 @@ document.getElementById("subjectForm")
 
     const duplicateRelation = relationsData.some(r =>
         String(r.module_id) === moduleId &&
-        r.subject_id === subject.id
+        String(r.subject_id) === String(subject.id)
     );
 
     if (duplicateRelation) {
@@ -1196,6 +1390,7 @@ document.getElementById("subjectForm")
         this.reset();
 
         await refreshAll();
+        await loadQuizCurriculum();
     }
 
     setLoading("addSubjectButton", false);
@@ -1233,15 +1428,17 @@ async function loadLectures() {
     lecturesData.forEach(lecture => {
 
         const relation = relationsData.find(
-            r => r.id === lecture.module_subject_id
+            r => String(r.id) === String(lecture.module_subject_id)
         );
 
         const subject = subjectsData.find(
-            s => s.id === (relation ? relation.subject_id : lecture.subject_id)
+            s => String(s.id) === String(
+                relation ? relation.subject_id : lecture.subject_id
+            )
         );
 
         const module = relation
-            ? modulesData.find(m => m.id === relation.module_id)
+            ? modulesData.find(m => String(m.id) === String(relation.module_id))
             : null;
 
         addListItem(
@@ -1347,6 +1544,7 @@ document.getElementById("lectureForm")
         this.reset();
 
         await refreshAll();
+        await loadQuizCurriculum();
     }
 
     setLoading("addLectureButton", false);
@@ -1426,8 +1624,6 @@ document.getElementById("questionForm")
     setLoading("addQuestionButton", true);
     setStatus("questionStatus", "جاري حفظ السؤال...");
 
-    // Save the question first. It remains unpublished.
-
     const { data: insertedQuestion, error: questionError } =
         await supabaseClient
             .from("questions")
@@ -1454,8 +1650,6 @@ document.getElementById("questionForm")
         setLoading("addQuestionButton", false);
         return;
     }
-
-    // Save correct answer and explanation separately.
 
     const { error: answerError } = await supabaseClient
         .from("question_answers")
@@ -1492,28 +1686,19 @@ document.getElementById("questionForm")
 
 
 // ==================================
-// SELECT CHANGE EVENTS
+// ADMIN SELECT CHANGE EVENTS
 // ==================================
 
-document.getElementById("moduleYear")
-.addEventListener("change", function() {
-
-    const available = modulesData.filter(m =>
-        String(m.year_id) === this.value
-    );
-
-    fillSelect("moduleName", [], "Module Name");
-});
-
 document.getElementById("subjectYear")
-.addEventListener("change", updateAllModuleSelects);
+.addEventListener("change", function() {
+    updateAllModuleSelects();
+});
 
 document.getElementById("lectureYear")
 .addEventListener("change", function() {
 
     updateAllModuleSelects();
-
-    fillSelect("lectureSubject", [], "Select Subject");
+    resetSelect("lectureSubject", "Select Subject");
 });
 
 document.getElementById("questionYear")
@@ -1521,13 +1706,12 @@ document.getElementById("questionYear")
 
     updateAllModuleSelects();
 
-    fillSelect("questionSubject", [], "Select Subject");
-    fillSelect("questionLecture", [], "Select Lecture");
+    resetSelect("questionSubject", "Select Subject");
+    resetSelect("questionLecture", "Select Lecture");
 });
 
 document.getElementById("lectureModule")
 .addEventListener("change", function() {
-
     updateAllSubjectSelects();
 });
 
@@ -1535,15 +1719,705 @@ document.getElementById("questionModule")
 .addEventListener("change", function() {
 
     updateAllSubjectSelects();
-    fillSelect("questionLecture", [], "Select Lecture");
+    resetSelect("questionLecture", "Select Lecture");
 });
 
 document.getElementById("questionSubject")
-.addEventListener("change", updateAllLectureSelects);
+.addEventListener("change", function() {
+    updateAllLectureSelects();
+});
 
 
 // ==================================
-// REFRESH
+// REFRESH ADMIN DATA
+// ==================================
+
+async function refreshAll() {
+
+    await loadYears();
+    await loadModules();
+    await loadSubjects();
+    await loadLectures();
+}
+
+
+// ==================================
+// QUIZ CURRICULUM
+// ==================================
+
+async function loadQuizCurriculum() {
+
+    setStatus("quizStatus", "جاري تحميل السنوات الدراسية...");
+
+    const { data: years, error: yearsError } =
+        await supabaseClient
+            .from("years")
+            .select("id, name")
+            .order("id");
+
+    if (yearsError) {
+        setStatus("quizStatus", "خطأ تحميل السنوات: " + yearsError.message);
+        return;
+    }
+
+    fillSelect("quizYear", years || [], "Select Academic Year");
+
+    resetSelect("quizModule", "Select Module");
+    resetSelect("quizSubject", "Select Subject");
+    resetSelect("quizLecture", "Select Lecture");
+
+    document.getElementById("quizCategory").value = "";
+    document.getElementById("quizCategory").disabled = true;
+    document.getElementById("startQuizButton").disabled = true;
+
+    setStatus("quizStatus", "");
+}
+
+
+// ==================================
+// QUIZ YEAR CHANGE
+// ==================================
+
+document.getElementById("quizYear")
+.addEventListener("change", async function() {
+
+    resetSelect("quizModule", "Select Module");
+    resetSelect("quizSubject", "Select Subject");
+    resetSelect("quizLecture", "Select Lecture");
+
+    document.getElementById("quizCategory").value = "";
+    document.getElementById("quizCategory").disabled = true;
+    document.getElementById("startQuizButton").disabled = true;
+
+    resetQuiz();
+
+    if (!this.value) return;
+
+    setStatus("quizStatus", "جاري تحميل الموديولات...");
+
+    const { data, error } = await supabaseClient
+        .from("modules")
+        .select("id, name, year_id")
+        .eq("year_id", this.value)
+        .order("id");
+
+    if (error) {
+        setStatus("quizStatus", error.message);
+        return;
+    }
+
+    fillSelect("quizModule", data || [], "Select Module");
+    document.getElementById("quizModule").disabled = false;
+
+    setStatus("quizStatus", "");
+});
+
+
+// ==================================
+// QUIZ MODULE CHANGE
+// ==================================
+
+document.getElementById("quizModule")
+.addEventListener("change", async function() {
+
+    resetSelect("quizSubject", "Select Subject");
+    resetSelect("quizLecture", "Select Lecture");
+
+    document.getElementById("quizCategory").value = "";
+    document.getElementById("quizCategory").disabled = true;
+    document.getElementById("startQuizButton").disabled = true;
+
+    resetQuiz();
+
+    if (!this.value) return;
+
+    setStatus("quizStatus", "جاري تحميل المواد...");
+
+    const { data: relations, error: relationError } =
+        await supabaseClient
+            .from("module_subjects")
+            .select("id, subject_id")
+            .eq("module_id", this.value);
+
+    if (relationError) {
+        setStatus("quizStatus", relationError.message);
+        return;
+    }
+
+    if (!relations || !relations.length) {
+        setStatus("quizStatus", "لا توجد مواد داخل هذا الموديول حتى الآن.");
+        return;
+    }
+
+    const subjectIds = relations.map(r => r.subject_id);
+
+    const { data: subjects, error: subjectError } =
+        await supabaseClient
+            .from("subjects")
+            .select("id, name")
+            .in("id", subjectIds)
+            .order("name");
+
+    if (subjectError) {
+        setStatus("quizStatus", subjectError.message);
+        return;
+    }
+
+    fillSelect("quizSubject", subjects || [], "Select Subject");
+    document.getElementById("quizSubject").disabled = false;
+
+    setStatus("quizStatus", "");
+});
+
+
+// ==================================
+// QUIZ SUBJECT CHANGE
+// ==================================
+
+document.getElementById("quizSubject")
+.addEventListener("change", async function() {
+
+    resetSelect("quizLecture", "Select Lecture");
+
+    document.getElementById("quizCategory").value = "";
+    document.getElementById("quizCategory").disabled = true;
+    document.getElementById("startQuizButton").disabled = true;
+
+    resetQuiz();
+
+    if (!this.value) return;
+
+    const moduleId = document.getElementById("quizModule").value;
+
+    setStatus("quizStatus", "جاري تحميل المحاضرات...");
+
+    const { data: relation, error: relationError } =
+        await supabaseClient
+            .from("module_subjects")
+            .select("id")
+            .eq("module_id", moduleId)
+            .eq("subject_id", this.value)
+            .single();
+
+    if (relationError || !relation) {
+        setStatus("quizStatus", "تعذر العثور على المادة داخل الموديول.");
+        return;
+    }
+
+    const { data: lectures, error: lectureError } =
+        await supabaseClient
+            .from("lectures")
+            .select("id, name")
+            .eq("module_subject_id", relation.id)
+            .order("id");
+
+    if (lectureError) {
+        setStatus("quizStatus", lectureError.message);
+        return;
+    }
+
+    fillSelect("quizLecture", lectures || [], "Select Lecture");
+    document.getElementById("quizLecture").disabled = false;
+
+    setStatus("quizStatus", "");
+});
+
+
+// ==================================
+// QUIZ LECTURE CHANGE
+// ==================================
+
+document.getElementById("quizLecture")
+.addEventListener("change", function() {
+
+    resetQuiz();
+
+    const category = document.getElementById("quizCategory");
+
+    category.value = "";
+    category.disabled = !this.value;
+
+    document.getElementById("startQuizButton").disabled = true;
+
+    setStatus("quizStatus", "");
+});
+
+
+// ==================================
+// QUIZ CATEGORY CHANGE
+// ==================================
+
+document.getElementById("quizCategory")
+.addEventListener("change", function() {
+
+    document.getElementById("startQuizButton").disabled =
+        !this.value || !document.getElementById("quizLecture").value;
+
+    resetQuiz();
+});
+
+
+// ==================================
+// START QUIZ
+// ==================================
+
+document.getElementById("startQuizButton")
+.addEventListener("click", async function() {
+
+    const lectureId = document.getElementById("quizLecture").value;
+    const category = document.getElementById("quizCategory").value;
+    const moduleId = document.getElementById("quizModule").value;
+
+    if (!lectureId || !category || !moduleId) return;
+
+    this.disabled = true;
+
+    setStatus("quizStatus", "جاري تحميل الأسئلة...");
+
+    resetQuiz();
+
+    const { data, error } = await supabaseClient
+        .from("questions")
+        .select("id, question_text, options, difficulty")
+        .eq("lecture_id", Number(lectureId))
+        .eq("module_id", Number(moduleId))
+        .eq("question_category", category)
+        .eq("is_published", true)
+        .order("id");
+
+    this.disabled = false;
+
+    if (error) {
+        setStatus("quizStatus", "خطأ تحميل الأسئلة: " + error.message);
+        console.error(error);
+        return;
+    }
+
+    quizQuestions = data || [];
+
+    if (!quizQuestions.length) {
+        setStatus(
+            "quizStatus",
+            "لا توجد أسئلة منشورة في هذا القسم حتى الآن."
+        );
+        return;
+    }
+
+    currentQuestionIndex = 0;
+    quizScore = 0;
+
+    setStatus(
+        "quizStatus",
+        "تم تحميل " + quizQuestions.length + " سؤال بنجاح."
+    );
+
+    document.getElementById("quizArea").classList.remove("hidden");
+
+    renderQuestion();
+});
+
+
+// ==================================
+// DISPLAY QUESTION
+// ==================================
+
+function renderQuestion() {
+
+    if (!quizQuestions.length) return;
+
+    const question = quizQuestions[currentQuestionIndex];
+
+    currentQuestionAnswered = false;
+
+    document.getElementById("quizProgress").textContent =
+        "Question " + (currentQuestionIndex + 1) +
+        " of " + quizQuestions.length;
+
+    document.getElementById("quizQuestionText").textContent =
+        question.question_text;
+
+    const optionsContainer = document.getElementById("quizOptions");
+
+    optionsContainer.innerHTML = "";
+
+    const options = Array.isArray(question.options)
+        ? question.options
+        : [];
+
+    options.forEach((option, index) => {
+
+        const label = document.createElement("label");
+        label.className = "quiz-option";
+
+        const radio = document.createElement("input");
+
+        radio.type = "radio";
+        radio.name = "selectedAnswer";
+        radio.value = index;
+
+        const text = document.createElement("span");
+
+        text.textContent =
+            String.fromCharCode(65 + index) + ") " + option;
+
+        label.appendChild(radio);
+        label.appendChild(text);
+
+        optionsContainer.appendChild(label);
+    });
+
+    document.getElementById("quizFeedback").innerHTML = "";
+
+    document.getElementById("submitAnswerButton").classList.remove("hidden");
+    document.getElementById("submitAnswerButton").disabled = false;
+
+    document.getElementById("nextQuestionButton").classList.add("hidden");
+
+    document.getElementById("quizArea").classList.remove("hidden");
+}
+
+
+// ==================================
+// SUBMIT ANSWER
+// ==================================
+
+document.getElementById("submitAnswerButton")
+.addEventListener("click", async function() {
+
+    if (currentQuestionAnswered) return;
+
+    const selected = document.querySelector(
+        'input[name="selectedAnswer"]:checked'
+    );
+
+    if (!selected) {
+        setStatus("quizFeedback", "من فضلك اختار إجابة أولاً.");
+        return;
+    }
+
+    const question = quizQuestions[currentQuestionIndex];
+
+    const selectedOption = Number(selected.value);
+
+    this.disabled = true;
+
+    setStatus("quizFeedback", "جاري تصحيح الإجابة...");
+
+    const { data, error } = await supabaseClient.rpc(
+        "check_question_answer",
+        {
+            p_question_id: question.id,
+            p_selected_option: selectedOption
+        }
+    );
+
+    if (error) {
+
+        setStatus(
+            "quizFeedback",
+            "تعذر تسجيل الإجابة: " + error.message
+        );
+
+        this.disabled = false;
+
+        return;
+    }
+
+    if (!data || !data.length) {
+
+        setStatus("quizFeedback", "لم يتم استلام نتيجة التصحيح.");
+        this.disabled = false;
+
+        return;
+    }
+
+    currentQuestionAnswered = true;
+
+    const result = data[0];
+
+    if (result.is_correct) {
+        quizScore++;
+    }
+
+    const feedback = document.getElementById("quizFeedback");
+
+    feedback.innerHTML = "";
+
+    const resultBox = document.createElement("div");
+
+    resultBox.className = result.is_correct
+        ? "quiz-feedback quiz-correct"
+        : "quiz-feedback quiz-wrong";
+
+    const resultTitle = document.createElement("h3");
+
+    resultTitle.textContent = result.is_correct
+        ? "✅ Correct Answer!"
+        : "❌ Incorrect Answer";
+
+    resultBox.appendChild(resultTitle);
+
+    const explanationTitle = document.createElement("p");
+
+    explanationTitle.style.marginTop = "12px";
+    explanationTitle.style.fontWeight = "bold";
+    explanationTitle.textContent = "Explanation:";
+
+    resultBox.appendChild(explanationTitle);
+
+    const explanationText = document.createElement("p");
+
+    explanationText.style.marginTop = "8px";
+    explanationText.textContent =
+        result.explanation || "No explanation available.";
+
+    resultBox.appendChild(explanationText);
+
+    feedback.appendChild(resultBox);
+
+    document.querySelectorAll(
+        'input[name="selectedAnswer"]'
+    ).forEach(input => {
+        input.disabled = true;
+    });
+
+    this.classList.add("hidden");
+
+    document.getElementById("nextQuestionButton")
+        .classList.remove("hidden");
+});
+
+
+// ==================================
+// NEXT QUESTION
+// ==================================
+
+document.getElementById("nextQuestionButton")
+.addEventListener("click", function() {
+
+    currentQuestionIndex++;
+
+    if (currentQuestionIndex >= quizQuestions.length) {
+
+        showQuizResults();
+        return;
+    }
+
+    renderQuestion();
+});
+
+
+// ==================================
+// FINAL RESULTS
+// ==================================
+
+function showQuizResults() {
+
+    const quizArea = document.getElementById("quizArea");
+
+    quizArea.innerHTML = "";
+
+    const percentage = Math.round(
+        (quizScore / quizQuestions.length) * 100
+    );
+
+    const resultBox = document.createElement("div");
+
+    resultBox.className = "quiz-question";
+
+    const title = document.createElement("h2");
+
+    title.style.color = "#42d6b0";
+    title.textContent = "🎉 Quiz Completed!";
+
+    const score = document.createElement("h3");
+
+    score.style.marginTop = "20px";
+    score.textContent =
+        "Your Score: " + quizScore + " / " + quizQuestions.length;
+
+    const percent = document.createElement("p");
+
+    percent.style.marginTop = "12px";
+    percent.textContent = "Percentage: " + percentage + "%";
+
+    const restart = document.createElement("button");
+
+    restart.className = "button";
+    restart.textContent = "Back to Question Selection";
+
+    restart.addEventListener("click", function() {
+
+        resetQuiz();
+
+        setStatus("quizStatus", "اختار مجموعة أسئلة جديدة للبدء.");
+
+    });
+
+    resultBox.appendChild(title);
+    resultBox.appendChild(score);
+    resultBox.appendChild(percent);
+    resultBox.appendChild(restart);
+
+    quizArea.appendChild(resultBox);
+}
+
+
+// ==================================
+// RESET QUIZ
+// ==================================
+
+function resetQuiz() {
+
+    quizQuestions = [];
+    currentQuestionIndex = 0;
+    quizScore = 0;
+    currentQuestionAnswered = false;
+
+    document.getElementById("quizArea").classList.add("hidden");
+
+    document.getElementById("quizQuestionText").textContent = "";
+    document.getElementById("quizOptions").innerHTML = "";
+    document.getElementById("quizFeedback").innerHTML = "";
+
+    document.getElementById("submitAnswerButton").classList.remove("hidden");
+    document.getElementById("submitAnswerButton").disabled = false;
+
+    document.getElementById("nextQuestionButton").classList.add("hidden");
+
+    document.getElementById("quizArea").innerHTML = `
+        <div class="quiz-question">
+            <h3 id="quizProgress" style="color:#42d6b0;"></h3>
+            <h3 id="quizQuestionText" style="margin-top:20px;line-height:1.7;"></h3>
+            <div id="quizOptions"></div>
+            <div id="quizFeedback"></div>
+            <div class="quiz-actions">
+                <button type="button" id="submitAnswerButton" class="button">
+                    Submit Answer
+                </button>
+                <button type="button" id="nextQuestionButton" class="button hidden">
+                    Next Question
+                </button>
+            </div>
+        </div>
+    `;
+
+    // Reconnect buttons after rebuilding the quiz area.
+    document.getElementById("submitAnswerButton")
+        .addEventListener("click", submitCurrentAnswer);
+
+    document.getElementById("nextQuestionButton")
+        .addEventListener("click", moveToNextQuestion);
+}
+
+
+// ==================================
+// QUIZ BUTTON HANDLERS AFTER RESET
+// ==================================
+
+async function submitCurrentAnswer() {
+
+    if (currentQuestionAnswered) return;
+
+    const selected = document.querySelector(
+        'input[name="selectedAnswer"]:checked'
+    );
+
+    if (!selected) {
+        setStatus("quizFeedback", "من فضلك اختار إجابة أولاً.");
+        return;
+    }
+
+    const question = quizQuestions[currentQuestionIndex];
+
+    const selectedOption = Number(selected.value);
+
+    const button = document.getElementById("submitAnswerButton");
+
+    button.disabled = true;
+
+    setStatus("quizFeedback", "جاري تصحيح الإجابة...");
+
+    const { data, error } = await supabaseClient.rpc(
+        "check_question_answer",
+        {
+            p_question_id: question.id,
+            p_selected_option: selectedOption
+        }
+    );
+
+    if (error) {
+
+        setStatus("quizFeedback", "تعذر تسجيل الإجابة: " + error.message);
+        button.disabled = false;
+        return;
+    }
+
+    if (!data || !data.length) {
+
+        setStatus("quizFeedback", "لم يتم استلام نتيجة التصحيح.");
+        button.disabled = false;
+        return;
+    }
+
+    currentQuestionAnswered = true;
+
+    const result = data[0];
+
+    if (result.is_correct) quizScore++;
+
+    const feedback = document.getElementById("quizFeedback");
+
+    feedback.innerHTML = "";
+
+    const box = document.createElement("div");
+
+    box.className = result.is_correct
+        ? "quiz-feedback quiz-correct"
+        : "quiz-feedback quiz-wrong";
+
+    const title = document.createElement("h3");
+
+    title.textContent = result.is_correct
+        ? "✅ Correct Answer!"
+        : "❌ Incorrect Answer";
+
+    const explanation = document.createElement("p");
+
+    explanation.style.marginTop = "12px";
+    explanation.textContent =
+        "Explanation: " +
+        (result.explanation || "No explanation available.");
+
+    box.appendChild(title);
+    box.appendChild(explanation);
+
+    feedback.appendChild(box);
+
+    document.querySelectorAll(
+        'input[name="selectedAnswer"]'
+    ).forEach(input => input.disabled = true);
+
+    button.classList.add("hidden");
+
+    document.getElementById("nextQuestionButton")
+        .classList.remove("hidden");
+}
+
+function moveToNextQuestion() {
+
+    currentQuestionIndex++;
+
+    if (currentQuestionIndex >= quizQuestions.length) {
+        showQuizResults();
+    } else {
+        renderQuestion();
+    }
+}
+
+
+// ==================================
+// REFRESH ALL
 // ==================================
 
 async function refreshAll() {

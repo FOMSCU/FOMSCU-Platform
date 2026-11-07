@@ -153,7 +153,7 @@ nav a{
     color:#087f8c;
 }
 
-#adminDashboard,#quizSection{
+#adminDashboard,#quizSection,#pastPapers{
     display:none;
     max-width:1100px;
     margin:40px auto;
@@ -341,6 +341,7 @@ nav a{
 .result-card p{
     line-height:1.8;
     margin-top:8px;
+    overflow-wrap:anywhere;
 }
 
 .badge{
@@ -369,7 +370,7 @@ footer{
 
     .hero h1{font-size:34px}
 
-    #adminDashboard,#quizSection{
+    #adminDashboard,#quizSection,#pastPapers{
         margin:25px 12px;
         padding:18px;
     }
@@ -404,7 +405,6 @@ footer{
 </section>
 
 <section class="container" id="courses">
-
     <h2>Learning Resources</h2>
 
     <div class="cards">
@@ -431,6 +431,7 @@ footer{
 
     </div>
 </section>
+
 
 <!-- AUTH -->
 
@@ -490,9 +491,7 @@ footer{
 
 <section id="quizSection">
 
-    <h2 class="dashboard-title">
-        📝 Medschool MCQ Bank
-    </h2>
+    <h2 class="dashboard-title">📝 Medschool MCQ Bank</h2>
 
     <p class="dashboard-description">
         اختار السنة والموديول والمادة والمحاضرة ونوع الأسئلة.
@@ -568,16 +567,14 @@ footer{
 </section>
 
 
-<!-- PAST PAPERS STUDENT -->
+<!-- STUDENT PAST PAPERS -->
 
-<section id="pastPapers" style="display:none;max-width:1100px;margin:40px auto;padding:30px;background:#101a2b;border:1px solid #42d6b0;border-radius:15px">
+<section id="pastPapers">
 
-    <h2 class="dashboard-title">
-        📚 Past Papers
-    </h2>
+    <h2 class="dashboard-title">📚 Past Papers</h2>
 
     <p class="dashboard-description">
-        اختار الموديول والامتحان والسنة لبدء الحل.
+        اختار السنة الدراسية والموديول ونوع الامتحان وسنة انعقاده.
     </p>
 
     <div class="management-form">
@@ -657,9 +654,7 @@ footer{
 
 <section id="adminDashboard">
 
-    <h2 class="dashboard-title">
-        🛠️ Admin Dashboard
-    </h2>
+    <h2 class="dashboard-title">🛠️ Admin Dashboard</h2>
 
     <p class="dashboard-description">
         Manage academic years, modules, subjects, lectures and questions.
@@ -866,7 +861,7 @@ footer{
     </div>
 
 
-    <!-- PAST PAPERS ADMIN -->
+    <!-- ADMIN PAST PAPERS -->
 
     <div class="management-section">
 
@@ -919,7 +914,6 @@ footer{
 
         <hr style="margin:25px 0;border-color:#263750">
 
-
         <h4 style="color:#42d6b0;margin-bottom:12px">
             2. Select Exam to Manage
         </h4>
@@ -933,18 +927,11 @@ footer{
 
         <div id="adminExamInfo" class="status"></div>
 
-
         <hr style="margin:25px 0;border-color:#263750">
-
 
         <h4 style="color:#42d6b0;margin-bottom:12px">
             3. Add Questions
         </h4>
-
-        <p>
-            Each question must be connected to its subject.
-            You can add as many questions as you need.
-        </p>
 
         <form id="pastQuestionForm" class="management-form">
 
@@ -957,17 +944,10 @@ footer{
             placeholder="Write question..."
             required></textarea>
 
-            <input id="pastOptionA"
-            placeholder="Option A" required>
-
-            <input id="pastOptionB"
-            placeholder="Option B" required>
-
-            <input id="pastOptionC"
-            placeholder="Option C" required>
-
-            <input id="pastOptionD"
-            placeholder="Option D" required>
+            <input id="pastOptionA" placeholder="Option A" required>
+            <input id="pastOptionB" placeholder="Option B" required>
+            <input id="pastOptionC" placeholder="Option C" required>
+            <input id="pastOptionD" placeholder="Option D" required>
 
             <select id="pastCorrectOption" required>
                 <option value="">Correct Answer</option>
@@ -989,9 +969,7 @@ footer{
 
         <div id="pastQuestionStatus" class="status"></div>
 
-
         <hr style="margin:25px 0;border-color:#263750">
-
 
         <h4 style="color:#42d6b0;margin-bottom:12px">
             4. Publish Exam
@@ -1009,15 +987,11 @@ footer{
 
         <div id="publishStatus" class="status"></div>
 
-
         <div class="management-list">
-
             <h4>Questions in Selected Exam</h4>
-
             <div id="adminPastQuestions">
                 Select an exam first.
             </div>
-
         </div>
 
     </div>
@@ -1054,13 +1028,6 @@ window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 const $ = id => document.getElementById(id);
 
-const authMessage = $("authMessage");
-const userRole = $("userRole");
-
-const adminDashboard = $("adminDashboard");
-const quizSection = $("quizSection");
-const pastPapersSection = $("pastPapers");
-
 let yearsData = [];
 let modulesData = [];
 let subjectsData = [];
@@ -1082,6 +1049,7 @@ let pastMode = null;
 let pastExamId = null;
 let pastAnswerSaved = false;
 let pastSelectedAnswers = {};
+let pastDurationTimer = null;
 
 let authCheckInProgress = false;
 
@@ -1159,31 +1127,32 @@ function addListItem(container,text){
 
 function hideAdminDashboard(){
 
-    adminDashboard.style.setProperty(
-        "display","none","important"
-    );
+    $("adminDashboard").style.display = "none";
 
 }
 
 function showAdminDashboard(){
 
-    adminDashboard.style.setProperty(
-        "display","block","important"
-    );
+    $("adminDashboard").style.display = "block";
 
 }
 
 function showPastPapers(){
 
-    pastPapersSection.style.display = "block";
+    $("pastPapers").style.display = "block";
 
 }
 
 function hidePastPapers(){
 
-    pastPapersSection.style.display = "none";
+    $("pastPapers").style.display = "none";
 
 }
+
+
+// ==================================================
+// RESET FUNCTIONS
+// ==================================================
 
 function resetQuiz(){
 
@@ -1195,6 +1164,7 @@ function resetQuiz(){
     $("quizArea").classList.add("hidden");
 
     $("quizArea").innerHTML = `
+
         <div class="quiz-question">
 
             <h3 id="quizProgress" style="color:#42d6b0"></h3>
@@ -1222,7 +1192,41 @@ function resetQuiz(){
             </div>
 
         </div>
+
     `;
+
+}
+
+
+function resetPastQuiz(){
+
+    if(pastDurationTimer){
+
+        clearInterval(pastDurationTimer);
+
+        pastDurationTimer = null;
+
+    }
+
+    pastQuestions = [];
+
+    pastAttemptId = null;
+
+    pastExamId = null;
+
+    pastCurrentIndex = 0;
+
+    pastMode = null;
+
+    pastAnswerSaved = false;
+
+    pastSelectedAnswers = {};
+
+    $("pastQuizArea").classList.add("hidden");
+
+    $("pastResults").innerHTML = "";
+
+    $("pastFeedback").innerHTML = "";
 
 }
 
@@ -1241,11 +1245,11 @@ async function showUserRole(){
 
         hideAdminDashboard();
 
-        quizSection.style.display = "none";
+        $("quizSection").style.display = "none";
 
         hidePastPapers();
 
-        userRole.textContent = "";
+        $("userRole").textContent = "";
 
         const {
             data:{user},
@@ -1271,7 +1275,7 @@ async function showUserRole(){
 
         if(error || !data){
 
-            userRole.textContent =
+            $("userRole").textContent =
             "تعذر تحديد الصلاحية";
 
             console.error(error);
@@ -1284,7 +1288,7 @@ async function showUserRole(){
 
         if(data.role === "admin"){
 
-            userRole.textContent =
+            $("userRole").textContent =
             "Admin - مدير المنصة";
 
             showAdminDashboard();
@@ -1295,12 +1299,12 @@ async function showUserRole(){
 
         }else{
 
-            userRole.textContent =
+            $("userRole").textContent =
             "Student - طالب";
 
         }
 
-        quizSection.style.display = "block";
+        $("quizSection").style.display = "block";
 
         showPastPapers();
 
@@ -1321,7 +1325,7 @@ $("signupForm").addEventListener("submit",async e=>{
 
     e.preventDefault();
 
-    authMessage.textContent =
+    $("authMessage").textContent =
     "جاري إنشاء الحساب...";
 
     const name = $("signupName").value.trim();
@@ -1344,7 +1348,7 @@ $("signupForm").addEventListener("submit",async e=>{
 
     });
 
-    authMessage.textContent = error
+    $("authMessage").textContent = error
         ? error.message
         : "تم إنشاء الحساب! راجع بريدك الإلكتروني لتأكيد التسجيل.";
 
@@ -1355,7 +1359,7 @@ $("loginForm").addEventListener("submit",async e=>{
 
     e.preventDefault();
 
-    authMessage.textContent =
+    $("authMessage").textContent =
     "جاري تسجيل الدخول...";
 
     const email = $("loginEmail").value.trim();
@@ -1370,13 +1374,13 @@ $("loginForm").addEventListener("submit",async e=>{
 
     if(error){
 
-        authMessage.textContent = error.message;
+        $("authMessage").textContent = error.message;
 
         return;
 
     }
 
-    authMessage.textContent =
+    $("authMessage").textContent =
     "تم تسجيل الدخول بنجاح!";
 
     await showUserRole();
@@ -1389,18 +1393,18 @@ $("logoutButton").addEventListener("click",async()=>{
     const {error} =
     await supabaseClient.auth.signOut();
 
-    authMessage.textContent = error
+    $("authMessage").textContent = error
         ? error.message
         : "تم تسجيل الخروج.";
 
     currentUser = null;
     currentUserRole = null;
 
-    userRole.textContent = "";
+    $("userRole").textContent = "";
 
     hideAdminDashboard();
 
-    quizSection.style.display = "none";
+    $("quizSection").style.display = "none";
 
     hidePastPapers();
 
@@ -1424,11 +1428,11 @@ supabaseClient.auth.onAuthStateChange(event=>{
         currentUser = null;
         currentUserRole = null;
 
-        userRole.textContent = "";
+        $("userRole").textContent = "";
 
         hideAdminDashboard();
 
-        quizSection.style.display = "none";
+        $("quizSection").style.display = "none";
 
         hidePastPapers();
 
@@ -2511,6 +2515,7 @@ function showQuizResults(){
     );
 
     $("quizArea").innerHTML = `
+
         <div class="quiz-question">
 
             <h2 style="color:#42d6b0">
@@ -2531,6 +2536,7 @@ function showQuizResults(){
             </button>
 
         </div>
+
     `;
 
 }
@@ -2744,9 +2750,9 @@ async function loadAdminPastQuestions(examId){
 
     const {data,error} = await supabaseClient
         .from("exam_questions")
-        .select("id,question_text,subject_id")
+        .select("id,question_text,subject_id,question_order")
         .eq("exam_id",Number(examId))
-        .order("id");
+        .order("question_order",{ascending:true});
 
     if(error){
 
@@ -2768,6 +2774,15 @@ async function loadAdminPastQuestions(examId){
         return;
 
     }
+
+    const count = document.createElement("p");
+
+    count.className = "status";
+
+    count.textContent =
+    "Total Questions: "+data.length;
+
+    container.appendChild(count);
 
     data.forEach((question,index)=>{
 
@@ -2855,6 +2870,22 @@ $("pastQuestionForm").addEventListener("submit",async function(e){
 
     setStatus("pastQuestionStatus","جاري حفظ السؤال...");
 
+    const {data:existingQuestions,error:countError} =
+    await supabaseClient
+        .from("exam_questions")
+        .select("id")
+        .eq("exam_id",Number(examId));
+
+    if(countError){
+
+        setStatus("pastQuestionStatus",countError.message);
+
+        return;
+
+    }
+
+    const nextOrder = (existingQuestions||[]).length + 1;
+
     const {data:question,error:questionError} =
     await supabaseClient
         .from("exam_questions")
@@ -2868,7 +2899,9 @@ $("pastQuestionForm").addEventListener("submit",async function(e){
 
             options,
 
-            difficulty:null
+            difficulty:"Medium",
+
+            question_order:nextOrder
 
         })
         .select("id")
@@ -2929,7 +2962,38 @@ $("publishPastExam").addEventListener("click",async()=>{
 
     const examId = $("adminExamSelect").value;
 
-    if(!examId)return;
+    if(!examId){
+
+        setStatus("publishStatus","اختار امتحاناً أولاً.");
+
+        return;
+
+    }
+
+    const {data:questions,error:questionsError} =
+    await supabaseClient
+        .from("exam_questions")
+        .select("id")
+        .eq("exam_id",Number(examId));
+
+    if(questionsError){
+
+        setStatus("publishStatus",questionsError.message);
+
+        return;
+
+    }
+
+    if(!questions || !questions.length){
+
+        setStatus(
+            "publishStatus",
+            "لا يمكن نشر امتحان بدون أسئلة."
+        );
+
+        return;
+
+    }
 
     const {error} = await supabaseClient
         .from("module_exams")
@@ -2948,6 +3012,8 @@ $("publishPastExam").addEventListener("click",async()=>{
 
     await loadAdminPastExams();
 
+    await loadSelectedAdminExam();
+
 });
 
 
@@ -2955,7 +3021,13 @@ $("unpublishPastExam").addEventListener("click",async()=>{
 
     const examId = $("adminExamSelect").value;
 
-    if(!examId)return;
+    if(!examId){
+
+        setStatus("publishStatus","اختار امتحاناً أولاً.");
+
+        return;
+
+    }
 
     const {error} = await supabaseClient
         .from("module_exams")
@@ -2973,6 +3045,8 @@ $("unpublishPastExam").addEventListener("click",async()=>{
     setStatus("publishStatus","تم إلغاء نشر الامتحان.");
 
     await loadAdminPastExams();
+
+    await loadSelectedAdminExam();
 
 });
 
@@ -3015,9 +3089,7 @@ $("pastYear").addEventListener("change",async function(){
 
     $("startPastExam").disabled = true;
 
-    $("pastQuizArea").classList.add("hidden");
-
-    $("pastResults").innerHTML = "";
+    resetPastQuiz();
 
     if(!this.value)return;
 
@@ -3052,9 +3124,7 @@ $("pastModule").addEventListener("change",async function(){
 
     $("startPastExam").disabled = true;
 
-    $("pastQuizArea").classList.add("hidden");
-
-    $("pastResults").innerHTML = "";
+    resetPastQuiz();
 
     if(!this.value)return;
 
@@ -3134,12 +3204,32 @@ $("startPastExam").addEventListener("click",async function(){
 
     $("pastResults").innerHTML = "";
 
+    resetPastQuiz();
+
+    const {data:examData,error:examError} =
+    await supabaseClient
+        .from("module_exams")
+        .select("id,module_id,exam_type,exam_year,duration_minutes")
+        .eq("id",examId)
+        .eq("is_published",true)
+        .single();
+
+    if(examError){
+
+        setStatus("pastStatus",examError.message);
+
+        this.disabled = false;
+
+        return;
+
+    }
+
     const {data:questions,error:questionError} =
     await supabaseClient
         .from("exam_questions")
-        .select("id,exam_id,subject_id,question_text,options")
+        .select("id,exam_id,subject_id,question_text,options,question_order")
         .eq("exam_id",examId)
-        .order("id");
+        .order("question_order",{ascending:true});
 
     if(questionError){
 
@@ -3163,7 +3253,7 @@ $("startPastExam").addEventListener("click",async function(){
 
     }
 
-    const {data:attemptId,error} = await supabaseClient.rpc(
+    const {data:attemptData,error} = await supabaseClient.rpc(
         "start_exam_attempt",
         {
             p_exam_id:examId,
@@ -3184,7 +3274,25 @@ $("startPastExam").addEventListener("click",async function(){
 
     }
 
-    pastAttemptId = attemptId;
+    /*
+       بعض دوال Supabase ترجع رقم المحاولة مباشرة،
+       وبعضها ترجع Object أو Array.
+    */
+
+    pastAttemptId = extractAttemptId(attemptData);
+
+    if(!pastAttemptId){
+
+        setStatus(
+            "pastStatus",
+            "بدأت العملية لكن لم يتم التعرف على رقم المحاولة. راجع نتيجة Function start_exam_attempt."
+        );
+
+        this.disabled = false;
+
+        return;
+
+    }
 
     pastExamId = examId;
 
@@ -3205,37 +3313,106 @@ $("startPastExam").addEventListener("click",async function(){
 
     renderPastQuestion();
 
+    if(
+        pastMode==="exam" &&
+        examData.duration_minutes
+    ){
+
+        startPastTimer(examData.duration_minutes);
+
+    }
+
     this.disabled = false;
 
 });
 
 
-// ==================================================
-// STUDENT: RENDER PAST QUESTION
-// ==================================================
+function extractAttemptId(data){
 
-function resetPastQuiz(){
+    if(typeof data==="number" || typeof data==="string"){
 
-    pastQuestions = [];
+        return Number(data);
 
-    pastAttemptId = null;
+    }
 
-    pastExamId = null;
+    if(Array.isArray(data)){
 
-    pastCurrentIndex = 0;
+        return extractAttemptId(data[0]);
 
-    pastMode = null;
+    }
 
-    pastAnswerSaved = false;
+    if(data && typeof data==="object"){
 
-    pastSelectedAnswers = {};
+        return Number(
+            data.attempt_id ||
+            data.id ||
+            data.start_exam_attempt ||
+            data.result
+        ) || null;
 
-    $("pastQuizArea").classList.add("hidden");
+    }
 
-    $("pastResults").innerHTML = "";
+    return null;
 
 }
 
+
+// ==================================================
+// EXAM TIMER
+// ==================================================
+
+function startPastTimer(minutes){
+
+    let seconds = Number(minutes)*60;
+
+    const timer = document.createElement("h3");
+
+    timer.id = "pastTimer";
+
+    timer.style.color = "#42d6b0";
+
+    timer.style.marginTop = "15px";
+
+    $("pastQuizArea").querySelector(".quiz-question")
+        .prepend(timer);
+
+    function updateTimer(){
+
+        const min = Math.floor(seconds/60);
+
+        const sec = seconds%60;
+
+        timer.textContent =
+        "Time Remaining: "+
+        String(min).padStart(2,"0")+":"+
+        String(sec).padStart(2,"0");
+
+        if(seconds<=0){
+
+            clearInterval(pastDurationTimer);
+
+            pastDurationTimer = null;
+
+            $("pastFinishExam").click();
+
+            return;
+
+        }
+
+        seconds--;
+
+    }
+
+    updateTimer();
+
+    pastDurationTimer = setInterval(updateTimer,1000);
+
+}
+
+
+// ==================================================
+// STUDENT: RENDER PAST QUESTION
+// ==================================================
 
 function renderPastQuestion(){
 
@@ -3306,15 +3483,8 @@ function renderPastQuestion(){
 
     $("pastFinishExam").classList.add("hidden");
 
-    if(pastMode==="exam"){
-
-        $("pastSubmitAnswer").textContent = "Save Answer";
-
-    }else{
-
-        $("pastSubmitAnswer").textContent = "Confirm Answer";
-
-    }
+    $("pastSubmitAnswer").textContent =
+    pastMode==="exam"?"Save Answer":"Confirm Answer";
 
 }
 
@@ -3348,13 +3518,9 @@ $("pastSubmitAnswer").addEventListener("click",async()=>{
     const {data,error} = await supabaseClient.rpc(
         "submit_exam_answer",
         {
-
             p_attempt_id:pastAttemptId,
-
             p_question_id:question.id,
-
             p_selected_option:selectedOption
-
         }
     );
 
@@ -3378,7 +3544,9 @@ $("pastSubmitAnswer").addEventListener("click",async()=>{
 
     if(pastMode==="practice"){
 
-        const correct = data.is_correct;
+        const result = Array.isArray(data)?data[0]:data;
+
+        const correct = result && result.is_correct;
 
         const box = document.createElement("div");
 
@@ -3396,15 +3564,20 @@ $("pastSubmitAnswer").addEventListener("click",async()=>{
 
         const options = question.options || [];
 
+        const correctOption = Number(result.correct_option);
+
         correctText.textContent =
-        "Correct Answer: "+
-        String.fromCharCode(65+data.correct_option)+
-        ") "+options[data.correct_option];
+        Number.isInteger(correctOption) &&
+        options[correctOption]!==undefined
+        ? "Correct Answer: "+
+          String.fromCharCode(65+correctOption)+
+          ") "+options[correctOption]
+        : "تم تسجيل الإجابة.";
 
         const explanation = document.createElement("p");
 
         explanation.textContent =
-        "Explanation: "+(data.explanation||"");
+        "Explanation: "+(result.explanation||"");
 
         box.append(title,correctText,explanation);
 
@@ -3500,7 +3673,28 @@ $("pastFinishExam").addEventListener("click",async()=>{
 
     }
 
-    showPastResults(data);
+    if(pastDurationTimer){
+
+        clearInterval(pastDurationTimer);
+
+        pastDurationTimer = null;
+
+    }
+
+    const result = Array.isArray(data)?data[0]:data;
+
+    if(!result){
+
+        setStatus(
+            "pastStatus",
+            "تم التسليم لكن لم يتم استلام بيانات النتيجة."
+        );
+
+        return;
+
+    }
+
+    showPastResults(result);
 
 });
 
@@ -3530,23 +3724,23 @@ function showPastResults(result){
     const score = document.createElement("h3");
 
     score.textContent =
-    "Score: "+result.correct_answers+
-    " / "+result.total_questions;
+    "Score: "+(result.correct_answers??0)+
+    " / "+(result.total_questions??pastQuestions.length);
 
     const percentage = document.createElement("p");
 
     percentage.textContent =
-    "Percentage: "+result.score+"%";
+    "Percentage: "+(result.score??0)+"%";
 
     const correct = document.createElement("p");
 
     correct.textContent =
-    "Correct Answers: "+result.correct_answers;
+    "Correct Answers: "+(result.correct_answers??0);
 
     const wrong = document.createElement("p");
 
     wrong.textContent =
-    "Wrong Answers: "+result.wrong_answers;
+    "Wrong Answers: "+(result.wrong_answers??0);
 
     summary.append(
         title,
@@ -3561,9 +3755,11 @@ function showPastResults(result){
 
     // PERFORMANCE BY SUBJECT
 
+    const questions = result.questions || [];
+
     const subjectStats = {};
 
-    (result.questions||[]).forEach(q=>{
+    questions.forEach(q=>{
 
         const subject = subjectsData.find(
             s=>String(s.id)===String(q.subject_id)
@@ -3623,7 +3819,7 @@ function showPastResults(result){
     container.appendChild(subjectCard);
 
 
-    // REVIEW ALL QUESTIONS
+    // REVIEW QUESTIONS
 
     const reviewTitle = document.createElement("h2");
 
@@ -3637,7 +3833,7 @@ function showPastResults(result){
     container.appendChild(reviewTitle);
 
 
-    (result.questions||[]).forEach((q,index)=>{
+    questions.forEach((q,index)=>{
 
         const box = document.createElement("div");
 
@@ -3651,7 +3847,7 @@ function showPastResults(result){
 
         const text = document.createElement("p");
 
-        text.textContent = q.question_text;
+        text.textContent = q.question_text || "";
 
         const options = document.createElement("div");
 
@@ -3662,16 +3858,17 @@ function showPastResults(result){
             p.textContent =
             String.fromCharCode(65+i)+") "+option;
 
-            if(i===q.correct_option){
+            if(i===Number(q.correct_option)){
 
                 p.style.color = "#42d6b0";
+                p.style.fontWeight = "bold";
 
             }
 
             if(
                 q.selected_option!==null &&
                 q.selected_option!==undefined &&
-                i===q.selected_option &&
+                i===Number(q.selected_option) &&
                 !q.is_correct
             ){
 

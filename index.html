@@ -499,8 +499,8 @@ footer{
     <nav class="top-student-nav" aria-label="التنقل الرئيسي">
         <a href="#studentDashboard" data-view="overview">الرئيسية</a>
         <a href="#studentDashboard" data-view="academics">الكليات والموديولات</a>
-        <a href="#studentDashboard" data-view="academics" data-scroll-target="quizSection">MCQ Bank</a>
-        <a href="#studentDashboard" data-view="academics" data-scroll-target="pastPapers">Past Papers</a>
+        <a href="#studentDashboard" data-view="mcqbank">Medschool MCQ Bank</a>
+        <a href="#studentDashboard" data-view="previousexams">Previous Exams</a>
         <a href="#studentDashboard" data-view="arena">Medschool Arena</a>
         <a href="#studentDashboard" data-view="points">ترتيبك</a>
     </nav>
@@ -533,6 +533,8 @@ footer{
         <button class="student-nav active" data-view="overview"><span class="nav-icon">⌂</span>الرئيسية</button>
         <button class="student-nav" data-view="profile"><span class="nav-icon">👤</span>الملف الشخصي</button>
         <button class="student-nav" data-view="academics"><span class="nav-icon">🏛️</span>الكليات والموديولات</button>
+        <button class="student-nav" data-view="mcqbank"><span class="nav-icon">📝</span>Medschool MCQ Bank</button>
+        <button class="student-nav" data-view="previousexams"><span class="nav-icon">📚</span>Previous Exams</button>
         <button class="student-nav" data-view="arena"><span class="nav-icon">⚔️</span>Medschool Arena</button>
         <button class="student-nav" data-view="points"><span class="nav-icon">⭐</span>بنك درجاتك</button>
         <button class="student-nav" data-view="history"><span class="nav-icon">📈</span>سجل درجاتك</button>
@@ -549,6 +551,8 @@ footer{
         <h2>لوحة الطالب</h2><p>كل أدواتك الدراسية والتنافسية في مكان واحد.</p>
         <div class="student-shortcuts">
           <button class="student-shortcut" data-view="academics"><strong>🏛️ الكليات والموديولات</strong>ابدأ المذاكرة واختر المحتوى</button>
+          <button class="student-shortcut" data-view="mcqbank"><strong>📝 Medschool MCQ Bank</strong>حل أسئلة المحاضرات والتدريب</button>
+          <button class="student-shortcut" data-view="previousexams"><strong>📚 Previous Exams</strong>تدرّب على الامتحانات السابقة</button>
           <button class="student-shortcut" data-view="arena"><strong>⚔️ Medschool Arena</strong>المسابقات والتحديات</button>
           <button class="student-shortcut" data-view="points"><strong>⭐ بنك درجاتك</strong>رصيد نقاطك وترتيبك</button>
           <button class="student-shortcut" data-view="history"><strong>📈 سجل درجاتك</strong>تابع نتائج ومحاولاتك</button>
@@ -562,6 +566,8 @@ footer{
         <div class="profile-note">تعديل الاسم والصورة وبيانات الحساب سيتم تفعيله بعد تجهيز حقول الملف الشخصي وسياسات الحماية اللازمة في قاعدة البيانات. لن نسمح بتغيير صلاحية الحساب أو الكلية والسنة الأساسية من هنا.</div>
       </section>
       <section class="student-view" id="view-academics"><h2>الكليات والموديولات</h2><p>اختار الكلية التي تريد تصفح محتواها الدراسي. اختيار التصفح لا يغيّر الكلية الأساسية لحسابك.</p><div id="academicsMount"></div></section>
+      <section class="student-view" id="view-mcqbank"><h2>Medschool MCQ Bank</h2><p>حل أسئلة المحاضرات بشكل مستقل عن الامتحانات السابقة.</p><div id="mcqBankMount"></div></section>
+      <section class="student-view" id="view-previousexams"><h2>Previous Exams</h2><p>اختر امتحانًا سابقًا وحلّه في وضع التدريب أو وضع الامتحان.</p><div id="previousExamsMount"></div></section>
       <section class="student-view" id="view-points"><h2>بنك درجاتك</h2><p>رصيد نقاطك وترتيبك في الكلية والدفعة والموديولات.</p><div id="collegeRankSummary" class="college-rank-summary">جاري حساب ترتيبك بين طلاب كليتك...</div><div id="pointsMount"></div></section>
       <section class="student-view" id="view-arena"><h2>Medschool Arena – ساحة التحدي</h2><p>المسابقات والتحديات اليومية والأسبوعية.</p><div class="coming-soon">قريبًا — نجهّز نظام المسابقات ومواعيدها ونقاطها قبل تفعيله.</div></section>
       <section class="student-view" id="view-history"><h2>سجل درجاتك</h2><p>تاريخ إجاباتك ومحاولاتك ونتائج الامتحانات.</p><div class="coming-soon">قريبًا — سيتم ربط سجل المحاولات بنتائجك الفعلية من قاعدة البيانات.</div></section>
@@ -639,7 +645,7 @@ footer{
         </div>
 
         <div class="card">
-            <h3>🎯 Past Papers</h3>
+            <h3>🎯 Previous Exams</h3>
             <p>Practice previous examinations.</p>
         </div>
 
@@ -814,7 +820,7 @@ footer{
 
 <section id="pastPapers">
 
-    <h2 class="dashboard-title">📚 Past Papers</h2>
+    <h2 class="dashboard-title">📚 Previous Exams</h2>
 
     <p class="dashboard-description">
         اختار السنة الدراسية والموديول ونوع الامتحان وسنة انعقاده.
@@ -842,7 +848,7 @@ footer{
 
         <button type="button" id="startPastExam"
         class="full-width" disabled>
-            Start Past Paper
+            Start Previous Exam
         </button>
 
     </div>
@@ -858,7 +864,7 @@ footer{
             <p id="pastSubjectName"
             style="color:#42d6b0;margin-top:12px"></p>
 
-            <h3 id="pastQuestionText"
+            <h3 id="pastQuizQuestionText"
             style="margin-top:20px;line-height:1.7"></h3>
 
             <div id="pastOptions"></div>
@@ -1183,7 +1189,7 @@ footer{
 
     <div class="management-section">
 
-        <h3>📚 Manage Past Papers</h3>
+        <h3>📚 Manage Previous Exams</h3>
 
         <p>
             Create Mid-Module and Final-Module exams,
@@ -1223,7 +1229,7 @@ footer{
             min="1">
 
             <button type="submit" class="full-width">
-                + Create Past Paper
+                + Create Previous Exam
             </button>
 
         </form>
@@ -1258,7 +1264,7 @@ footer{
                 <option value="">Select Subject</option>
             </select>
 
-            <textarea id="pastQuestionText"
+            <textarea id="adminPastQuestionText"
             class="full-width"
             placeholder="Write question..."
             required></textarea>
@@ -1281,7 +1287,7 @@ footer{
             placeholder="Explanation"></textarea>
 
             <button type="submit" class="full-width">
-                + Add Past Paper Question
+                + Add Previous Exam Question
             </button>
 
         </form>
@@ -2194,17 +2200,22 @@ function openStudentView(viewName){
     if(viewName==="academics"){
         const mount=$("academicsMount");
         if(mount && !mount.contains($("collegeBrowser"))) mount.appendChild($("collegeBrowser"));
-        if(mount && !mount.contains($("quizSection"))) mount.appendChild($("quizSection"));
-        if(mount && !mount.contains($("pastPapers"))) mount.appendChild($("pastPapers"));
         $("collegeBrowser").style.display="block";
-        if(currentBrowsingCollegeId){$("quizSection").style.display="block";showPastPapers();}
     }
-    if(viewName==="feedback"){
-        loadMyStudentRequests();
+    if(viewName==="mcqbank"){
+        const mount=$("mcqBankMount");
+        if(mount && !mount.contains($("quizSection"))) mount.appendChild($("quizSection"));
+        if(currentBrowsingCollegeId){$("quizSection").style.display="block";}
+        else {$("quizSection").style.display="none";setStatus("quizStatus","اختار الكلية أولاً من صفحة الكليات والموديولات.");}
     }
-    if(viewName==="updates"){
-        loadNotifications();
+    if(viewName==="previousexams"){
+        const mount=$("previousExamsMount");
+        if(mount && !mount.contains($("pastPapers"))) mount.appendChild($("pastPapers"));
+        if(currentBrowsingCollegeId){showPastPapers();}
+        else {hidePastPapers();setStatus("pastStatus","اختار الكلية أولاً من صفحة الكليات والموديولات.");}
     }
+    if(viewName==="feedback") loadMyStudentRequests();
+    if(viewName==="updates") loadNotifications();
     if(viewName==="points"){
         const mount=$("pointsMount");
         if(mount && !mount.contains($("leaderboardSection"))) mount.appendChild($("leaderboardSection"));
@@ -3735,6 +3746,7 @@ $("questionForm").addEventListener("submit",async function(e){
             question_text:questionText,
             options,
             difficulty,
+            category:"Medschool",
             question_category:category,
             is_published:false
         })
@@ -3827,7 +3839,7 @@ $("importBulkQuestions").addEventListener("click",async()=>{
     if(!$("questionYear").value||!moduleId||!$("questionSubject").value||!lectureId){setStatus("bulkQuestionsStatus","اختار السنة والموديول والمادة والمحاضرة من نموذج إضافة السؤال أولاً.");return;}
     if(!parsedBulkQuestions.length)return;
     const btn=$("importBulkQuestions");btn.disabled=true;let saved=0,failed=[];setStatus("bulkQuestionsStatus","جاري استيراد الأسئلة...");
-    for(let i=0;i<parsedBulkQuestions.length;i++){const q=parsedBulkQuestions[i];const {data:row,error}=await supabaseClient.from("questions").insert({module_id:Number(moduleId),lecture_id:Number(lectureId),question_text:q.question,options:q.options,difficulty,question_category:category,is_published:false}).select("id").single();if(error){failed.push(`السؤال ${i+1}: ${error.message}`);continue;}const {error:ae}=await supabaseClient.from("question_answers").insert({question_id:row.id,correct_option:Number(q.correctOption),explanation:q.explanation});if(ae)failed.push(`السؤال ${i+1}: تم حفظ السؤال وفشل حفظ الإجابة: ${ae.message}`);else saved++;setStatus("bulkQuestionsStatus",`تم حفظ ${saved} من ${parsedBulkQuestions.length}...`);}
+    for(let i=0;i<parsedBulkQuestions.length;i++){const q=parsedBulkQuestions[i];const {data:row,error}=await supabaseClient.from("questions").insert({module_id:Number(moduleId),lecture_id:Number(lectureId),question_text:q.question,options:q.options,difficulty,category:"Medschool",question_category:category,is_published:false}).select("id").single();if(error){failed.push(`السؤال ${i+1}: ${error.message}`);continue;}const {error:ae}=await supabaseClient.from("question_answers").insert({question_id:row.id,correct_option:Number(q.correctOption),explanation:q.explanation});if(ae)failed.push(`السؤال ${i+1}: تم حفظ السؤال وفشل حفظ الإجابة: ${ae.message}`);else saved++;setStatus("bulkQuestionsStatus",`تم حفظ ${saved} من ${parsedBulkQuestions.length}...`);}
     btn.disabled=false;setStatus("bulkQuestionsStatus",`تم حفظ ${saved} من ${parsedBulkQuestions.length}.`+(failed.length?"\n"+failed.join("\n"):" تم الاستيراد بنجاح."));if(!failed.length){$("bulkQuestionsText").value="";parsedBulkQuestions=[];renderBulkPreview([],"bulkQuestionsPreview","bulkQuestionsStatus","importBulkQuestions");}await loadAdminQuestions();
 });
 $("parseBulkExamQuestions").addEventListener("click",()=>{parsedBulkExamQuestions=parseBulkQuestionText($("bulkExamQuestionsText").value);renderBulkPreview(parsedBulkExamQuestions,"bulkExamQuestionsPreview","bulkExamQuestionsStatus","importBulkExamQuestions");if(!parsedBulkExamQuestions.length)setStatus("bulkExamQuestionsStatus","لم أتعرف على أسئلة. تأكد أن كل سؤال يبدأ بسطر مثل Question 1:");});
@@ -4694,7 +4706,7 @@ $("pastQuestionForm").addEventListener("submit",async function(e){
 
     const subjectId = $("pastQuestionSubject").value;
 
-    const questionText = $("pastQuestionText").value.trim();
+    const questionText = $("adminPastQuestionText").value.trim();
 
     const options = [
         $("pastOptionA").value.trim(),
@@ -5315,7 +5327,7 @@ function renderPastQuestion(){
     $("pastSubjectName").textContent =
     "Subject: "+(subject?subject.name:"Unknown Subject");
 
-    $("pastQuestionText").textContent =
+    $("pastQuizQuestionText").textContent =
     question.question_text;
 
     $("pastOptions").innerHTML = "";
@@ -5783,7 +5795,7 @@ function showPastResults(result){
 
     backButton.className = "button";
 
-    backButton.textContent = "Choose Another Past Paper";
+    backButton.textContent = "Choose Another Previous Exam";
 
     backButton.addEventListener("click",()=>{
 

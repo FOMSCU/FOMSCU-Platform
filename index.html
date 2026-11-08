@@ -3042,12 +3042,42 @@ $("adminDashboard").addEventListener("click",async function(e){
         }else if(action==="edit-year"){
             const {data:year,error}=await supabaseClient.from("years").select("name,college_id").eq("id",id).single();
             if(error)throw error;
-            const name=prompt("اسم السنة الدراسية:",year.name);
+
+            const {data:colleges,error:collegesError}=await supabaseClient
+                .from("colleges").select("id,name").order("id");
+            if(collegesError)throw collegesError;
+            if(!colleges || !colleges.length){
+                alert("لا توجد كليات متاحة لنقل السنة إليها.");
+                return;
+            }
+
+            const name=prompt("اكتب اسم السنة الدراسية الجديد:",year.name);
             if(name===null)return;
-            if(!name.trim()){alert("اسم السنة لا يمكن أن يكون فارغاً.");return;}
-            const {error:updateError}=await supabaseClient.from("years").update({name:name.trim()}).eq("id",id);
+            if(!name.trim()){
+                alert("اسم السنة لا يمكن أن يكون فارغاً.");
+                return;
+            }
+
+            const collegeChoices=colleges.map((college,index)=>
+                `${index+1}) ${college.name}${String(college.id)===String(year.college_id)?" (الكلية الحالية)":""}`
+            ).join("\n");
+            const currentIndex=colleges.findIndex(college=>String(college.id)===String(year.college_id));
+            const collegeChoice=prompt(
+                "اختار الكلية التي تتبعها السنة بكتابة رقمها:\n\n"+collegeChoices,
+                String(currentIndex>=0?currentIndex+1:1)
+            );
+            if(collegeChoice===null)return;
+            const selectedIndex=Number(collegeChoice)-1;
+            if(!Number.isInteger(selectedIndex)||selectedIndex<0||selectedIndex>=colleges.length){
+                alert("رقم الكلية غير صحيح. لم يتم حفظ أي تعديل.");
+                return;
+            }
+            const selectedCollege=colleges[selectedIndex];
+            const {error:updateError}=await supabaseClient.from("years")
+                .update({name:name.trim(),college_id:selectedCollege.id})
+                .eq("id",id);
             if(updateError)throw updateError;
-            setStatus("yearStatus","تم تعديل اسم السنة الدراسية.");
+            setStatus("yearStatus","تم تعديل اسم السنة والكلية التابعة لها بنجاح.");
             await refreshAll();
             await loadAdminAcademicStructure();
         }else if(action==="rename-module"){

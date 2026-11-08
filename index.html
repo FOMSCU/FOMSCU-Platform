@@ -13,7 +13,7 @@
 body{
     font-family:Arial,sans-serif;
     background:#080e19;
-    color:white;
+    color:white;ِ
 }
 
 header{
@@ -396,6 +396,15 @@ footer{
 .leaderboard-muted{color:#aebbd0;line-height:1.6}
 
 
+
+.top-student-nav{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px}
+.top-student-nav a{color:#dce6f4;text-decoration:none;padding:9px 12px;border-radius:9px;transition:background .2s,color .2s}
+.top-student-nav a:hover{background:#123c46;color:#42d6b0}
+.college-rank-summary{margin:18px 0;padding:20px;background:linear-gradient(120deg,#10243a,#123c46);border:1px solid #42d6b0;border-radius:14px;color:#eaf5f5;line-height:1.8}
+.college-rank-summary strong{color:#42d6b0}
+.college-rank-number{font-size:30px;font-weight:800;color:#42d6b0;display:inline-block;margin:0 5px}
+@media(max-width:700px){.top-student-nav{gap:3px}.top-student-nav a{font-size:12px;padding:7px 8px}}
+
 /* Student dashboard */
 #studentDashboard{display:none;max-width:1240px;margin:28px auto;padding:0 18px 35px;direction:rtl}
 .student-welcome{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:24px 28px;background:linear-gradient(120deg,#101a2b,#123c46);border:1px solid #294b5b;border-radius:18px;margin-bottom:20px}
@@ -421,6 +430,13 @@ footer{
 .student-logout{margin:14px 10px 5px;width:calc(100% - 20px);padding:11px;border:1px solid #8f3b4a;border-radius:9px;color:#ffb8c1;background:#351c27;cursor:pointer}
 @media(max-width:760px){.student-layout{grid-template-columns:1fr}.student-sidebar{position:static}.student-sidebar nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px}.student-welcome{align-items:flex-start;flex-direction:column}.student-welcome h1{font-size:23px}.student-main{padding:18px}}
 
+
+.team-permissions-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px}
+.team-permission-option{display:flex;align-items:flex-start;gap:9px;padding:10px 12px;background:#101c2d;border:1px solid #30445f;border-radius:8px;color:#e8eef8;font-size:13px;line-height:1.45}
+.team-permission-option input{width:auto;min-width:16px;margin-top:2px;accent-color:#42d6b0}
+.team-member-row{padding:13px;margin:10px 0;background:#101c2d;border:1px solid #30445f;border-radius:9px}
+.team-member-row strong{color:#42d6b0}
+.team-member-meta{color:#aebbd0;font-size:13px;line-height:1.7;margin-top:5px}
 </style>
 </head>
 
@@ -429,11 +445,13 @@ footer{
 <header>
     <div class="logo">MEDSCHOOL</div>
 
-    <nav>
-        <a href="#">Home</a>
-        <a href="#courses">Courses</a>
-        <a href="#quizSection">MCQ Bank</a>
-        <a href="#pastPapers">Past Papers</a>
+    <nav class="top-student-nav" aria-label="التنقل الرئيسي">
+        <a href="#studentDashboard" data-view="overview">الرئيسية</a>
+        <a href="#studentDashboard" data-view="academics">الكليات والموديولات</a>
+        <a href="#studentDashboard" data-view="academics" data-scroll-target="quizSection">MCQ Bank</a>
+        <a href="#studentDashboard" data-view="academics" data-scroll-target="pastPapers">Past Papers</a>
+        <a href="#studentDashboard" data-view="arena">Medschool Arena</a>
+        <a href="#studentDashboard" data-view="points">ترتيبك</a>
     </nav>
 </header>
 
@@ -485,7 +503,7 @@ footer{
         <div class="profile-note">تعديل الاسم والصورة وبيانات الحساب سيتم تفعيله بعد تجهيز حقول الملف الشخصي وسياسات الحماية اللازمة في قاعدة البيانات. لن نسمح بتغيير صلاحية الحساب أو الكلية والسنة الأساسية من هنا.</div>
       </section>
       <section class="student-view" id="view-academics"><h2>الكليات والموديولات</h2><p>اختار الكلية التي تريد تصفح محتواها الدراسي. اختيار التصفح لا يغيّر الكلية الأساسية لحسابك.</p><div id="academicsMount"></div></section>
-      <section class="student-view" id="view-points"><h2>بنك درجاتك</h2><p>رصيد نقاطك وترتيبك في الكلية والدفعة والموديولات.</p><div id="pointsMount"></div></section>
+      <section class="student-view" id="view-points"><h2>بنك درجاتك</h2><p>رصيد نقاطك وترتيبك في الكلية والدفعة والموديولات.</p><div id="collegeRankSummary" class="college-rank-summary">جاري حساب ترتيبك بين طلاب كليتك...</div><div id="pointsMount"></div></section>
       <section class="student-view" id="view-arena"><h2>Medschool Arena – ساحة التحدي</h2><p>المسابقات والتحديات اليومية والأسبوعية.</p><div class="coming-soon">قريبًا — نجهّز نظام المسابقات ومواعيدها ونقاطها قبل تفعيله.</div></section>
       <section class="student-view" id="view-history"><h2>سجل درجاتك</h2><p>تاريخ إجاباتك ومحاولاتك ونتائج الامتحانات.</p><div class="coming-soon">قريبًا — سيتم ربط سجل المحاولات بنتائجك الفعلية من قاعدة البيانات.</div></section>
       <section class="student-view" id="view-ai"><h2>Medschool AI</h2><p>مساعد ذكاء اصطناعي للتعلم الطبي.</p><div class="coming-soon">قريبًا — سنبني المساعد بربط آمن من الخادم، ولن نضع مفاتيح API داخل كود الموقع.</div></section>
@@ -787,6 +805,31 @@ footer{
     <p class="dashboard-description">
         Manage academic years, modules, subjects, lectures and questions.
     </p>
+
+    <!-- MEDSCHOOL TEAM MANAGEMENT -->
+    <div class="management-section" id="teamManagementSection">
+        <h3>👥 Medschool Team &amp; Staff Management</h3>
+        <p style="color:#aebbd0;line-height:1.7;margin:8px 0 18px">Create independent team accounts and assign their work permissions. Team members do not receive student accounts or student points.</p>
+
+        <form id="teamMemberForm" class="management-form">
+            <input id="teamFullName" type="text" placeholder="Full name" required maxlength="120">
+            <input id="teamJobTitle" type="text" placeholder="Job title (e.g. Question Manager)" maxlength="120">
+            <input id="teamEmail" type="email" placeholder="Email address" required maxlength="254">
+            <input id="teamPassword" type="password" placeholder="Temporary password (at least 12 characters)" required minlength="12" autocomplete="new-password">
+            <div style="grid-column:1/-1">
+                <h4 style="color:#42d6b0;margin:8px 0 12px">Assign permissions</h4>
+                <div id="teamPermissionsList" class="team-permissions-grid">Loading permissions...</div>
+            </div>
+            <button type="submit" id="createTeamMemberButton" class="full-width">+ Create Team Member</button>
+        </form>
+        <div id="teamManagementStatus" class="status" role="status" aria-live="polite"></div>
+
+        <div class="management-list">
+            <h4>Current Team Members</h4>
+            <div id="teamMembersList">Loading team members...</div>
+            <button type="button" id="refreshTeamMembers" class="button" style="margin-top:12px">Refresh Team List</button>
+        </div>
+    </div>
 
     <div class="admin-cards">
 
@@ -1457,6 +1500,27 @@ async function loadMyLeaderboards(){
     $("leaderboardStatus").textContent = "جاري تحميل الترتيب...";
     $("leaderboardGrid").innerHTML = "";
     $("myPointsSummary").textContent = "جاري تحميل نقاطك...";
+    const rankSummary = $("collegeRankSummary");
+    if(rankSummary) rankSummary.textContent = "جاري حساب ترتيبك بين طلاب كليتك...";
+
+    const rankResult = await supabaseClient.rpc("get_my_college_rank_summary");
+    if(rankSummary){
+        if(rankResult.error){
+            rankSummary.textContent = "ترتيبك العام سيظهر بعد تفعيل خدمة ترتيب جميع طلاب الكلية في قاعدة البيانات.";
+            console.warn("get_my_college_rank_summary:",rankResult.error.message);
+        }else{
+            const summary = Array.isArray(rankResult.data) ? rankResult.data[0] : rankResult.data;
+            if(summary && Number(summary.total_students)>0){
+                rankSummary.innerHTML = `
+                    <div>ترتيبك العام في كليتك الأساسية</div>
+                    <div><span class="college-rank-number">${Number(summary.college_rank).toLocaleString("en-US")}</span> من <strong>${Number(summary.total_students).toLocaleString("en-US")}</strong> طالب</div>
+                    <div>رصيدك الحالي: <strong>${Number(summary.total_points||0).toLocaleString("en-US")} نقطة</strong></div>
+                `;
+            }else{
+                rankSummary.textContent = "لم نتمكن من تحديد ترتيبك حاليًا. تأكد من اكتمال بيانات الكلية في حسابك.";
+            }
+        }
+    }
 
     const {data,error} = await supabaseClient.rpc("get_my_leaderboards");
     if(error){
@@ -1598,6 +1662,8 @@ async function showUserRole(){
             await refreshAll();
 
             await loadAdminPastExams();
+
+            await loadTeamManagement();
 
         }else{
 
@@ -1758,7 +1824,20 @@ function openStudentView(viewName){
     }
 }
 
-document.querySelectorAll("[data-view]").forEach(button=>button.addEventListener("click",()=>openStudentView(button.dataset.view)));
+document.querySelectorAll("[data-view]").forEach(control=>control.addEventListener("click",event=>{
+    if(control.tagName==="A") event.preventDefault();
+    openStudentView(control.dataset.view);
+    const targetId=control.dataset.scrollTarget;
+    if(targetId){
+        setTimeout(()=>{
+            const target=$(targetId);
+            if(target) target.scrollIntoView({behavior:"smooth",block:"start"});
+        },120);
+    }else{
+        const dashboard=$("studentDashboard");
+        if(dashboard) dashboard.scrollIntoView({behavior:"smooth",block:"start"});
+    }
+}));
 $("openProfileButton").addEventListener("click",()=>openStudentView("profile"));
 
 $("logoutButton").addEventListener("click",async()=>{
@@ -1831,6 +1910,135 @@ supabaseClient.auth.onAuthStateChange(event=>{
 
 });
 
+
+
+// ==================================================
+// MEDSCHOOL TEAM & STAFF MANAGEMENT
+// ==================================================
+
+const TEAM_FUNCTION_URL = SUPABASE_URL + "/functions/v1/create-team-member";
+
+function teamStatus(message, isError=false){
+    const el = $("teamManagementStatus");
+    if(!el) return;
+    el.textContent = message || "";
+    el.style.color = isError ? "#ff8b8b" : "#42d6b0";
+}
+
+function renderTeamPermissions(items){
+    const box = $("teamPermissionsList");
+    if(!box) return;
+    box.replaceChildren();
+    (items || []).forEach(item=>{
+        const label = document.createElement("label");
+        label.className = "team-permission-option";
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.name = "teamPermission";
+        input.value = item.permission_key;
+        const textWrap = document.createElement("span");
+        const title = document.createElement("strong");
+        title.textContent = item.permission_name || item.permission_key;
+        const desc = document.createElement("div");
+        desc.style.color = "#aebbd0";
+        desc.textContent = item.description || "";
+        textWrap.append(title,desc);
+        label.append(input,textWrap);
+        box.appendChild(label);
+    });
+    if(!items || !items.length) box.textContent = "No permissions are available.";
+}
+
+async function loadTeamMembers(){
+    const box = $("teamMembersList");
+    if(!box) return;
+    box.textContent = "Loading team members...";
+    const {data,error} = await supabaseClient.rpc("get_team_members");
+    if(error){
+        box.textContent = "Could not load team members: " + error.message;
+        return;
+    }
+    box.replaceChildren();
+    if(!data || !data.length){
+        box.textContent = "No team members have been added yet.";
+        return;
+    }
+    data.forEach(member=>{
+        const card = document.createElement("div");
+        card.className = "team-member-row";
+        const name = document.createElement("strong");
+        name.textContent = member.full_name || "Unnamed member";
+        const meta = document.createElement("div");
+        meta.className = "team-member-meta";
+        const permissions = Array.isArray(member.permissions) ? member.permissions : [];
+        const permissionNames = permissions.map(p=>typeof p === "string" ? p : (p.permission_name || p.permission_key || "")).filter(Boolean);
+        meta.textContent = (member.job_title || "Team member") + " · " + (member.is_active ? "Active" : "Inactive") + " · Permissions: " + (permissionNames.join(", ") || "None");
+        card.append(name,meta);
+        box.appendChild(card);
+    });
+}
+
+async function loadTeamManagement(){
+    if(currentUserRole !== "admin") return;
+    teamStatus("Loading team permissions...");
+    const {data,error} = await supabaseClient.rpc("get_available_team_permissions");
+    if(error){
+        renderTeamPermissions([]);
+        teamStatus("Could not load permissions: " + error.message,true);
+    }else{
+        renderTeamPermissions(data || []);
+        teamStatus("");
+    }
+    await loadTeamMembers();
+}
+
+$("teamMemberForm").addEventListener("submit",async event=>{
+    event.preventDefault();
+    if(currentUserRole !== "admin"){
+        teamStatus("Only the platform administrator can create team accounts.",true);
+        return;
+    }
+    const button = $("createTeamMemberButton");
+    button.disabled = true;
+    teamStatus("Creating team account...");
+    try{
+        const {data:sessionData,error:sessionError} = await supabaseClient.auth.getSession();
+        const accessToken = sessionData?.session?.access_token;
+        if(sessionError || !accessToken){
+            throw new Error("Your login session could not be verified. Please sign in again.");
+        }
+        const permissions = Array.from(document.querySelectorAll('input[name="teamPermission"]:checked')).map(input=>input.value);
+        const response = await fetch(TEAM_FUNCTION_URL,{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":"Bearer " + accessToken,
+                "apikey":SUPABASE_KEY
+            },
+            body:JSON.stringify({
+                full_name:$("teamFullName").value.trim(),
+                job_title:$("teamJobTitle").value.trim(),
+                email:$("teamEmail").value.trim(),
+                password:$("teamPassword").value,
+                permissions
+            })
+        });
+        const result = await response.json().catch(()=>({}));
+        if(!response.ok || !result.success){
+            throw new Error(result.error || result.message || "Team account creation failed (HTTP " + response.status + ").");
+        }
+        $("teamMemberForm").reset();
+        teamStatus("Team member created successfully: " + (result.email || ""));
+        await loadTeamMembers();
+    }catch(error){
+        console.error("Team management error:",error);
+        teamStatus(error.message || "An unexpected error occurred.",true);
+    }finally{
+        button.disabled = false;
+    }
+});
+
+$("refreshTeamMembers").addEventListener("click",loadTeamMembers);
 
 // ==================================================
 // ACADEMIC DATA

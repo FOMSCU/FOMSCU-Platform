@@ -254,8 +254,10 @@ nav a{
 .drag-handle{position:absolute;left:0;top:10px;width:30px;height:34px;display:flex;align-items:center;justify-content:center;color:#8da4c2;font-size:23px;line-height:1;cursor:grab;touch-action:none;user-select:none;border-radius:6px}
 .drag-handle:hover{background:#263750;color:#42d6b0}
 .dragging-record .drag-handle{cursor:grabbing;color:#42d6b0}
-.admin-record.dragging-record{opacity:.48;background:#1c2c43}
-.admin-record.drag-over-record{border-top:3px solid #42d6b0}
+.admin-record{transition:background .12s ease, opacity .12s ease}
+.admin-record.dragging-record{opacity:.78;background:#203b55;box-shadow:0 8px 22px rgba(0,0,0,.28);position:relative;z-index:5}
+.admin-record.drag-over-record{border-top:3px solid #42d6b0;background:#172d42}
+.admin-record.drag-placeholder{min-height:54px;border:1px dashed #42d6b0;border-radius:8px;background:rgba(66,214,176,.07)}
 .drag-hint{font-size:12px;color:#8da4c2;margin:0 0 10px}
 .admin-record:last-child{border-bottom:0}
 .admin-record small{display:block;color:#aebbd0;margin-top:4px}
@@ -3030,73 +3032,85 @@ $("yearForm").addEventListener("submit",async function(e){
     setLoading("addYearButton",false);
 });
 
-// Long-press drag-and-drop sorting for colleges, years, modules and subject links.
-(function enableLongPressSorting(){
-    const sortableTables={colleges:"colleges",years:"years",modules:"modules",module_subjects:"module_subjects"};
-    let pressTimer=null, activeRow=null, pointerId=null, moved=false;
-    function clearDrag(){
-        if(pressTimer)clearTimeout(pressTimer); pressTimer=null;
-        document.querySelectorAll(".drag-over-record").forEach(x=>x.classList.remove("drag-over-record"));
+// Smooth drag-and-drop: reorder within a group or move records between parent groups.
+(function enableFlexibleSorting(){
+    const config={
+        colleges:{table:"colleges",parent:null,reload:async()=>{await loadAdminAcademicStructure();}},
+        years:{table:"years",parent:"college_id",reload:async()=>{await loadAdminAcademicStructure();await loadYears();}},
+        modules:{table:"modules",parent:"year_id",reload:async()=>{await loadModules();}},
+        module_subjects:{table:"module_subjects",parent:"module_id",reload:async()=>{await loadSubjects();}}
+    };
+    let activeRow=null, pointerId=null, startX=0, startY=0, dragging=false, sourceGroup=null, raf=0, lastPoint=null;
+
+    function resetDrag(){
+        if(raf)cancelAnimationFrame(raf); raf=0; lastPoint=null;
+        document.querySelectorAll(".drag-over-record").forEach(el=>el.classList.remove("drag-over-record"));
+        document.querySelectorAll(".drag-placeholder").forEach(el=>el.remove());
         if(activeRow)activeRow.classList.remove("dragging-record");
-        activeRow=null; pointerId=null; moved=false;
+        activeRow=null; pointerId=null; dragging=false; sourceGroup=null;
+    }
+    function placeRowAtPoint(x,y){
+        if(!activeRow)return;
+        const target=document.elementFromPoint(x,y)?.closest(".admin-record.sortable-record");
+        if(!target || target===activeRow || target.dataset.sortType!==activeRow.dataset.sortType || target.parentElement!==activeRow.parentElement)return;
+        document.querySelectorAll(".drag-over-record").forEach(el=>el.classList.remove("drag-over-record"));
+        const rect=target.getBoundingClientRect();
+        const before=y<rect.top+rect.height/2;
+        const newGroup=target.dataset.sortGroup;
+        activeRow.dataset.sortGroup=newGroup;
+        target.classList.add("drag-over-record");
+        if(before)target.parentElement.insertBefore(activeRow,target);
+        else target.parentElement.insertBefore(activeRow,target.nextSibling);
     }
     document.addEventListener("pointerdown",e=>{
         const handle=e.target.closest(".drag-handle");
-        if(!handle)return;
+        if(!handle || e.button!==0)return;
         const row=handle.closest(".admin-record.sortable-record");
         if(!row)return;
-        e.preventDefault();
-        activeRow=row; pointerId=e.pointerId; moved=false;
-        pressTimer=setTimeout(()=>{
-            if(!activeRow)return;
-            activeRow.classList.add("dragging-record");
-            if(navigator.vibrate)navigator.vibrate(25);
-        },380);
+        activeRow=row; pointerId=e.pointerId; startX=e.clientX; startY=e.clientY;
+        sourceGroup=row.dataset.sortGroup; dragging=false;
     });
     document.addEventListener("pointermove",e=>{
         if(!activeRow || e.pointerId!==pointerId)return;
-        if(!activeRow.classList.contains("dragging-record")){
-            if(Math.abs(e.movementX)+Math.abs(e.movementY)>10){clearTimeout(pressTimer);pressTimer=null;}
-            return;
+        if(!dragging){
+            if(Math.hypot(e.clientX-startX,e.clientY-startY)<6)return;
+            dragging=true; activeRow.classList.add("dragging-record");
+            if(navigator.vibrate)navigator.vibrate(15);
         }
-        moved=true;
-        const target=document.elementFromPoint(e.clientX,e.clientY)?.closest(".admin-record.sortable-record");
-        if(!target || target===activeRow || target.parentElement!==activeRow.parentElement || target.dataset.sortType!==activeRow.dataset.sortType || target.dataset.sortGroup!==activeRow.dataset.sortGroup)return;
-        target.classList.add("drag-over-record");
-        const rect=target.getBoundingClientRect();
-        if(e.clientY<rect.top+rect.height/2)target.parentElement.insertBefore(activeRow,target);
-        else target.parentElement.insertBefore(activeRow,target.nextSibling);
-        target.classList.remove("drag-over-record");
-    });
+        e.preventDefault(); lastPoint={x:e.clientX,y:e.clientY};
+        if(!raf)raf=requestAnimationFrame(()=>{raf=0;if(lastPoint)placeRowAtPoint(lastPoint.x,lastPoint.y);});
+    },{passive:false});
     document.addEventListener("pointerup",async e=>{
         if(!activeRow || e.pointerId!==pointerId)return;
-        const row=activeRow, wasDragging=row.classList.contains("dragging-record"), didMove=moved;
+        const row=activeRow, didDrag=dragging, type=row.dataset.sortType, targetGroup=row.dataset.sortGroup;
         const listContainer=row.parentElement;
-        clearDrag();
-        if(!wasDragging || !didMove)return;
-        const type=row.dataset.sortType, group=row.dataset.sortGroup;
-        const siblings=[...listContainer.querySelectorAll(`.admin-record[data-sort-type="${type}"][data-sort-group="${group}"]`)];
-        const table=sortableTables[type];
+        resetDrag();
+        if(!didDrag || !listContainer || !config[type])return;
+        const cfg=config[type], table=cfg.table;
         try{
-            for(let i=0;i<siblings.length;i++){
-                const id=siblings[i].dataset.sortId;
-                const {error}=await supabaseClient.from(table).update({sort_order:(i+1)*10}).eq("id",id);
+            if(cfg.parent && String(sourceGroup)!==String(targetGroup)){
+                const {error}=await supabaseClient.from(table).update({[cfg.parent]:targetGroup}).eq("id",row.dataset.sortId);
                 if(error)throw error;
             }
-            if(type==="colleges")await loadAdminAcademicStructure();
-            else if(type==="years"){await loadAdminAcademicStructure();await loadYears();}
-            else if(type==="modules"){await loadModules();}
-            else if(type==="module_subjects"){await loadSubjects();}
-            const notice=document.createElement("div"); notice.className="drag-hint"; notice.textContent="تم حفظ الترتيب الجديد بنجاح.";
-            if(listContainer && listContainer.parentElement)listContainer.parentElement.insertBefore(notice,listContainer);
-            setTimeout(()=>notice.remove(),2200);
+            const allRows=[...listContainer.querySelectorAll(`.admin-record[data-sort-type="${type}"]`)];
+            const groups=new Set([String(sourceGroup),String(targetGroup)]);
+            for(const group of groups){
+                const siblings=allRows.filter(el=>String(el.dataset.sortGroup)===group);
+                for(let i=0;i<siblings.length;i++){
+                    const {error}=await supabaseClient.from(table).update({sort_order:(i+1)*10}).eq("id",siblings[i].dataset.sortId);
+                    if(error)throw error;
+                }
+            }
+            await cfg.reload();
+            const notice=document.createElement("div"); notice.className="drag-hint"; notice.textContent="تم حفظ الترتيب / النقل بنجاح.";
+            const currentList=document.getElementById(type==="colleges"?"collegesList":type==="years"?"yearsList":type==="modules"?"modulesList":"subjectsList");
+            if(currentList?.parentElement){currentList.parentElement.insertBefore(notice,currentList);setTimeout(()=>notice.remove(),2500);}
         }catch(err){
-            alert("لم يتم حفظ الترتيب: "+(err.message||err));
-            if(type==="colleges"||type==="years")await loadAdminAcademicStructure();
-            else if(type==="modules")await loadModules(); else await loadSubjects();
+            alert("لم يتم حفظ الترتيب أو النقل: "+(err.message||err));
+            try{await cfg.reload();}catch(reloadError){console.error(reloadError);}
         }
     });
-    document.addEventListener("pointercancel",clearDrag);
+    document.addEventListener("pointercancel",resetDrag);
 })();
 
 $("adminDashboard").addEventListener("click",async function(e){

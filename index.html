@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -382,6 +383,141 @@ footer{
 
 <body>
 
+.list-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    padding:14px;
+    margin-top:10px;
+    background:#080e19;
+    border:1px solid #263750;
+    border-radius:8px;
+}
+
+.list-item span{overflow-wrap:anywhere}
+
+.status{
+    margin-top:15px;
+    color:#42d6b0;
+    line-height:1.6;
+    overflow-wrap:anywhere;
+}
+
+.quiz-question{
+    background:#121e30;
+    border:1px solid #263750;
+    border-radius:12px;
+    padding:25px;
+    margin-top:20px;
+}
+
+.quiz-option{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:#080e19;
+    border:1px solid #40516b;
+    padding:15px;
+    margin-top:12px;
+    border-radius:8px;
+    cursor:pointer;
+    line-height:1.5;
+}
+
+.quiz-option:hover{border-color:#42d6b0}
+
+.quiz-option input{
+    accent-color:#42d6b0;
+    width:18px;
+    height:18px;
+}
+
+.quiz-feedback{
+    padding:15px;
+    margin-top:20px;
+    border-radius:8px;
+    line-height:1.7;
+}
+
+.quiz-correct{
+    background:#123c30;
+    border:1px solid #42d6b0;
+}
+
+.quiz-wrong{
+    background:#421e25;
+    border:1px solid #e57373;
+}
+
+.quiz-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-top:20px;
+}
+
+.quiz-actions button{margin-top:0}
+
+.hidden{display:none!important}
+
+.result-card{
+    background:#121e30;
+    padding:25px;
+    margin-top:20px;
+    border-radius:12px;
+    border:1px solid #42d6b0;
+}
+
+.result-card h3{
+    color:#42d6b0;
+    margin-bottom:15px;
+}
+
+.result-card p{
+    line-height:1.8;
+    margin-top:8px;
+    overflow-wrap:anywhere;
+}
+
+.badge{
+    display:inline-block;
+    padding:5px 10px;
+    border-radius:6px;
+    background:#263750;
+    margin:5px;
+    font-size:13px;
+}
+
+footer{
+    text-align:center;
+    padding:30px;
+    color:#8190a5;
+    border-top:1px solid #25344b;
+}
+
+@media(max-width:600px){
+    header{
+        flex-direction:column;
+        gap:15px;
+    }
+
+    nav a{margin:0 6px}
+
+    .hero h1{font-size:34px}
+
+    #adminDashboard,#quizSection,#pastPapers{
+        margin:25px 12px;
+        padding:18px;
+    }
+
+    .management-section{padding:18px}
+}
+</style>
+</head>
+
+<body>
+
 <header>
     <div class="logo">MEDSCHOOL</div>
 
@@ -496,8 +632,7 @@ footer{
     <p class="dashboard-description">
         اختار السنة والموديول والمادة والمحاضرة ونوع الأسئلة.
     </p>
-
-    <div class="management-form">
+        <div class="management-form">
 
         <select id="quizYear">
             <option value="">Select Academic Year</option>
@@ -746,7 +881,7 @@ footer{
         <div class="management-list">
             <h4>Existing Subject Connections</h4>
             <div id="subjectsList">Loading...</div>
-        </div>
+                    </div>
 
     </div>
 
@@ -994,9 +1129,8 @@ footer{
             </div>
         </div>
 
-    </div>
-
-</section>
+    </div> 
+    </section>
 
 
 <footer>
@@ -1042,6 +1176,7 @@ let currentQuestionAnswered = false;
 let quizScore = 0;
 
 let pastExams = [];
+let selectedAdminExamId = null;
 let pastQuestions = [];
 let pastAttemptId = null;
 let pastCurrentIndex = 0;
@@ -1244,8 +1379,7 @@ async function showUserRole(){
     try{
 
         hideAdminDashboard();
-
-        $("quizSection").style.display = "none";
+                $("quizSection").style.display = "none";
 
         hidePastPapers();
 
@@ -1494,7 +1628,6 @@ async function loadModules(){
     if(error){
 
         $("modulesList").textContent = error.message;
-
         return;
 
     }
@@ -1744,9 +1877,7 @@ function updateAllLectureSelects(){
     );
 
 }
-
-
-async function refreshAll(){
+    async function refreshAll(){
 
     await loadYears();
 
@@ -1995,8 +2126,7 @@ $("questionForm").addEventListener("submit",async function(e){
 
     if(!moduleId || !lectureId || !questionText ||
        options.some(o=>!o) || correctOption===""){
-
-        setStatus("questionStatus","أكمل جميع البيانات.");
+                setStatus("questionStatus","أكمل جميع البيانات.");
 
         return;
 
@@ -2245,8 +2375,7 @@ $("quizSubject").addEventListener("change",async function(){
     if(error || !relation){
 
         setStatus("quizStatus","تعذر العثور على المادة.");
-
-        return;
+                return;
 
     }
 
@@ -2496,8 +2625,7 @@ async function submitCurrentAnswer(){
     box.append(title,explanation);
 
     $("quizFeedback").appendChild(box);
-
-    document.querySelectorAll(
+        document.querySelectorAll(
         'input[name="selectedAnswer"]'
     ).forEach(input=>input.disabled=true);
 
@@ -2583,6 +2711,7 @@ async function loadAdminPastExams(){
     pastExams = data || [];
 
     const select = $("adminExamSelect");
+    const previousSelectedId = selectedAdminExamId || select.value;
 
     select.innerHTML =
     '<option value="">Select Existing Exam</option>';
@@ -2606,6 +2735,18 @@ async function loadAdminPastExams(){
         select.appendChild(option);
 
     });
+
+    const selectionStillExists = pastExams.some(
+        exam=>String(exam.id)===String(previousSelectedId)
+    );
+
+    if(selectionStillExists){
+        select.value = String(previousSelectedId);
+        selectedAdminExamId = String(previousSelectedId);
+    }else{
+        select.value = "";
+        selectedAdminExamId = null;
+    }
 
 }
 
@@ -2672,7 +2813,8 @@ $("createPastExamForm").addEventListener("submit",async function(e){
 
     await loadAdminPastExams();
 
-    $("adminExamSelect").value = data.id;
+    $("adminExamSelect").value = String(data.id);
+    selectedAdminExamId = String(data.id);
 
     await loadSelectedAdminExam();
 
@@ -2685,13 +2827,19 @@ $("createPastExamForm").addEventListener("submit",async function(e){
 
 $("adminExamSelect").addEventListener(
     "change",
-    loadSelectedAdminExam
+    function(){
+        selectedAdminExamId = this.value || null;
+        loadSelectedAdminExam();
+    }
 );
 
 
 async function loadSelectedAdminExam(){
 
-    const examId = $("adminExamSelect").value;
+    const examId = $("adminExamSelect").selectedOptions[0]?.value ||
+        selectedAdminExamId || "";
+
+    selectedAdminExamId = examId || null;
 
     $("adminPastQuestions").innerHTML = "";
 
@@ -2725,6 +2873,7 @@ async function loadSelectedAdminExam(){
         " — "+exam.exam_type+
         " — "+exam.exam_year+
         " — "+(exam.is_published?"Published":"Draft")
+    );
     );
 
     const relationIds = relationsData
@@ -2812,11 +2961,12 @@ $("pastQuestionForm").addEventListener("submit",async function(e){
 
     if(currentUserRole!=="admin")return;
 
-    const examId = $("adminExamSelect").value;
+    const examId = $("adminExamSelect").selectedOptions[0]?.value ||
+        selectedAdminExamId || "";
 
     if(!examId){
 
-        setStatus("pastQuestionStatus","اختار امتحان أولاً.");
+        setStatus("pastQuestionStatus","اختار امتحان أولاً من قائمة Select Exam to Manage.");
 
         return;
 
@@ -2960,7 +3110,8 @@ $("pastQuestionForm").addEventListener("submit",async function(e){
 
 $("publishPastExam").addEventListener("click",async()=>{
 
-    const examId = $("adminExamSelect").value;
+    const examId = $("adminExamSelect").selectedOptions[0]?.value ||
+        selectedAdminExamId || "";
 
     if(!examId){
 
@@ -2973,53 +3124,244 @@ $("publishPastExam").addEventListener("click",async()=>{
     const {data:questions,error:questionsError} =
     await supabaseClient
         .from("exam_questions")
-        .select("id")
-        .eq("exam_id",Number(examId));
+        );
 
-    if(questionsError){
+    const relationIds = relationsData
+        .filter(r=>String(r.module_id)===String(exam.module_id))
+        .map(r=>String(r.subject_id));
 
-        setStatus("publishStatus",questionsError.message);
+    const subjects = subjectsData.filter(
+        s=>relationIds.includes(String(s.id))
+    );
+
+    fillSelect(
+        "pastQuestionSubject",
+        subjects,
+        "Select Subject"
+    );
+
+    await loadAdminPastQuestions(examId);
+
+}
+
+
+async function loadAdminPastQuestions(examId){
+
+    const {data,error} = await supabaseClient
+        .from("exam_questions")
+        .select("id,question_text,subject_id,question_order")
+        .eq("exam_id",Number(examId))
+        .order("question_order",{ascending:true});
+
+    if(error){
+
+        $("adminPastQuestions").textContent = error.message;
 
         return;
 
     }
 
-    if(!questions || !questions.length){
+    const container = $("adminPastQuestions");
+
+    container.innerHTML = "";
+
+    if(!data || !data.length){
+
+        container.textContent =
+        "لا توجد أسئلة في هذا الامتحان بعد.";
+
+        return;
+
+    }
+
+    const count = document.createElement("p");
+
+    count.className = "status";
+
+    count.textContent =
+    "Total Questions: "+data.length;
+
+    container.appendChild(count);
+
+    data.forEach((question,index)=>{
+
+        const subject = subjectsData.find(
+            s=>String(s.id)===String(question.subject_id)
+        );
+
+        addListItem(
+            container,
+            (index+1)+". "+
+            question.question_text+
+            " — "+(subject?subject.name:"Unknown Subject")
+        );
+
+    });
+
+}
+
+
+// ==================================================
+// ADMIN: ADD PAST PAPER QUESTION
+// ==================================================
+
+$("pastQuestionForm").addEventListener("submit",async function(e){
+
+    e.preventDefault();
+
+    if(currentUserRole!=="admin")return;
+
+    const examId = $("adminExamSelect").selectedOptions[0]?.value ||
+        selectedAdminExamId || "";
+
+    if(!examId){
+
+        setStatus("pastQuestionStatus","اختار امتحان أولاً من قائمة Select Exam to Manage.");
+
+        return;
+
+    }
+
+    const subjectId = $("pastQuestionSubject").value;
+
+    const questionText = $("pastQuestionText").value.trim();
+
+    const options = [
+        $("pastOptionA").value.trim(),
+        $("pastOptionB").value.trim(),
+        $("pastOptionC").value.trim(),
+        $("pastOptionD").value.trim()
+    ];
+
+    const correctOption = $("pastCorrectOption").value;
+
+    const explanation = $("pastExplanation").value.trim();
+
+    if(!subjectId || !questionText ||
+       options.some(o=>!o) || correctOption===""){
+
+        setStatus("pastQuestionStatus","أكمل جميع البيانات.");
+
+        return;
+
+    }
+
+    const exam = pastExams.find(
+        e=>String(e.id)===String(examId)
+    );
+
+    if(!exam)return;
+
+    const relation = relationsData.find(r=>
+        String(r.module_id)===String(exam.module_id) &&
+        String(r.subject_id)===String(subjectId)
+    );
+
+    if(!relation){
 
         setStatus(
-            "publishStatus",
-            "لا يمكن نشر امتحان بدون أسئلة."
+            "pastQuestionStatus",
+            "المادة غير مرتبطة بالموديول."
         );
 
         return;
 
     }
 
-    const {error} = await supabaseClient
-        .from("module_exams")
-        .update({is_published:true})
-        .eq("id",Number(examId));
+    setStatus("pastQuestionStatus","جاري حفظ السؤال...");
 
-    if(error){
+    const {data:existingQuestions,error:countError} =
+    await supabaseClient
+        .from("exam_questions")
+        .select("id")
+        .eq("exam_id",Number(examId));
 
-        setStatus("publishStatus",error.message);
+    if(countError){
+
+        setStatus("pastQuestionStatus",countError.message);
 
         return;
 
     }
 
-    setStatus("publishStatus","تم نشر الامتحان بنجاح.");
+    const nextOrder = (existingQuestions||[]).length + 1;
 
-    await loadAdminPastExams();
+    const {data:question,error:questionError} =
+    await supabaseClient
+        .from("exam_questions")
+        .insert({
 
-    await loadSelectedAdminExam();
+            exam_id:Number(examId),
+
+            subject_id:Number(subjectId),
+
+            question_text:questionText,
+
+            options,
+
+            difficulty:"Medium",
+
+            question_order:nextOrder
+
+        })
+        .select("id")
+        .single();
+
+    if(questionError){
+
+        setStatus(
+            "pastQuestionStatus",
+            questionError.message
+        );
+
+        return;
+
+    }
+
+    const {error:answerError} = await supabaseClient
+        .from("exam_answers")
+        .insert({
+
+            question_id:question.id,
+
+            correct_option:Number(correctOption),
+
+            explanation
+
+        });
+
+    if(answerError){
+
+        setStatus(
+            "pastQuestionStatus",
+            "تم حفظ السؤال لكن فشل حفظ الإجابة: "+
+            answerError.message
+        );
+
+        return;
+
+    }
+
+    setStatus(
+        "pastQuestionStatus",
+        "تم حفظ السؤال والإجابة بنجاح."
+    );
+
+    this.reset();
+
+    await loadAdminPastQuestions(examId);
 
 });
 
 
-$("unpublishPastExam").addEventListener("click",async()=>{
+// ==================================================
+// ADMIN: PUBLISH / UNPUBLISH
+// ==================================================
 
-    const examId = $("adminExamSelect").value;
+$("publishPastExam").addEventListener("click",async()=>{
+
+    const examId = $("adminExamSelect").selectedOptions[0]?.value ||
+        selectedAdminExamId || "";
 
     if(!examId){
 
@@ -3029,180 +3371,10 @@ $("unpublishPastExam").addEventListener("click",async()=>{
 
     }
 
-    const {error} = await supabaseClient
-        .from("module_exams")
-        .update({is_published:false})
-        .eq("id",Number(examId));
-
-    if(error){
-
-        setStatus("publishStatus",error.message);
-
-        return;
-
-    }
-
-    setStatus("publishStatus","تم إلغاء نشر الامتحان.");
-
-    await loadAdminPastExams();
-
-    await loadSelectedAdminExam();
-
-});
-
-
-// ==================================================
-// STUDENT: PAST PAPER SELECTORS
-// ==================================================
-
-async function loadPastStudentYears(){
-
-    const {data,error} = await supabaseClient
-        .from("years")
-        .select("id,name")
-        .order("id");
-
-    if(error){
-
-        setStatus("pastStatus",error.message);
-
-        return;
-
-    }
-
-    fillSelect(
-        "pastYear",
-        data||[],
-        "Select Academic Year"
-    );
-
-}
-
-
-$("pastYear").addEventListener("change",async function(){
-
-    resetSelect("pastModule","Select Module");
-
-    resetSelect("pastExam","Select Exam");
-
-    resetSelect("pastMode","Select Mode");
-
-    $("startPastExam").disabled = true;
-
-    resetPastQuiz();
-
-    if(!this.value)return;
-
-    const {data,error} = await supabaseClient
-        .from("modules")
-        .select("id,name,year_id")
-        .eq("year_id",this.value)
-        .order("id");
-
-    if(error){
-
-        setStatus("pastStatus",error.message);
-
-        return;
-
-    }
-
-    fillSelect(
-        "pastModule",
-        data||[],
-        "Select Module"
-    );
-
-});
-
-
-$("pastModule").addEventListener("change",async function(){
-
-    resetSelect("pastExam","Select Exam");
-
-    resetSelect("pastMode","Select Mode");
-
-    $("startPastExam").disabled = true;
-
-    resetPastQuiz();
-
-    if(!this.value)return;
-
-    const {data,error} = await supabaseClient
-        .from("module_exams")
-        .select("id,module_id,exam_type,exam_year,duration_minutes")
-        .eq("module_id",Number(this.value))
-        .eq("is_published",true)
-        .order("exam_year",{ascending:false});
-
-    if(error){
-
-        setStatus("pastStatus",error.message);
-
-        return;
-
-    }
-
-    const exams = data || [];
-
-    fillSelect(
-        "pastExam",
-        exams.map(e=>({
-
-            id:e.id,
-
-            name:e.exam_type+" — "+e.exam_year
-
-        })),
-        "Select Exam"
-    );
-
-});
-
-
-$("pastExam").addEventListener("change",function(){
-
-    resetSelect("pastMode","Select Mode");
-
-    $("pastMode").disabled = !this.value;
-
-    $("startPastExam").disabled = true;
-
-});
-
-
-$("pastMode").addEventListener("change",function(){
-
-    $("startPastExam").disabled = !this.value;
-
-});
-
-
-// ==================================================
-// STUDENT: START PAST PAPER
-// ==================================================
-
-$("startPastExam").addEventListener("click",async function(){
-
-    if(!currentUser){
-
-        setStatus("pastStatus","سجّل الدخول أولاً.");
-
-        return;
-
-    }
-
-    const examId = Number($("pastExam").value);
-
-    pastMode = $("pastMode").value;
-
-    if(!examId || !pastMode)return;
-
-    this.disabled = true;
-
-    setStatus("pastStatus","جاري تحميل الامتحان...");
-
-    $("pastResults").innerHTML = "";
+    const {data:questions,error:questionsError} =
+    await supabaseClient
+        .from("exam_questions")
+        $("pastResults").innerHTML = "";
 
     resetPastQuiz();
 
@@ -3453,26 +3625,17 @@ function renderPastQuestion(){
 
         radio.value = index;
 
-        if(
-            pastSelectedAnswers[question.id]!==undefined &&
-            Number(pastSelectedAnswers[question.id])===index
-        ){
+        label.appendChild(radio);
 
-            radio.checked = true;
+        const span = document.createElement("span");
 
-        }
+        span.textContent = option;
 
-        const text = document.createElement("span");
-
-        text.textContent =
-        String.fromCharCode(65+index)+") "+option;
-
-        label.append(radio,text);
+        label.appendChild(span);
 
         $("pastOptions").appendChild(label);
 
     });
-
     $("pastFeedback").innerHTML = "";
 
     $("pastSubmitAnswer").classList.remove("hidden");
@@ -3680,7 +3843,6 @@ $("pastFinishExam").addEventListener("click",async()=>{
         pastDurationTimer = null;
 
     }
-
     const result = Array.isArray(data)?data[0]:data;
 
     if(!result){
@@ -3795,131 +3957,43 @@ function showPastResults(result){
 
     const subjectTitle = document.createElement("h3");
 
-    subjectTitle.textContent =
-    "📊 Performance by Subject";
+    subjectTitle.textContent = "Performance by Subject";
 
     subjectCard.appendChild(subjectTitle);
 
     Object.entries(subjectStats).forEach(([name,stats])=>{
 
-        const p = document.createElement("p");
+        const row = document.createElement("p");
 
-        const percent = Math.round(
-            stats.correct/stats.total*100
-        );
+        row.textContent =
+            name+": "+
+            stats.correct+" / "+stats.total;
 
-        p.textContent =
-        name+": "+stats.correct+"/"+stats.total+
-        " ("+percent+"%)";
-
-        subjectCard.appendChild(p);
+        subjectCard.appendChild(row);
 
     });
 
     container.appendChild(subjectCard);
 
 
-    // REVIEW QUESTIONS
+    const restart = document.createElement("button");
 
-    const reviewTitle = document.createElement("h2");
+    restart.textContent = "Back to Past Papers";
 
-    reviewTitle.style.color = "#42d6b0";
-
-    reviewTitle.style.marginTop = "25px";
-
-    reviewTitle.textContent =
-    "📝 Question Review";
-
-    container.appendChild(reviewTitle);
-
-
-    questions.forEach((q,index)=>{
-
-        const box = document.createElement("div");
-
-        box.className = "result-card";
-
-        const questionTitle = document.createElement("h3");
-
-        questionTitle.textContent =
-        "Question "+(index+1)+
-        (q.is_correct?" — Correct":" — Incorrect");
-
-        const text = document.createElement("p");
-
-        text.textContent = q.question_text || "";
-
-        const options = document.createElement("div");
-
-        (q.options||[]).forEach((option,i)=>{
-
-            const p = document.createElement("p");
-
-            p.textContent =
-            String.fromCharCode(65+i)+") "+option;
-
-            if(i===Number(q.correct_option)){
-
-                p.style.color = "#42d6b0";
-                p.style.fontWeight = "bold";
-
-            }
-
-            if(
-                q.selected_option!==null &&
-                q.selected_option!==undefined &&
-                i===Number(q.selected_option) &&
-                !q.is_correct
-            ){
-
-                p.style.color = "#e57373";
-
-            }
-
-            options.appendChild(p);
-
-        });
-
-        const explanation = document.createElement("p");
-
-        explanation.textContent =
-        "Explanation: "+(q.explanation||"");
-
-        box.append(
-            questionTitle,
-            text,
-            options,
-            explanation
-        );
-
-        container.appendChild(box);
-
-    });
-
-
-    const backButton = document.createElement("button");
-
-    backButton.className = "button";
-
-    backButton.textContent = "Choose Another Past Paper";
-
-    backButton.addEventListener("click",()=>{
+    restart.addEventListener("click",()=>{
 
         resetPastQuiz();
 
-        setStatus(
-            "pastStatus",
-            "اختار امتحاناً آخر للبدء."
-        );
+        $("pastResults").innerHTML = "";
+
+        setStatus("pastStatus","");
 
     });
 
-    container.appendChild(backButton);
+    container.appendChild(restart);
 
 }
-
-
-// ==================================================
+    // ==================================================
 // INITIAL SESSION
 // ==================================================
 

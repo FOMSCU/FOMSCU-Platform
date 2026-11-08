@@ -249,7 +249,12 @@ nav a{
 .admin-row-actions button{padding:8px 12px;border:0;border-radius:7px;cursor:pointer;font-weight:700;background:#263750;color:#fff}
 .admin-row-actions button.edit-row{background:#176b61;color:#fff}
 .admin-row-actions button.toggle-row{background:#805d20;color:#fff}
-.admin-record{padding:13px 0;border-bottom:1px solid #263750;color:#dce6f4}
+.admin-record{padding:13px 0;border-bottom:1px solid #263750;color:#dce6f4;touch-action:pan-y;user-select:none;position:relative}
+.admin-record.sortable-record{cursor:grab;padding-left:28px}
+.admin-record.sortable-record:before{content:"⠿";position:absolute;left:5px;top:15px;color:#8da4c2;font-size:20px}
+.admin-record.dragging-record{opacity:.45;background:#1c2c43;cursor:grabbing}
+.admin-record.drag-over-record{border-top:3px solid #42d6b0}
+.drag-hint{font-size:12px;color:#8da4c2;margin:0 0 10px}
 .admin-record:last-child{border-bottom:0}
 .admin-record small{display:block;color:#aebbd0;margin-top:4px}
 .management-list{margin-top:25px}
@@ -2538,7 +2543,8 @@ async function loadYears(){
 
     const {data,error} = await supabaseClient
         .from("years")
-        .select("id,name,college_id")
+        .select("id,name,college_id,sort_order")
+        .order("sort_order",{ascending:true,nullsFirst:false})
         .order("id");
 
     if(error){
@@ -2609,10 +2615,8 @@ async function loadModules(){
             (year?year.name:"Year not assigned")+" · ID: "+module.id,
             [
                 {label:"Edit / Move",className:"edit-row",action:"edit-module",id:module.id},
-                {label:"↑",className:"move-row",action:"move-module-up",id:module.id,disabled:modulesData.filter(m=>String(m.year_id)===String(module.year_id)).sort((a,b)=>(a.sort_order??a.id)-(b.sort_order??b.id))[0]?.id===module.id},
-                {label:"↓",className:"move-row",action:"move-module-down",id:module.id,disabled:modulesData.filter(m=>String(m.year_id)===String(module.year_id)).sort((a,b)=>(a.sort_order??a.id)-(b.sort_order??b.id)).at(-1)?.id===module.id},
                 {label:"Delete permanently",className:"delete-row",action:"delete-module",id:module.id}
-            ]
+            ],{sortType:"modules",sortId:module.id,sortGroup:module.year_id}
         );
 
     });
@@ -2691,58 +2695,33 @@ async function loadRelations(){
 
     $("subjectsList").innerHTML = "";
 
-    subjectsData.forEach(subject=>{
-
-        const subjectRelations = relationsData.filter(
-            r=>String(r.subject_id)===String(subject.id)
+    // Render linked subjects in their saved relationship order so drag sorting persists visually.
+    relationsData.forEach(relation=>{
+        const subject=subjectsData.find(x=>String(x.id)===String(relation.subject_id));
+        if(!subject)return;
+        const module=modulesData.find(m=>String(m.id)===String(relation.module_id));
+        const year=module?yearsData.find(y=>String(y.id)===String(module.year_id)):null;
+        renderAdminRecord(
+            $("subjectsList"),
+            "📚 "+subject.name,
+            (module?module.name:"Unknown")+" — "+(year?year.name:"Year not assigned")+
+            " · Subject ID: "+subject.id+" · Link ID: "+relation.id,
+            [
+                {label:"Rename",className:"edit-row",action:"rename-subject",id:subject.id},
+                {label:"Move link",className:"toggle-row",action:"move-subject-link",id:subject.id,relationId:relation.id},
+                {label:"Delete permanently",className:"delete-row",action:"delete-subject",id:subject.id}
+            ],{sortType:"module_subjects",sortId:relation.id,sortGroup:relation.module_id}
         );
-
-        if(!subjectRelations.length){
-
-            renderAdminRecord(
-                $("subjectsList"),
-                "📚 "+subject.name,
-                "غير مرتبطة بأي موديول · ID: "+subject.id,
-                [
-                    {label:"Rename",className:"edit-row",action:"rename-subject",id:subject.id},
-                    {label:"Delete permanently",className:"delete-row",action:"delete-subject",id:subject.id}
-                ]
-            );
-
-            return;
-
-        }
-
-        subjectRelations.forEach(relation=>{
-
-            const module = modulesData.find(
-                m=>String(m.id)===String(relation.module_id)
-            );
-
-            const year = module
-                ? yearsData.find(
-                    y=>String(y.id)===String(module.year_id)
-                )
-                : null;
-
-            renderAdminRecord(
-                $("subjectsList"),
-                "📚 "+subject.name,
-                (module?module.name:"Unknown")+" — "+
-                (year?year.name:"Year not assigned")+
-                " · Subject ID: "+subject.id+" · Link ID: "+relation.id,
-                [
-                    {label:"Rename",className:"edit-row",action:"rename-subject",id:subject.id},
-                    {label:"Move link",className:"toggle-row",action:"move-subject-link",id:subject.id,relationId:relation.id},
-                    {label:"↑",className:"move-row",action:"move-subject-up",id:subject.id,relationId:relation.id},
-                    {label:"↓",className:"move-row",action:"move-subject-down",id:subject.id,relationId:relation.id},
-                    {label:"Delete permanently",className:"delete-row",action:"delete-subject",id:subject.id}
-                ]
-            );
-
-        });
-
     });
+
+    subjectsData.filter(subject=>!relationsData.some(r=>String(r.subject_id)===String(subject.id)))
+        .forEach(subject=>renderAdminRecord(
+            $("subjectsList"),"📚 "+subject.name,"غير مرتبطة بأي موديول · ID: "+subject.id,
+            [
+                {label:"Rename",className:"edit-row",action:"rename-subject",id:subject.id},
+                {label:"Delete permanently",className:"delete-row",action:"delete-subject",id:subject.id}
+            ]
+        ));
 
     updateAllSubjectSelects();
 
@@ -2922,6 +2901,13 @@ function ensureAdminListSearch(container,placeholder){
 function renderAdminRecord(container, title, subtitle, actions, options={}){
     const row=document.createElement("div");
     row.className="admin-record";
+    if(options.sortType){
+        row.classList.add("sortable-record");
+        row.dataset.sortType=options.sortType;
+        row.dataset.sortId=String(options.sortId);
+        row.dataset.sortGroup=String(options.sortGroup);
+        row.title="اضغط مطولاً ثم اسحب لإعادة الترتيب";
+    }
     const heading=document.createElement("strong");
     heading.textContent=title;
     row.appendChild(heading);
@@ -2955,7 +2941,8 @@ async function loadAdminAcademicStructure(){
     yearsBox.textContent="جاري تحميل السنوات الدراسية...";
 
     const {data:colleges,error:collegeError}=await supabaseClient
-        .from("colleges").select("id,name,slug,is_active").order("id");
+        .from("colleges").select("id,name,slug,is_active,sort_order")
+        .order("sort_order",{ascending:true,nullsFirst:false}).order("id");
     if(collegeError){
         collegesBox.textContent="تعذر تحميل الكليات: "+collegeError.message;
         return;
@@ -2971,13 +2958,14 @@ async function loadAdminAcademicStructure(){
                 {label:"Edit",className:"edit-row",action:"edit-college",id:college.id},
                 {label:college.is_active?"Deactivate":"Activate",className:"toggle-row",action:"toggle-college",id:college.id},
                 {label:"Delete permanently",className:"delete-row",action:"delete-college",id:college.id}
-            ]);
+            ],{sortType:"colleges",sortId:college.id,sortGroup:"all"});
     });
 
     fillSelect("yearCollege",allColleges.map(c=>({id:c.id,name:c.name})),"Select College");
 
     const {data:years,error:yearError}=await supabaseClient
-        .from("years").select("id,name,college_id").order("id");
+        .from("years").select("id,name,college_id,sort_order")
+        .order("sort_order",{ascending:true,nullsFirst:false}).order("id");
     if(yearError){
         yearsBox.textContent="تعذر تحميل السنوات الدراسية: "+yearError.message;
         return;
@@ -2991,7 +2979,7 @@ async function loadAdminAcademicStructure(){
             (college?college.name:"College not assigned")+" · ID: "+year.id,[
                 {label:"Edit",className:"edit-row",action:"edit-year",id:year.id},
                 {label:"Delete permanently",className:"delete-row",action:"delete-year",id:year.id}
-            ]);
+            ],{sortType:"years",sortId:year.id,sortGroup:year.college_id});
     });
 }
 
@@ -3031,6 +3019,71 @@ $("yearForm").addEventListener("submit",async function(e){
     }
     setLoading("addYearButton",false);
 });
+
+// Long-press drag-and-drop sorting for colleges, years, modules and subject links.
+(function enableLongPressSorting(){
+    const sortableTables={colleges:"colleges",years:"years",modules:"modules",module_subjects:"module_subjects"};
+    let pressTimer=null, activeRow=null, pointerId=null, moved=false;
+    function clearDrag(){
+        if(pressTimer)clearTimeout(pressTimer); pressTimer=null;
+        document.querySelectorAll(".drag-over-record").forEach(x=>x.classList.remove("drag-over-record"));
+        if(activeRow)activeRow.classList.remove("dragging-record");
+        activeRow=null; pointerId=null; moved=false;
+    }
+    document.addEventListener("pointerdown",e=>{
+        const row=e.target.closest(".admin-record.sortable-record");
+        if(!row || e.target.closest("button,input,select,a"))return;
+        activeRow=row; pointerId=e.pointerId; moved=false;
+        pressTimer=setTimeout(()=>{
+            if(!activeRow)return;
+            activeRow.classList.add("dragging-record");
+            if(navigator.vibrate)navigator.vibrate(25);
+        },380);
+    });
+    document.addEventListener("pointermove",e=>{
+        if(!activeRow || e.pointerId!==pointerId)return;
+        if(!activeRow.classList.contains("dragging-record")){
+            if(Math.abs(e.movementX)+Math.abs(e.movementY)>10){clearTimeout(pressTimer);pressTimer=null;}
+            return;
+        }
+        moved=true;
+        const target=document.elementFromPoint(e.clientX,e.clientY)?.closest(".admin-record.sortable-record");
+        if(!target || target===activeRow || target.parentElement!==activeRow.parentElement || target.dataset.sortType!==activeRow.dataset.sortType || target.dataset.sortGroup!==activeRow.dataset.sortGroup)return;
+        target.classList.add("drag-over-record");
+        const rect=target.getBoundingClientRect();
+        if(e.clientY<rect.top+rect.height/2)target.parentElement.insertBefore(activeRow,target);
+        else target.parentElement.insertBefore(activeRow,target.nextSibling);
+        target.classList.remove("drag-over-record");
+    });
+    document.addEventListener("pointerup",async e=>{
+        if(!activeRow || e.pointerId!==pointerId)return;
+        const row=activeRow, wasDragging=row.classList.contains("dragging-record"), didMove=moved;
+        clearDrag();
+        if(!wasDragging || !didMove)return;
+        const type=row.dataset.sortType, group=row.dataset.sortGroup;
+        const siblings=[...row.parentElement.querySelectorAll(`.admin-record[data-sort-type="${type}"][data-sort-group="${group}"]`)];
+        const table=sortableTables[type];
+        try{
+            for(let i=0;i<siblings.length;i++){
+                const id=siblings[i].dataset.sortId;
+                const {error}=await supabaseClient.from(table).update({sort_order:(i+1)*10}).eq("id",id);
+                if(error)throw error;
+            }
+            if(type==="colleges")await loadAdminAcademicStructure();
+            else if(type==="years"){await loadAdminAcademicStructure();await loadYears();}
+            else if(type==="modules"){await loadModules();}
+            else if(type==="module_subjects"){await loadSubjects();}
+            const notice=document.createElement("div"); notice.className="drag-hint"; notice.textContent="تم حفظ الترتيب الجديد بنجاح.";
+            row.parentElement.parentElement.insertBefore(notice,row.parentElement);
+            setTimeout(()=>notice.remove(),2200);
+        }catch(err){
+            alert("لم يتم حفظ الترتيب: "+(err.message||err));
+            if(type==="colleges"||type==="years")await loadAdminAcademicStructure();
+            else if(type==="modules")await loadModules(); else await loadSubjects();
+        }
+    });
+    document.addEventListener("pointercancel",clearDrag);
+})();
 
 $("adminDashboard").addEventListener("click",async function(e){
     const button=e.target.closest("button[data-admin-action]");
@@ -3162,20 +3215,6 @@ $("adminDashboard").addEventListener("click",async function(e){
             if(updateError)throw updateError;
             setStatus("lectureStatus","تم تعديل اسم المحاضرة.");
             await refreshAll();
-        }else if(action==="move-module-up"||action==="move-module-down"){
-            const current=modulesData.find(m=>String(m.id)===String(id)); if(!current)return;
-            const group=modulesData.filter(m=>String(m.year_id)===String(current.year_id)).sort((a,b)=>(a.sort_order??a.id)-(b.sort_order??b.id));
-            const index=group.findIndex(m=>String(m.id)===String(id)); const other=group[index+(action.endsWith("up")?-1:1)]; if(!other)return;
-            const a=current.sort_order??index, b=other.sort_order??(index+(action.endsWith("up")?-1:1));
-            const updates=await Promise.all([supabaseClient.from("modules").update({sort_order:b}).eq("id",current.id),supabaseClient.from("modules").update({sort_order:a}).eq("id",other.id)]);
-            const failed=updates.find(x=>x.error); if(failed)throw failed.error; await loadModules();
-        }else if(action==="move-subject-up"||action==="move-subject-down"){
-            const relationId=button.dataset.relationId; const current=relationsData.find(r=>String(r.id)===String(relationId)); if(!current)return;
-            const group=relationsData.filter(r=>String(r.module_id)===String(current.module_id)).sort((a,b)=>(a.sort_order??a.id)-(b.sort_order??b.id));
-            const index=group.findIndex(r=>String(r.id)===String(relationId)); const other=group[index+(action.endsWith("up")?-1:1)]; if(!other)return;
-            const a=current.sort_order??index, b=other.sort_order??(index+(action.endsWith("up")?-1:1));
-            const updates=await Promise.all([supabaseClient.from("module_subjects").update({sort_order:b}).eq("id",current.id),supabaseClient.from("module_subjects").update({sort_order:a}).eq("id",other.id)]);
-            const failed=updates.find(x=>x.error); if(failed)throw failed.error; await loadSubjects();
         }else if(action==="delete-college"){
             const {data:children,error:checkError}=await supabaseClient.from("years").select("id,name").eq("college_id",id);
             if(checkError)throw checkError;

@@ -395,6 +395,32 @@ footer{
 .king-badge{color:#ffd166;font-weight:bold;white-space:nowrap}
 .leaderboard-muted{color:#aebbd0;line-height:1.6}
 
+
+/* Student dashboard */
+#studentDashboard{display:none;max-width:1240px;margin:28px auto;padding:0 18px 35px;direction:rtl}
+.student-welcome{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:24px 28px;background:linear-gradient(120deg,#101a2b,#123c46);border:1px solid #294b5b;border-radius:18px;margin-bottom:20px}
+.student-welcome h1{font-size:27px;margin-bottom:8px}.student-welcome h1 span{color:#42d6b0}.student-welcome p{color:#b8c5d8;line-height:1.7}
+.student-identity{display:flex;align-items:center;gap:13px;cursor:pointer;background:#0b1422;border:1px solid #30465d;border-radius:14px;padding:10px 14px;color:white;text-align:right}
+.student-avatar{width:54px;height:54px;border-radius:50%;object-fit:cover;background:#42d6b0;color:#08131b;display:grid;place-items:center;font-size:20px;font-weight:bold;border:2px solid #42d6b0;flex-shrink:0}
+.student-layout{display:grid;grid-template-columns:245px minmax(0,1fr);gap:20px;align-items:start}
+.student-sidebar{background:#101a2b;border:1px solid #263750;border-radius:16px;padding:14px;position:sticky;top:16px}
+.student-sidebar h3{color:#42d6b0;padding:10px 12px 15px;font-size:16px}
+.student-nav{width:100%;display:flex;align-items:center;gap:10px;padding:12px 13px;margin:3px 0;border:0;border-radius:9px;background:transparent;color:#d4deeb;text-align:right;font-size:14px;cursor:pointer}
+.student-nav:hover,.student-nav.active{background:#183044;color:#42d6b0}
+.student-nav .nav-icon{width:22px;text-align:center}
+.student-main{min-width:0;background:#101a2b;border:1px solid #263750;border-radius:16px;padding:25px;min-height:370px}
+.student-main h2{color:#42d6b0;margin-bottom:12px}.student-main p{color:#b8c5d8;line-height:1.8}
+.student-view{display:none}.student-view.active{display:block}
+.student-shortcuts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:20px}
+.student-shortcut{background:#0b1422;border:1px solid #263750;border-radius:12px;padding:17px;color:#e7eef8;text-align:right;cursor:pointer;min-height:92px}
+.student-shortcut:hover{border-color:#42d6b0}.student-shortcut strong{display:block;color:#42d6b0;margin-bottom:8px}
+.student-profile-card{display:flex;align-items:center;gap:18px;background:#0b1422;border:1px solid #263750;padding:20px;border-radius:13px;margin:18px 0}
+.student-profile-card .student-avatar{width:76px;height:76px;font-size:26px}
+.profile-note{margin-top:14px;padding:13px;background:#18283a;border-radius:9px;color:#c2d0df;font-size:14px;line-height:1.8}
+.coming-soon{margin-top:18px;padding:18px;border:1px dashed #456078;border-radius:12px;color:#b8c5d8;background:#0b1422}
+.student-logout{margin:14px 10px 5px;width:calc(100% - 20px);padding:11px;border:1px solid #8f3b4a;border-radius:9px;color:#ffb8c1;background:#351c27;cursor:pointer}
+@media(max-width:760px){.student-layout{grid-template-columns:1fr}.student-sidebar{position:static}.student-sidebar nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px}.student-welcome{align-items:flex-start;flex-direction:column}.student-welcome h1{font-size:23px}.student-main{padding:18px}}
+
 </style>
 </head>
 
@@ -410,6 +436,66 @@ footer{
         <a href="#pastPapers">Past Papers</a>
     </nav>
 </header>
+
+<!-- STUDENT DASHBOARD -->
+<section id="studentDashboard">
+  <div class="student-welcome">
+    <div>
+      <h1>أهلاً دكتور <span id="welcomeStudentName">...</span> 👋</h1>
+      <p>نورت Medschool. اختار القسم اللي تحب تبدأ منه النهارده.</p>
+    </div>
+    <button type="button" class="student-identity" id="openProfileButton" aria-label="فتح الملف الشخصي">
+      <span class="student-avatar" id="welcomeAvatar">M</span>
+      <span><strong id="identityStudentName">الملف الشخصي</strong><small style="display:block;color:#9fb0c5;margin-top:5px">حساب الطالب</small></span>
+    </button>
+  </div>
+  <div class="student-layout">
+    <aside class="student-sidebar">
+      <h3>MEDSCHOOL MENU</h3>
+      <nav>
+        <button class="student-nav active" data-view="overview"><span class="nav-icon">⌂</span>الرئيسية</button>
+        <button class="student-nav" data-view="profile"><span class="nav-icon">👤</span>الملف الشخصي</button>
+        <button class="student-nav" data-view="academics"><span class="nav-icon">🏛️</span>الكليات والموديولات</button>
+        <button class="student-nav" data-view="arena"><span class="nav-icon">⚔️</span>Medschool Arena</button>
+        <button class="student-nav" data-view="points"><span class="nav-icon">⭐</span>بنك درجاتك</button>
+        <button class="student-nav" data-view="history"><span class="nav-icon">📈</span>سجل درجاتك</button>
+        <button class="student-nav" data-view="ai"><span class="nav-icon">🤖</span>Medschool AI</button>
+        <button class="student-nav" data-view="feedback"><span class="nav-icon">💬</span>الشكاوى والاقتراحات</button>
+        <button class="student-nav" data-view="updates"><span class="nav-icon">🔔</span>التحديثات</button>
+        <button class="student-nav" data-view="messages"><span class="nav-icon">✉️</span>الرسائل</button>
+        <button class="student-nav" data-view="settings"><span class="nav-icon">⚙️</span>الإعدادات</button>
+      </nav>
+      <button type="button" class="student-logout" id="studentLogoutButton">تسجيل الخروج</button>
+    </aside>
+    <main class="student-main">
+      <section class="student-view active" id="view-overview">
+        <h2>لوحة الطالب</h2><p>كل أدواتك الدراسية والتنافسية في مكان واحد.</p>
+        <div class="student-shortcuts">
+          <button class="student-shortcut" data-view="academics"><strong>🏛️ الكليات والموديولات</strong>ابدأ المذاكرة واختر المحتوى</button>
+          <button class="student-shortcut" data-view="arena"><strong>⚔️ Medschool Arena</strong>المسابقات والتحديات</button>
+          <button class="student-shortcut" data-view="points"><strong>⭐ بنك درجاتك</strong>رصيد نقاطك وترتيبك</button>
+          <button class="student-shortcut" data-view="history"><strong>📈 سجل درجاتك</strong>تابع نتائج ومحاولاتك</button>
+          <button class="student-shortcut" data-view="ai"><strong>🤖 Medschool AI</strong>مساعدك الطبي الذكي</button>
+          <button class="student-shortcut" data-view="profile"><strong>👤 حسابك</strong>بياناتك الشخصية</button>
+        </div>
+      </section>
+      <section class="student-view" id="view-profile">
+        <h2>الملف الشخصي</h2><p>بيانات حسابك على Medschool.</p>
+        <div class="student-profile-card"><span class="student-avatar" id="profileAvatar">M</span><div><h3 id="profileStudentName">اسم الطالب</h3><p id="profileStudentEmail"></p></div></div>
+        <div class="profile-note">تعديل الاسم والصورة وبيانات الحساب سيتم تفعيله بعد تجهيز حقول الملف الشخصي وسياسات الحماية اللازمة في قاعدة البيانات. لن نسمح بتغيير صلاحية الحساب أو الكلية والسنة الأساسية من هنا.</div>
+      </section>
+      <section class="student-view" id="view-academics"><h2>الكليات والموديولات</h2><p>اختار الكلية التي تريد تصفح محتواها الدراسي. اختيار التصفح لا يغيّر الكلية الأساسية لحسابك.</p><div id="academicsMount"></div></section>
+      <section class="student-view" id="view-points"><h2>بنك درجاتك</h2><p>رصيد نقاطك وترتيبك في الكلية والدفعة والموديولات.</p><div id="pointsMount"></div></section>
+      <section class="student-view" id="view-arena"><h2>Medschool Arena – ساحة التحدي</h2><p>المسابقات والتحديات اليومية والأسبوعية.</p><div class="coming-soon">قريبًا — نجهّز نظام المسابقات ومواعيدها ونقاطها قبل تفعيله.</div></section>
+      <section class="student-view" id="view-history"><h2>سجل درجاتك</h2><p>تاريخ إجاباتك ومحاولاتك ونتائج الامتحانات.</p><div class="coming-soon">قريبًا — سيتم ربط سجل المحاولات بنتائجك الفعلية من قاعدة البيانات.</div></section>
+      <section class="student-view" id="view-ai"><h2>Medschool AI</h2><p>مساعد ذكاء اصطناعي للتعلم الطبي.</p><div class="coming-soon">قريبًا — سنبني المساعد بربط آمن من الخادم، ولن نضع مفاتيح API داخل كود الموقع.</div></section>
+      <section class="student-view" id="view-feedback"><h2>الشكاوى والاقتراحات</h2><p>مساحة لإرسال ملاحظاتك لإدارة Medschool.</p><div class="coming-soon">قريبًا — سيتم تفعيل الإرسال ومتابعة حالة الشكوى بعد تجهيز قاعدة البيانات.</div></section>
+      <section class="student-view" id="view-updates"><h2>التحديثات</h2><p>آخر أخبار وإضافات المنصة.</p><div class="coming-soon">قريبًا — سيتم عرض تحديثات المنصة هنا.</div></section>
+      <section class="student-view" id="view-messages"><h2>الرسائل</h2><p>رسائلك وإشعارات الإدارة.</p><div class="coming-soon">قريبًا — سيتم تفعيل الرسائل بعد إعداد نظامها.</div></section>
+      <section class="student-view" id="view-settings"><h2>الإعدادات</h2><p>إعدادات الحساب والتنبيهات.</p><div class="coming-soon">إعدادات الحساب وتغيير كلمة المرور وتفضيلات الإشعارات سيتم ربطها في خطوة مستقلة.</div></section>
+    </main>
+  </div>
+</section>
 
 <section class="hero">
     <h1>Welcome to <span>MEDSCHOOL</span></h1>
@@ -1466,6 +1552,9 @@ async function showUserRole(){
         if(userError || !user){
 
             $("authPanel").style.display = "block";
+            $("studentDashboard").style.display = "none";
+            document.querySelector(".hero").style.display = "block";
+            $("courses").style.display = "block";
             currentUser = null;
             currentUserRole = null;
             currentBrowsingCollegeId = null;
@@ -1476,12 +1565,12 @@ async function showUserRole(){
         }
 
         currentUser = user;
-        // بعد تسجيل الدخول نخفي شاشة التسجيل والدخول، وتظهر الصفحة المناسبة للحساب.
+        // بعد تسجيل الدخول نخفي شاشة الدخول ونجهز لوحة الطالب.
         $("authPanel").style.display = "none";
 
         const {data,error} = await supabaseClient
             .from("profiles")
-            .select("role,college_id")
+            .select("role,college_id,full_name")
             .eq("id",user.id)
             .single();
 
@@ -1500,6 +1589,7 @@ async function showUserRole(){
 
         if(data.role === "admin"){
 
+            $("studentDashboard").style.display = "none";
             $("userRole").textContent =
             "Admin - مدير المنصة";
 
@@ -1511,6 +1601,25 @@ async function showUserRole(){
 
         }else{
 
+            const studentName = (data.full_name || user.user_metadata?.full_name || user.email?.split("@")[0] || "دكتور").trim();
+            const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || user.user_metadata?.photo_url || "";
+            const initials = studentName.split(/\s+/).filter(Boolean).slice(0,2).map(part=>part[0]).join("").toUpperCase() || "M";
+            $("welcomeStudentName").textContent = studentName;
+            $("identityStudentName").textContent = studentName;
+            $("profileStudentName").textContent = studentName;
+            $("profileStudentEmail").textContent = user.email || "";
+            [$("welcomeAvatar"),$("profileAvatar")].forEach(avatar=>{
+                avatar.textContent = initials;
+                avatar.style.backgroundImage = "";
+                avatar.style.backgroundSize = "cover";
+                if(avatarUrl){
+                    avatar.textContent = "";
+                    avatar.style.backgroundImage = `url("${avatarUrl.replace(/["\\]/g,"")}")`;
+                }
+            });
+            $("studentDashboard").style.display = "block";
+            document.querySelector(".hero").style.display = "none";
+            $("courses").style.display = "none";
             let studentLabel = "Student - طالب";
 
             if(data.college_id){
@@ -1626,6 +1735,32 @@ $("loginForm").addEventListener("submit",async e=>{
 });
 
 
+$("studentLogoutButton").addEventListener("click",()=>$("logoutButton").click());
+
+function openStudentView(viewName){
+    document.querySelectorAll(".student-view").forEach(view=>view.classList.remove("active"));
+    const target = $("view-"+viewName);
+    if(target) target.classList.add("active");
+    document.querySelectorAll(".student-nav").forEach(button=>button.classList.toggle("active",button.dataset.view===viewName));
+    if(viewName==="academics"){
+        const mount=$("academicsMount");
+        if(mount && !mount.contains($("collegeBrowser"))) mount.appendChild($("collegeBrowser"));
+        if(mount && !mount.contains($("quizSection"))) mount.appendChild($("quizSection"));
+        if(mount && !mount.contains($("pastPapers"))) mount.appendChild($("pastPapers"));
+        $("collegeBrowser").style.display="block";
+        if(currentBrowsingCollegeId){$("quizSection").style.display="block";showPastPapers();}
+    }
+    if(viewName==="points"){
+        const mount=$("pointsMount");
+        if(mount && !mount.contains($("leaderboardSection"))) mount.appendChild($("leaderboardSection"));
+        $("leaderboardSection").style.display="block";
+        loadMyLeaderboards();
+    }
+}
+
+document.querySelectorAll("[data-view]").forEach(button=>button.addEventListener("click",()=>openStudentView(button.dataset.view)));
+$("openProfileButton").addEventListener("click",()=>openStudentView("profile"));
+
 $("logoutButton").addEventListener("click",async()=>{
 
     const {error} =
@@ -1639,6 +1774,9 @@ $("logoutButton").addEventListener("click",async()=>{
     currentUserRole = null;
     currentBrowsingCollegeId = null;
     $("authPanel").style.display = "block";
+    $("studentDashboard").style.display = "none";
+    document.querySelector(".hero").style.display = "block";
+    $("courses").style.display = "block";
     $("collegeBrowser").style.display = "none";
 
     $("userRole").textContent = "";
@@ -1668,6 +1806,9 @@ supabaseClient.auth.onAuthStateChange(event=>{
     if(event === "SIGNED_OUT"){
 
         $("authPanel").style.display = "block";
+        $("studentDashboard").style.display = "none";
+        document.querySelector(".hero").style.display = "block";
+        $("courses").style.display = "block";
         currentUser = null;
         currentUserRole = null;
         currentBrowsingCollegeId = null;

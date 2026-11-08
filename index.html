@@ -1242,6 +1242,7 @@ footer{
             <option value="">Select Existing Exam</option>
 
         </select>
+        <button type="button" id="deleteSelectedPastExam" class="button danger-button" style="margin-top:10px">حذف الامتحان المحدد</button>
 
         <div id="adminExamInfo" class="status"></div>
 
@@ -2869,7 +2870,10 @@ async function loadLectures(){
             "🎓 "+lecture.name,
             (subject?subject.name:"Unknown Subject")+" — "+
             (module?module.name:"Not linked")+" · Lecture ID: "+lecture.id,
-            [{label:"Rename",className:"edit-row",action:"rename-lecture",id:lecture.id}]
+            [
+                {label:"Rename",className:"edit-row",action:"rename-lecture",id:lecture.id},
+                {label:"حذف المحاضرة",className:"danger-button",action:"delete-lecture",id:lecture.id}
+            ]
         );
 
     });
@@ -3335,6 +3339,17 @@ $("adminDashboard").addEventListener("click",async function(e){
             const {error:updateError}=await supabaseClient.from("lectures").update({name:name.trim()}).eq("id",id);
             if(updateError)throw updateError;
             setStatus("lectureStatus","تم تعديل اسم المحاضرة.");
+            await refreshAll();
+        }else if(action==="delete-lecture"){
+            const {data:lecture,error:lectureError}=await supabaseClient.from("lectures").select("name").eq("id",id).single();
+            if(lectureError)throw lectureError;
+            const {count,error:questionCheckError}=await supabaseClient.from("questions").select("id",{count:"exact",head:true}).eq("lecture_id",id);
+            if(questionCheckError)throw questionCheckError;
+            if(count){alert("لا يمكن حذف المحاضرة لأنها مرتبطة بـ "+count+" سؤال. احذف أو انقل أسئلتها أولاً حتى لا نفقد أي محتوى بالخطأ.");return;}
+            if(!confirm("هل تريد حذف المحاضرة نهائياً: "+lecture.name+"؟ لا يمكن التراجع عن هذا الإجراء."))return;
+            const {error:deleteError}=await supabaseClient.from("lectures").delete().eq("id",id);
+            if(deleteError)throw deleteError;
+            setStatus("lectureStatus","تم حذف المحاضرة.");
             await refreshAll();
         }else if(action==="delete-college"){
             const {data:children,error:checkError}=await supabaseClient.from("years").select("id,name").eq("college_id",id);
@@ -4586,17 +4601,70 @@ async function loadAdminPastQuestions(examId){
             s=>String(s.id)===String(question.subject_id)
         );
 
-        addListItem(
-            container,
-            (index+1)+". "+
-            question.question_text+
-            " — "+(subject?subject.name:"Unknown Subject")
-        );
+        const row=document.createElement("div");
+        row.className="admin-record";
+        const title=document.createElement("strong");
+        title.textContent=(index+1)+". "+question.question_text;
+        row.appendChild(title);
+        const meta=document.createElement("small");
+        meta.textContent=subject?subject.name:"Unknown Subject";
+        row.appendChild(meta);
+        const actions=document.createElement("div");
+        actions.className="admin-row-actions";
+        const del=document.createElement("button");
+        del.type="button";del.className="danger-button";del.textContent="حذف السؤال";
+        del.addEventListener("click",async()=>{
+            if(!confirm("هل تريد حذف هذا السؤال من الامتحان؟ لا يمكن التراجع."))return;
+            del.disabled=true;
+            try{
+                const {count:answerAttempts,error:attemptError}=await supabaseClient.from("exam_attempt_answers").select("id",{count:"exact",head:true}).eq("question_id",question.id);
+                if(attemptError)throw attemptError;
+                if(answerAttempts){alert("لا يمكن حذف السؤال لأنه مرتبط بـ "+answerAttempts+" إجابة محفوظة في محاولات الطلاب.");return;}
+                const {error:answerDeleteError}=await supabaseClient.from("exam_answers").delete().eq("question_id",question.id);
+                if(answerDeleteError)throw answerDeleteError;
+                const {error:questionDeleteError}=await supabaseClient.from("exam_questions").delete().eq("id",question.id);
+                if(questionDeleteError)throw questionDeleteError;
+                setStatus("pastQuestionStatus","تم حذف سؤال الامتحان.");
+                await loadAdminPastQuestions(examId);
+            }catch(err){alert("تعذر حذف السؤال: "+(err.message||err));}
+            finally{del.disabled=false;}
+        });
+        actions.appendChild(del);row.appendChild(actions);container.appendChild(row);
 
     });
 
 }
 
+
+// Delete selected Previous Exam safely (only when it has no saved attempts).
+$("deleteSelectedPastExam").addEventListener("click",async()=>{
+    const examId=$("adminExamSelect").value || selectedAdminExamId;
+    if(!examId){alert("اختار امتحاناً أولاً.");return;}
+    const exam=pastExams.find(x=>String(x.id)===String(examId));
+    if(!exam){alert("لم يتم العثور على الامتحان المحدد.");return;}
+    try{
+        const {count:attemptCount,error:attemptError}=await supabaseClient.from("exam_attempts").select("id",{count:"exact",head:true}).eq("exam_id",Number(examId));
+        if(attemptError)throw attemptError;
+        if(attemptCount){alert("لا يمكن حذف هذا الامتحان لأنه يحتوي على "+attemptCount+" محاولة محفوظة. حفاظاً على سجل الطلاب، لن يتم حذف الامتحان.");return;}
+        const {data:questions,error:questionsError}=await supabaseClient.from("exam_questions").select("id").eq("exam_id",Number(examId));
+        if(questionsError)throw questionsError;
+        const ids=(questions||[]).map(q=>q.id);
+        if(!confirm("سيتم حذف الامتحان وكل أسئلته وإجاباتها ("+ids.length+" سؤال). هل تريد المتابعة؟ لا يمكن التراجع."))return;
+        if(ids.length){
+            const {error:answersError}=await supabaseClient.from("exam_answers").delete().in("question_id",ids);
+            if(answersError)throw answersError;
+            const {error:deleteQuestionsError}=await supabaseClient.from("exam_questions").delete().in("id",ids);
+            if(deleteQuestionsError)throw deleteQuestionsError;
+        }
+        const {error:deleteExamError}=await supabaseClient.from("module_exams").delete().eq("id",Number(examId));
+        if(deleteExamError)throw deleteExamError;
+        selectedAdminExamId=null;
+        $("adminExamSelect").value="";
+        $("adminPastQuestions").innerHTML="اختار امتحاناً لعرض أسئلته.";
+        setStatus("adminPastStatus","تم حذف الامتحان وأسئلته بنجاح.");
+        await loadAdminPastExams();
+    }catch(err){alert("تعذر حذف الامتحان: "+(err.message||err));}
+});
 
 // ==================================================
 // ADMIN: ADD PAST PAPER QUESTION

@@ -3071,10 +3071,11 @@ $("yearForm").addEventListener("submit",async function(e){
     document.addEventListener("pointerup",async e=>{
         if(!activeRow || e.pointerId!==pointerId)return;
         const row=activeRow, wasDragging=row.classList.contains("dragging-record"), didMove=moved;
+        const listContainer=row.parentElement;
         clearDrag();
         if(!wasDragging || !didMove)return;
         const type=row.dataset.sortType, group=row.dataset.sortGroup;
-        const siblings=[...row.parentElement.querySelectorAll(`.admin-record[data-sort-type="${type}"][data-sort-group="${group}"]`)];
+        const siblings=[...listContainer.querySelectorAll(`.admin-record[data-sort-type="${type}"][data-sort-group="${group}"]`)];
         const table=sortableTables[type];
         try{
             for(let i=0;i<siblings.length;i++){
@@ -3087,7 +3088,7 @@ $("yearForm").addEventListener("submit",async function(e){
             else if(type==="modules"){await loadModules();}
             else if(type==="module_subjects"){await loadSubjects();}
             const notice=document.createElement("div"); notice.className="drag-hint"; notice.textContent="تم حفظ الترتيب الجديد بنجاح.";
-            row.parentElement.parentElement.insertBefore(notice,row.parentElement);
+            if(listContainer && listContainer.parentElement)listContainer.parentElement.insertBefore(notice,listContainer);
             setTimeout(()=>notice.remove(),2200);
         }catch(err){
             alert("لم يتم حفظ الترتيب: "+(err.message||err));

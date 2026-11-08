@@ -249,18 +249,18 @@ nav a{
 .admin-row-actions button{padding:8px 12px;border:0;border-radius:7px;cursor:pointer;font-weight:700;background:#263750;color:#fff}
 .admin-row-actions button.edit-row{background:#176b61;color:#fff}
 .admin-row-actions button.toggle-row{background:#805d20;color:#fff}
-.admin-record{padding:13px 0;border-bottom:1px solid #263750;color:#dce6f4;touch-action:pan-y;user-select:none;position:relative}
-.admin-record.sortable-record{cursor:grab;padding-left:28px}
-.admin-record.sortable-record:before{content:"⠿";position:absolute;left:5px;top:15px;color:#8da4c2;font-size:20px}
-.admin-record.dragging-record{opacity:.45;background:#1c2c43;cursor:grabbing}
+.admin-record{padding:13px 0;border-bottom:1px solid #263750;color:#dce6f4;user-select:none;position:relative}
+.admin-record.sortable-record{padding-left:38px}
+.drag-handle{position:absolute;left:0;top:10px;width:30px;height:34px;display:flex;align-items:center;justify-content:center;color:#8da4c2;font-size:23px;line-height:1;cursor:grab;touch-action:none;user-select:none;border-radius:6px}
+.drag-handle:hover{background:#263750;color:#42d6b0}
+.dragging-record .drag-handle{cursor:grabbing;color:#42d6b0}
+.admin-record.dragging-record{opacity:.48;background:#1c2c43}
 .admin-record.drag-over-record{border-top:3px solid #42d6b0}
 .drag-hint{font-size:12px;color:#8da4c2;margin:0 0 10px}
 .admin-record:last-child{border-bottom:0}
 .admin-record small{display:block;color:#aebbd0;margin-top:4px}
 .management-list{margin-top:25px}
 .admin-list-search{width:100%;margin:0 0 12px;padding:10px 12px;border:1px solid #34465f;border-radius:8px;background:#101b2b;color:#fff}
-.admin-row-actions button.move-row{background:#334155;color:#fff;min-width:38px}
-.admin-row-actions button.move-row:disabled{opacity:.35;cursor:not-allowed}
 
 .management-list h4{
     color:#42d6b0;
@@ -2908,6 +2908,16 @@ function renderAdminRecord(container, title, subtitle, actions, options={}){
         row.dataset.sortGroup=String(options.sortGroup);
         row.title="اضغط مطولاً ثم اسحب لإعادة الترتيب";
     }
+    if(options.sortType){
+        const handle=document.createElement("span");
+        handle.className="drag-handle";
+        handle.textContent="⠿";
+        handle.setAttribute("aria-label","اسحب لإعادة الترتيب");
+        handle.setAttribute("title","اضغط مطولاً على النقاط ثم اسحب");
+        handle.setAttribute("role","button");
+        handle.setAttribute("tabindex","0");
+        row.appendChild(handle);
+    }
     const heading=document.createElement("strong");
     heading.textContent=title;
     row.appendChild(heading);
@@ -3031,8 +3041,11 @@ $("yearForm").addEventListener("submit",async function(e){
         activeRow=null; pointerId=null; moved=false;
     }
     document.addEventListener("pointerdown",e=>{
-        const row=e.target.closest(".admin-record.sortable-record");
-        if(!row || e.target.closest("button,input,select,a"))return;
+        const handle=e.target.closest(".drag-handle");
+        if(!handle)return;
+        const row=handle.closest(".admin-record.sortable-record");
+        if(!row)return;
+        e.preventDefault();
         activeRow=row; pointerId=e.pointerId; moved=false;
         pressTimer=setTimeout(()=>{
             if(!activeRow)return;

@@ -245,6 +245,13 @@ nav a{
 
 .full-width{grid-column:1/-1}
 
+.admin-row-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.admin-row-actions button{padding:8px 12px;border:0;border-radius:7px;cursor:pointer;font-weight:700;background:#263750;color:#fff}
+.admin-row-actions button.edit-row{background:#176b61;color:#fff}
+.admin-row-actions button.toggle-row{background:#805d20;color:#fff}
+.admin-record{padding:13px 0;border-bottom:1px solid #263750;color:#dce6f4}
+.admin-record:last-child{border-bottom:0}
+.admin-record small{display:block;color:#aebbd0;margin-top:4px}
 .management-list{margin-top:25px}
 
 .management-list h4{
@@ -934,6 +941,36 @@ footer{
             <p>Manage the MCQ bank.</p>
         </div>
 
+    </div>
+
+
+    <!-- COLLEGES & ACADEMIC YEARS -->
+    <div class="management-section" id="academicStructureManagement">
+        <h3>🏛️ Manage Colleges &amp; Academic Years</h3>
+        <p>إدارة الكليات والسنوات الدراسية من هنا. التعديل والإيقاف آمنان؛ لا يتم حذف أي بيانات دراسية نهائياً.</p>
+
+        <h4 style="color:#42d6b0;margin:18px 0 12px">Add College</h4>
+        <form id="collegeForm" class="management-form">
+            <input id="collegeName" type="text" placeholder="College name" required maxlength="120">
+            <button type="submit" id="addCollegeButton">+ Add College</button>
+        </form>
+        <div id="collegeStatus" class="status" role="status" aria-live="polite"></div>
+        <div class="management-list">
+            <h4>Existing Colleges</h4>
+            <div id="collegesList">Loading colleges...</div>
+        </div>
+
+        <h4 style="color:#42d6b0;margin:26px 0 12px">Add Academic Year</h4>
+        <form id="yearForm" class="management-form">
+            <select id="yearCollege" required><option value="">Select College</option></select>
+            <input id="yearName" type="text" placeholder="Academic year name (e.g. First Year)" required maxlength="120">
+            <button type="submit" id="addYearButton">+ Add Academic Year</button>
+        </form>
+        <div id="yearStatus" class="status" role="status" aria-live="polite"></div>
+        <div class="management-list">
+            <h4>Existing Academic Years</h4>
+            <div id="yearsList">Loading academic years...</div>
+        </div>
     </div>
 
 
@@ -1912,6 +1949,8 @@ async function showUserRole(){
 
             await refreshAll();
 
+            await loadAdminAcademicStructure();
+
             await loadAdminPastExams();
 
             await loadTeamManagement();
@@ -2793,6 +2832,175 @@ async function refreshAll(){
     await loadLectures();
 
 }
+
+
+// ==================================================
+// ADMIN: COLLEGES & ACADEMIC YEARS
+// ==================================================
+
+function makeCollegeSlug(name){
+    return name.trim().toLowerCase()
+        .replace(/[^a-z0-9\u0600-\u06ff]+/g,"-")
+        .replace(/^-+|-+$/g,"");
+}
+
+function renderAdminRecord(container, title, subtitle, actions){
+    const row=document.createElement("div");
+    row.className="admin-record";
+    const heading=document.createElement("strong");
+    heading.textContent=title;
+    row.appendChild(heading);
+    if(subtitle){
+        const small=document.createElement("small");
+        small.textContent=subtitle;
+        row.appendChild(small);
+    }
+    const actionBox=document.createElement("div");
+    actionBox.className="admin-row-actions";
+    actions.forEach(({label,className,action,id})=>{
+        const button=document.createElement("button");
+        button.type="button";
+        button.textContent=label;
+        button.className=className||"";
+        button.dataset.adminAction=action;
+        button.dataset.recordId=String(id);
+        actionBox.appendChild(button);
+    });
+    row.appendChild(actionBox);
+    container.appendChild(row);
+}
+
+async function loadAdminAcademicStructure(){
+    const collegesBox=$("collegesList");
+    const yearsBox=$("yearsList");
+    if(!collegesBox || !yearsBox)return;
+    collegesBox.textContent="جاري تحميل الكليات...";
+    yearsBox.textContent="جاري تحميل السنوات الدراسية...";
+
+    const {data:colleges,error:collegeError}=await supabaseClient
+        .from("colleges").select("id,name,slug,is_active").order("id");
+    if(collegeError){
+        collegesBox.textContent="تعذر تحميل الكليات: "+collegeError.message;
+        return;
+    }
+    const allColleges=colleges||[];
+    collegesBox.innerHTML="";
+    if(!allColleges.length)collegesBox.textContent="لا توجد كليات حتى الآن.";
+    allColleges.forEach(college=>{
+        renderAdminRecord(collegesBox,college.name,
+            "ID: "+college.id+" · "+(college.is_active?"نشطة":"متوقفة"),[
+                {label:"Rename",className:"edit-row",action:"rename-college",id:college.id},
+                {label:college.is_active?"Deactivate":"Activate",className:"toggle-row",action:"toggle-college",id:college.id}
+            ]);
+    });
+
+    fillSelect("yearCollege",allColleges.map(c=>({id:c.id,name:c.name})),"Select College");
+
+    const {data:years,error:yearError}=await supabaseClient
+        .from("years").select("id,name,college_id").order("id");
+    if(yearError){
+        yearsBox.textContent="تعذر تحميل السنوات الدراسية: "+yearError.message;
+        return;
+    }
+    const allYears=years||[];
+    yearsBox.innerHTML="";
+    if(!allYears.length)yearsBox.textContent="لا توجد سنوات دراسية حتى الآن.";
+    allYears.forEach(year=>{
+        const college=allColleges.find(c=>String(c.id)===String(year.college_id));
+        renderAdminRecord(yearsBox,year.name,
+            (college?college.name:"College not assigned")+" · ID: "+year.id,[
+                {label:"Edit",className:"edit-row",action:"edit-year",id:year.id}
+            ]);
+    });
+}
+
+$("collegeForm").addEventListener("submit",async function(e){
+    e.preventDefault();
+    const name=$("collegeName").value.trim();
+    if(!name)return;
+    setLoading("addCollegeButton",true);
+    setStatus("collegeStatus","جاري إضافة الكلية...");
+    const slug=makeCollegeSlug(name)||("college-"+Date.now());
+    const {error}=await supabaseClient.from("colleges").insert({name,slug,is_active:true});
+    if(error){setStatus("collegeStatus","تعذر إضافة الكلية: "+error.message);}
+    else{
+        setStatus("collegeStatus","تمت إضافة الكلية بنجاح.");
+        this.reset();
+        await loadAdminAcademicStructure();
+        await loadSignupColleges();
+        await loadStudentColleges();
+    }
+    setLoading("addCollegeButton",false);
+});
+
+$("yearForm").addEventListener("submit",async function(e){
+    e.preventDefault();
+    const collegeId=$("yearCollege").value;
+    const name=$("yearName").value.trim();
+    if(!collegeId||!name)return;
+    setLoading("addYearButton",true);
+    setStatus("yearStatus","جاري إضافة السنة الدراسية...");
+    const {error}=await supabaseClient.from("years").insert({name,college_id:Number(collegeId)});
+    if(error){setStatus("yearStatus","تعذر إضافة السنة: "+error.message);}
+    else{
+        setStatus("yearStatus","تمت إضافة السنة الدراسية بنجاح.");
+        this.reset();
+        await refreshAll();
+        await loadAdminAcademicStructure();
+    }
+    setLoading("addYearButton",false);
+});
+
+$("adminDashboard").addEventListener("click",async function(e){
+    const button=e.target.closest("button[data-admin-action]");
+    if(!button)return;
+    const id=button.dataset.recordId;
+    const action=button.dataset.adminAction;
+    button.disabled=true;
+    try{
+        if(action==="rename-college"){
+            const {data:college,error}=await supabaseClient.from("colleges").select("name").eq("id",id).single();
+            if(error)throw error;
+            const name=prompt("اكتب الاسم الجديد للكلية:",college.name);
+            if(name===null)return;
+            if(!name.trim()){alert("اسم الكلية لا يمكن أن يكون فارغاً.");return;}
+            const {error:updateError}=await supabaseClient.from("colleges").update({name:name.trim()}).eq("id",id);
+            if(updateError)throw updateError;
+            setStatus("collegeStatus","تم تعديل اسم الكلية.");
+            await loadAdminAcademicStructure();
+            await loadSignupColleges();
+            await loadStudentColleges();
+        }else if(action==="toggle-college"){
+            const {data:college,error}=await supabaseClient.from("colleges").select("name,is_active").eq("id",id).single();
+            if(error)throw error;
+            const nextState=!college.is_active;
+            const message=nextState?"تفعيل الكلية؟":"إيقاف الكلية عن الظهور للطلاب الجدد؟";
+            if(!confirm(message+"\nلن يتم حذف أي سنوات أو مواد أو أسئلة."))return;
+            const {error:updateError}=await supabaseClient.from("colleges").update({is_active:nextState}).eq("id",id);
+            if(updateError)throw updateError;
+            setStatus("collegeStatus",nextState?"تم تفعيل الكلية.":"تم إيقاف الكلية.");
+            await loadAdminAcademicStructure();
+            await loadSignupColleges();
+            await loadStudentColleges();
+        }else if(action==="edit-year"){
+            const {data:year,error}=await supabaseClient.from("years").select("name,college_id").eq("id",id).single();
+            if(error)throw error;
+            const name=prompt("اسم السنة الدراسية:",year.name);
+            if(name===null)return;
+            if(!name.trim()){alert("اسم السنة لا يمكن أن يكون فارغاً.");return;}
+            const {error:updateError}=await supabaseClient.from("years").update({name:name.trim()}).eq("id",id);
+            if(updateError)throw updateError;
+            setStatus("yearStatus","تم تعديل اسم السنة الدراسية.");
+            await refreshAll();
+            await loadAdminAcademicStructure();
+        }
+    }catch(error){
+        const target=action.includes("college")?"collegeStatus":"yearStatus";
+        setStatus(target,"فشلت العملية: "+(error.message||"حدث خطأ غير متوقع."));
+    }finally{
+        button.disabled=false;
+    }
+});
 
 
 // ==================================================

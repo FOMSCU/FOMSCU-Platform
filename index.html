@@ -2912,7 +2912,7 @@ async function loadAdminQuestions(){
         .from("questions")
         .select("id,module_id,lecture_id,question_text,options,difficulty,question_category,is_published")
         .order("id",{ascending:false})
-        .limit(200);
+        .limit(500);
     if(error){box.textContent="تعذر تحميل الأسئلة: "+error.message;return;}
     if(!questions || !questions.length){box.textContent="لا توجد أسئلة مسجلة حتى الآن.";return;}
     const ids=questions.map(q=>q.id);
@@ -2921,19 +2921,70 @@ async function loadAdminQuestions(){
         .select("question_id,correct_option,explanation")
         .in("question_id",ids);
     if(answerError){box.textContent="تعذر تحميل إجابات الأسئلة: "+answerError.message;return;}
-    box.innerHTML="";
+    const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    box.innerHTML=`<div class="question-bulk-toolbar" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px;margin-bottom:12px;background:#101b2b;border:1px solid #293b52;border-radius:10px">
+        <label style="display:flex;gap:7px;align-items:center"><input type="checkbox" id="selectAllAdminQuestions"> تحديد الكل</label>
+        <span id="selectedAdminQuestionsCount" style="margin-inline:8px">0 سؤال محدد</span>
+        <button type="button" id="bulkPublishQuestions" class="toggle-row">نشر المحدد</button>
+        <button type="button" id="bulkUnpublishQuestions" class="edit-row">حفظ كمسودة</button>
+        <button type="button" id="bulkDeleteQuestions" style="background:#9f2638;color:white">حذف المحدد</button>
+    </div><div id="adminQuestionRows"></div>`;
+    const rows=box.querySelector("#adminQuestionRows");
     questions.forEach(q=>{
         const lecture=lecturesData.find(l=>String(l.id)===String(q.lecture_id));
         const answer=(answers||[]).find(a=>String(a.question_id)===String(q.id));
         const preview=String(q.question_text||"").replace(/\s+/g," ").slice(0,150);
         const category=q.question_category||"Uncategorised";
-        renderAdminRecord(box,preview||("Question #"+q.id),
-            "#"+q.id+" · "+(lecture?lecture.name:"Lecture unavailable")+" · "+category+" · "+(q.is_published?"Published":"Draft")+" · Correct: "+(answer?"ABCD"[Number(answer.correct_option)]||"?":"Not set"),[
-                {label:"Edit",className:"edit-row",action:"edit-question",id:q.id},
-                {label:q.is_published?"Unpublish":"Publish",className:"toggle-row",action:"toggle-question",id:q.id}
-            ]);
+        const row=document.createElement("div");
+        row.className="admin-record";
+        row.style.cssText="display:flex;gap:12px;align-items:flex-start";
+        row.innerHTML=`<label style="padding-top:4px"><input type="checkbox" class="admin-question-select" value="${esc(q.id)}" aria-label="تحديد السؤال ${esc(q.id)}"></label>
+            <div style="flex:1;min-width:0"><strong>${esc(preview||("Question #"+q.id))}</strong>
+            <small>#${esc(q.id)} · ${esc(lecture?lecture.name:"Lecture unavailable")} · ${esc(category)} · ${q.is_published?"Published":"Draft"} · Correct: ${answer?"ABCD"[Number(answer.correct_option)]||"?":"Not set"}</small>
+            <div class="admin-row-actions" style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px">
+            <button type="button" class="edit-row" data-question-action="copy" data-question-id="${esc(q.id)}">نسخ</button>
+            <button type="button" class="edit-row" data-question-action="edit" data-question-id="${esc(q.id)}">Edit</button>
+            <button type="button" class="toggle-row" data-question-action="toggle" data-question-id="${esc(q.id)}">${q.is_published?"Unpublish":"Publish"}</button>
+            <button type="button" style="background:#9f2638;color:white" data-question-action="delete" data-question-id="${esc(q.id)}">حذف السؤال</button>
+            </div></div>`;
+        rows.appendChild(row);
     });
+    const selected=()=>Array.from(box.querySelectorAll(".admin-question-select:checked")).map(x=>x.value);
+    const updateCount=()=>{const n=selected().length;box.querySelector("#selectedAdminQuestionsCount").textContent=n+" سؤال محدد";const all=box.querySelector("#selectAllAdminQuestions");all.checked=n===questions.length;all.indeterminate=n>0&&n<questions.length;};
+    box.querySelector("#selectAllAdminQuestions").addEventListener("change",e=>{box.querySelectorAll(".admin-question-select").forEach(c=>c.checked=e.target.checked);updateCount();});
+    box.querySelectorAll(".admin-question-select").forEach(c=>c.addEventListener("change",updateCount));
+    box.querySelectorAll("[data-question-action]").forEach(btn=>btn.addEventListener("click",async()=>{
+        const id=btn.dataset.questionId,action=btn.dataset.questionAction;btn.disabled=true;
+        try{
+            if(action==="copy"){
+                const q=questions.find(x=>String(x.id)===String(id));
+                const a=(answers||[]).find(x=>String(x.question_id)===String(id));
+                const text=[q.question_text,...(q.options||[]).map((o,i)=>String.fromCharCode(65+i)+") "+o),"Correct Answer: "+(a?String.fromCharCode(65+Number(a.correct_option)):"Not set"),"Explanation: "+(a?.explanation||"")].join("\n");
+                await navigator.clipboard.writeText(text);setStatus("questionStatus","تم نسخ السؤال والاختيارات والإجابة والشرح.");
+            }else if(action==="toggle"){
+                const q=questions.find(x=>String(x.id)===String(id));
+                const next=!q.is_published;
+                if(!confirm(next?"نشر السؤال للطلاب؟":"إلغاء نشر السؤال وحفظه كمسودة؟"))return;
+                const {error}=await supabaseClient.from("questions").update({is_published:next}).eq("id",id);if(error)throw error;
+                setStatus("questionStatus",next?"تم نشر السؤال.":"تم حفظ السؤال كمسودة.");await loadAdminQuestions();
+            }else if(action==="edit"){
+                // Reuse the existing, established question editor handler through its admin action route.
+                const proxy=document.createElement("button");proxy.dataset.adminAction="edit-question";proxy.dataset.recordId=id;proxy.style.display="none";$("adminDashboard").appendChild(proxy);proxy.click();proxy.remove();
+            }else if(action==="delete"){
+                if(!confirm("هل أنت متأكد من حذف السؤال رقم "+id+"؟ سيتم حذف إجابته المرتبطة أيضاً. لا يمكن التراجع."))return;
+                const {error:ae}=await supabaseClient.from("question_answers").delete().eq("question_id",id);if(ae)throw ae;
+                const {error:qe}=await supabaseClient.from("questions").delete().eq("id",id);if(qe)throw qe;
+                setStatus("questionStatus","تم حذف السؤال رقم "+id+".");await loadAdminQuestions();
+            }
+        }catch(err){alert("لم تكتمل العملية: "+(err.message||err));}
+        finally{btn.disabled=false;}
+    }));
+    async function bulkSetPublished(value){const chosen=selected();if(!chosen.length){alert("حدد سؤالاً واحداً على الأقل أولاً.");return;}if(!confirm(value?"نشر "+chosen.length+" سؤالاً محدداً؟":"حفظ "+chosen.length+" سؤالاً كمسودة وإخفاؤها عن الطلاب؟"))return;let done=0,failed=[];for(const id of chosen){const {error}=await supabaseClient.from("questions").update({is_published:value}).eq("id",id);if(error)failed.push("#"+id+": "+error.message);else done++;}setStatus("questionStatus","تم تحديث "+done+" سؤال."+(failed.length?" أخطاء: "+failed.join(" | "):""));await loadAdminQuestions();}
+    box.querySelector("#bulkPublishQuestions").addEventListener("click",()=>bulkSetPublished(true));
+    box.querySelector("#bulkUnpublishQuestions").addEventListener("click",()=>bulkSetPublished(false));
+    box.querySelector("#bulkDeleteQuestions").addEventListener("click",async()=>{const chosen=selected();if(!chosen.length){alert("حدد سؤالاً واحداً على الأقل أولاً.");return;}if(!confirm("تحذير: سيتم حذف "+chosen.length+" سؤالاً محدداً وإجاباتها نهائياً. لا يمكن التراجع. هل تريد المتابعة؟"))return;let done=0,failed=[];for(const id of chosen){const {error:ae}=await supabaseClient.from("question_answers").delete().eq("question_id",id);if(ae){failed.push("#"+id+": "+ae.message);continue;}const {error:qe}=await supabaseClient.from("questions").delete().eq("id",id);if(qe)failed.push("#"+id+": "+qe.message);else done++;}setStatus("questionStatus","تم حذف "+done+" سؤال."+(failed.length?" تعذر حذف: "+failed.join(" | "):""));await loadAdminQuestions();});
 }
+
 
 
 async function refreshAll(){

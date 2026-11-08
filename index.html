@@ -440,7 +440,7 @@ footer{
 
 <!-- AUTH -->
 
-<div class="auth-box">
+<div class="auth-box" id="authPanel">
 
     <h2>Medschool</h2>
 
@@ -1364,6 +1364,7 @@ async function showUserRole(){
 
         if(userError || !user){
 
+            $("authPanel").style.display = "block";
             currentUser = null;
             currentUserRole = null;
             currentBrowsingCollegeId = null;
@@ -1374,6 +1375,8 @@ async function showUserRole(){
         }
 
         currentUser = user;
+        // بعد تسجيل الدخول نخفي شاشة التسجيل والدخول، وتظهر الصفحة المناسبة للحساب.
+        $("authPanel").style.display = "none";
 
         const {data,error} = await supabaseClient
             .from("profiles")
@@ -1532,6 +1535,7 @@ $("logoutButton").addEventListener("click",async()=>{
     currentUser = null;
     currentUserRole = null;
     currentBrowsingCollegeId = null;
+    $("authPanel").style.display = "block";
     $("collegeBrowser").style.display = "none";
 
     $("userRole").textContent = "";
@@ -1559,6 +1563,7 @@ supabaseClient.auth.onAuthStateChange(event=>{
 
     if(event === "SIGNED_OUT"){
 
+        $("authPanel").style.display = "block";
         currentUser = null;
         currentUserRole = null;
         currentBrowsingCollegeId = null;

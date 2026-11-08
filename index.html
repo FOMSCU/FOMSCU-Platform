@@ -499,8 +499,8 @@ footer{
     <nav class="top-student-nav" aria-label="التنقل الرئيسي">
         <a href="#studentDashboard" data-view="overview">الرئيسية</a>
         <a href="#studentDashboard" data-view="academics">الكليات والموديولات</a>
-        <a href="#studentDashboard" data-view="mcqbank">Medschool MCQ Bank</a>
-        <a href="#studentDashboard" data-view="previousexams">Previous Exams</a>
+        <a href="#studentDashboard" data-view="academics" data-scroll-target="quizSection">MCQ Bank</a>
+        <a href="#studentDashboard" data-view="academics" data-scroll-target="pastPapers">Past Papers</a>
         <a href="#studentDashboard" data-view="arena">Medschool Arena</a>
         <a href="#studentDashboard" data-view="points">ترتيبك</a>
     </nav>
@@ -533,8 +533,6 @@ footer{
         <button class="student-nav active" data-view="overview"><span class="nav-icon">⌂</span>الرئيسية</button>
         <button class="student-nav" data-view="profile"><span class="nav-icon">👤</span>الملف الشخصي</button>
         <button class="student-nav" data-view="academics"><span class="nav-icon">🏛️</span>الكليات والموديولات</button>
-        <button class="student-nav" data-view="mcqbank"><span class="nav-icon">📝</span>Medschool MCQ Bank</button>
-        <button class="student-nav" data-view="previousexams"><span class="nav-icon">📚</span>Previous Exams</button>
         <button class="student-nav" data-view="arena"><span class="nav-icon">⚔️</span>Medschool Arena</button>
         <button class="student-nav" data-view="points"><span class="nav-icon">⭐</span>بنك درجاتك</button>
         <button class="student-nav" data-view="history"><span class="nav-icon">📈</span>سجل درجاتك</button>
@@ -550,9 +548,7 @@ footer{
       <section class="student-view active" id="view-overview">
         <h2>لوحة الطالب</h2><p>كل أدواتك الدراسية والتنافسية في مكان واحد.</p>
         <div class="student-shortcuts">
-          <button class="student-shortcut" data-view="academics"><strong>🏛️ الكليات والموديولات</strong>اختر الكلية التي تريد الدراسة منها</button>
-          <button class="student-shortcut" data-view="mcqbank"><strong>📝 Medschool MCQ Bank</strong>حل أسئلة المحاضرات والتدريب</button>
-          <button class="student-shortcut" data-view="previousexams"><strong>📚 Previous Exams</strong>تدرّب على الامتحانات السابقة</button>
+          <button class="student-shortcut" data-view="academics"><strong>🏛️ الكليات والموديولات</strong>ابدأ المذاكرة واختر المحتوى</button>
           <button class="student-shortcut" data-view="arena"><strong>⚔️ Medschool Arena</strong>المسابقات والتحديات</button>
           <button class="student-shortcut" data-view="points"><strong>⭐ بنك درجاتك</strong>رصيد نقاطك وترتيبك</button>
           <button class="student-shortcut" data-view="history"><strong>📈 سجل درجاتك</strong>تابع نتائج ومحاولاتك</button>
@@ -566,8 +562,6 @@ footer{
         <div class="profile-note">تعديل الاسم والصورة وبيانات الحساب سيتم تفعيله بعد تجهيز حقول الملف الشخصي وسياسات الحماية اللازمة في قاعدة البيانات. لن نسمح بتغيير صلاحية الحساب أو الكلية والسنة الأساسية من هنا.</div>
       </section>
       <section class="student-view" id="view-academics"><h2>الكليات والموديولات</h2><p>اختار الكلية التي تريد تصفح محتواها الدراسي. اختيار التصفح لا يغيّر الكلية الأساسية لحسابك.</p><div id="academicsMount"></div></section>
-      <section class="student-view" id="view-mcqbank"><h2>Medschool MCQ Bank</h2><p>حل أسئلة المحاضرات بشكل مستقل عن الامتحانات السابقة.</p><div id="mcqBankMount"></div></section>
-      <section class="student-view" id="view-previousexams"><h2>Previous Exams</h2><p>اختر امتحانًا سابقًا وحلّه في وضع التدريب أو وضع الامتحان.</p><div id="previousExamsMount"></div></section>
       <section class="student-view" id="view-points"><h2>بنك درجاتك</h2><p>رصيد نقاطك وترتيبك في الكلية والدفعة والموديولات.</p><div id="collegeRankSummary" class="college-rank-summary">جاري حساب ترتيبك بين طلاب كليتك...</div><div id="pointsMount"></div></section>
       <section class="student-view" id="view-arena"><h2>Medschool Arena – ساحة التحدي</h2><p>المسابقات والتحديات اليومية والأسبوعية.</p><div class="coming-soon">قريبًا — نجهّز نظام المسابقات ومواعيدها ونقاطها قبل تفعيله.</div></section>
       <section class="student-view" id="view-history"><h2>سجل درجاتك</h2><p>تاريخ إجاباتك ومحاولاتك ونتائج الامتحانات.</p><div class="coming-soon">قريبًا — سيتم ربط سجل المحاولات بنتائجك الفعلية من قاعدة البيانات.</div></section>
@@ -645,7 +639,7 @@ footer{
         </div>
 
         <div class="card">
-            <h3>🎯 Previous Exams</h3>
+            <h3>🎯 Past Papers</h3>
             <p>Practice previous examinations.</p>
         </div>
 
@@ -820,7 +814,7 @@ footer{
 
 <section id="pastPapers">
 
-    <h2 class="dashboard-title">📚 Previous Exams</h2>
+    <h2 class="dashboard-title">📚 Past Papers</h2>
 
     <p class="dashboard-description">
         اختار السنة الدراسية والموديول ونوع الامتحان وسنة انعقاده.
@@ -848,7 +842,7 @@ footer{
 
         <button type="button" id="startPastExam"
         class="full-width" disabled>
-            Start Previous Exam
+            Start Past Paper
         </button>
 
     </div>
@@ -1162,6 +1156,20 @@ footer{
 
         <div id="questionStatus" class="status"></div>
 
+
+        <div class="management-list" id="bulkQuestionImport" style="margin-top:22px;padding:20px">
+            <h4 style="color:#42d6b0;margin-bottom:10px">📥 Import Multiple Questions — Medschool MCQ Bank</h4>
+            <p style="margin-bottom:12px">الصق مجموعة أسئلة مرة واحدة بنفس التنسيق: Question 1 ثم السؤال والاختيارات a) إلى d) ثم Correct Answer و Explanation. استخدم بيانات السنة والموديول والمادة والمحاضرة المحددة بالأعلى.</p>
+            <textarea id="bulkQuestionsText" class="full-width" rows="14" placeholder="Question 1:\nWrite question here\na) Option A\nb) Option B\nc) Option C\nd) Option D\nCorrect Answer: B\nExplanation: ..." style="width:100%;min-height:260px"></textarea>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+                <button type="button" class="button" id="parseBulkQuestions">Preview Questions</button>
+                <button type="button" class="button secondary-button" id="clearBulkQuestions">Clear</button>
+            </div>
+            <div id="bulkQuestionsStatus" class="status"></div>
+            <div id="bulkQuestionsPreview" style="margin-top:14px"></div>
+            <button type="button" class="button" id="importBulkQuestions" style="display:none;margin-top:14px">Import All Questions</button>
+        </div>
+
         <div class="management-list">
             <h4>Existing Questions</h4>
             <div id="adminQuestionsList">جاري تحميل الأسئلة...</div>
@@ -1175,7 +1183,7 @@ footer{
 
     <div class="management-section">
 
-        <h3>📚 Manage Previous Exams</h3>
+        <h3>📚 Manage Past Papers</h3>
 
         <p>
             Create Mid-Module and Final-Module exams,
@@ -1215,7 +1223,7 @@ footer{
             min="1">
 
             <button type="submit" class="full-width">
-                + Create Previous Exam
+                + Create Past Paper
             </button>
 
         </form>
@@ -1272,12 +1280,26 @@ footer{
             placeholder="Explanation"></textarea>
 
             <button type="submit" class="full-width">
-                + Add Previous Exam Question
+                + Add Past Paper Question
             </button>
 
         </form>
 
         <div id="pastQuestionStatus" class="status"></div>
+
+        <div class="management-list" id="bulkExamQuestionImport" style="margin-top:22px;padding:20px">
+            <h4 style="color:#42d6b0;margin-bottom:10px">📥 Import Multiple Questions — Previous Exams</h4>
+            <p style="margin-bottom:12px">حدد الامتحان والمادة أولاً، ثم الصق أسئلة الامتحان دفعة واحدة بنفس التنسيق السابق. سيتم ترتيبها بعد آخر سؤال موجود.</p>
+            <textarea id="bulkExamQuestionsText" class="full-width" rows="14" placeholder="Question 1:\nWrite question here\na) Option A\nb) Option B\nc) Option C\nd) Option D\nCorrect Answer: B\nExplanation: ..." style="width:100%;min-height:260px"></textarea>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+                <button type="button" class="button" id="parseBulkExamQuestions">Preview Questions</button>
+                <button type="button" class="button secondary-button" id="clearBulkExamQuestions">Clear</button>
+            </div>
+            <div id="bulkExamQuestionsStatus" class="status"></div>
+            <div id="bulkExamQuestionsPreview" style="margin-top:14px"></div>
+            <button type="button" class="button" id="importBulkExamQuestions" style="display:none;margin-top:14px">Import All Exam Questions</button>
+        </div>
+
 
         <hr style="margin:25px 0;border-color:#263750">
 
@@ -2171,27 +2193,10 @@ function openStudentView(viewName){
     if(viewName==="academics"){
         const mount=$("academicsMount");
         if(mount && !mount.contains($("collegeBrowser"))) mount.appendChild($("collegeBrowser"));
-        $("collegeBrowser").style.display="block";
-    }
-    if(viewName==="mcqbank"){
-        const mount=$("mcqBankMount");
         if(mount && !mount.contains($("quizSection"))) mount.appendChild($("quizSection"));
-        if(currentBrowsingCollegeId){
-            $("quizSection").style.display="block";
-        }else{
-            $("quizSection").style.display="none";
-            mount.innerHTML='<div class="coming-soon">اختار الكلية أولاً من قسم الكليات والموديولات لعرض بنك الأسئلة. <button type="button" class="button" onclick="openStudentView(&quot;academics&quot;)">اختيار الكلية</button></div>';
-        }
-    }
-    if(viewName==="previousexams"){
-        const mount=$("previousExamsMount");
         if(mount && !mount.contains($("pastPapers"))) mount.appendChild($("pastPapers"));
-        if(currentBrowsingCollegeId){
-            showPastPapers();
-        }else{
-            hidePastPapers();
-            mount.innerHTML='<div class="coming-soon">اختار الكلية أولاً من قسم الكليات والموديولات لعرض الامتحانات السابقة. <button type="button" class="button" onclick="openStudentView(&quot;academics&quot;)">اختيار الكلية</button></div>';
-        }
+        $("collegeBrowser").style.display="block";
+        if(currentBrowsingCollegeId){$("quizSection").style.display="block";showPastPapers();}
     }
     if(viewName==="feedback"){
         loadMyStudentRequests();
@@ -3712,6 +3717,66 @@ $("questionForm").addEventListener("submit",async function(e){
 
     setLoading("addQuestionButton",false);
 
+});
+
+
+// ==================================================
+// ADMIN: BULK IMPORT FOR LECTURE MCQs AND PREVIOUS EXAMS
+// ==================================================
+function parseBulkQuestionText(raw){
+    const normalized=String(raw||"").replace(/\r/g,"").trim();
+    if(!normalized)return [];
+    const chunks=normalized.split(/(?=^\s*Question\s*#?\s*\d+\s*:?\s*$)/gim).filter(x=>x.trim());
+    return chunks.map((chunk,index)=>{
+        const lines=chunk.split("\n");let question="",explanation="",correct=null,mode="question";
+        const options=["","","",""];
+        for(const rawLine of lines){
+            const line=rawLine.trim();if(!line||/^Question\s*#?\s*\d+\s*:?$/i.test(line))continue;
+            const a=line.match(/^Correct\s*Answer\s*:\s*([A-D])\s*(?:[).:-])?\s*(.*)$/i);
+            if(a){correct=a[1].toUpperCase().charCodeAt(0)-65;mode="afterAnswer";continue;}
+            const ex=line.match(/^Explanation\s*:\s*(.*)$/i);
+            if(ex){explanation=ex[1].trim();mode="explanation";continue;}
+            const o=line.match(/^([a-d])\s*[).:-]\s*(.*)$/i);
+            if(o){options[o[1].toLowerCase().charCodeAt(0)-97]=o[2].trim();mode="options";continue;}
+            if(mode==="explanation")explanation+=(explanation?"\n":"")+line;
+            else if(mode==="question")question+=(question?"\n":"")+line;
+        }
+        return {number:index+1,question:question.trim(),options,correctOption:correct,explanation:explanation.trim()};
+    });
+}
+function renderBulkPreview(items,previewId,statusId,buttonId){
+    const preview=$(previewId),button=$(buttonId);
+    if(!items.length){preview.innerHTML="";button.style.display="none";return;}
+    const esc=v=>String(v||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    const invalid=items.filter(q=>!q.question||q.options.some(o=>!o)||q.correctOption===null||q.correctOption<0||q.correctOption>3);
+    preview.innerHTML=items.map((q,i)=>{const good=!!q.question&&q.options.every(Boolean)&&q.correctOption!==null&&q.correctOption>=0&&q.correctOption<=3;return `<div style="background:#080e19;border:1px solid ${good?'#286b5b':'#a83245'};border-radius:8px;padding:12px;margin:9px 0"><strong>Question ${i+1} ${good?'✓':'— Needs correction'}</strong><p style="margin:8px 0">${esc(q.question)}</p><ol type="A" style="padding-left:24px">${q.options.map(o=>`<li>${esc(o)}</li>`).join('')}</ol><small>Correct answer: ${q.correctOption===null?'Missing':String.fromCharCode(65+q.correctOption)} | ${esc(q.explanation)}</small></div>`;}).join("");
+    button.style.display=invalid.length?"none":"inline-block";
+    setStatus(statusId,`${items.length} سؤال تم اكتشافه. ${invalid.length?invalid.length+" سؤال يحتاج تصحيحاً.":"كل الأسئلة سليمة وجاهزة للاستيراد."}`);
+}
+let parsedBulkQuestions=[],parsedBulkExamQuestions=[];
+$("parseBulkQuestions").addEventListener("click",()=>{parsedBulkQuestions=parseBulkQuestionText($("bulkQuestionsText").value);renderBulkPreview(parsedBulkQuestions,"bulkQuestionsPreview","bulkQuestionsStatus","importBulkQuestions");if(!parsedBulkQuestions.length)setStatus("bulkQuestionsStatus","لم أتعرف على أسئلة. تأكد أن كل سؤال يبدأ بسطر مثل Question 1:");});
+$("clearBulkQuestions").addEventListener("click",()=>{$("bulkQuestionsText").value="";parsedBulkQuestions=[];renderBulkPreview([],"bulkQuestionsPreview","bulkQuestionsStatus","importBulkQuestions");setStatus("bulkQuestionsStatus","");});
+$("importBulkQuestions").addEventListener("click",async()=>{
+    const moduleId=$("questionModule").value,lectureId=$("questionLecture").value,category=$("questionCategory").value,difficulty=$("questionDifficulty").value||"Medium";
+    if(!$("questionYear").value||!moduleId||!$("questionSubject").value||!lectureId){setStatus("bulkQuestionsStatus","اختار السنة والموديول والمادة والمحاضرة من نموذج إضافة السؤال أولاً.");return;}
+    if(!parsedBulkQuestions.length)return;
+    const btn=$("importBulkQuestions");btn.disabled=true;let saved=0,failed=[];setStatus("bulkQuestionsStatus","جاري استيراد الأسئلة...");
+    for(let i=0;i<parsedBulkQuestions.length;i++){const q=parsedBulkQuestions[i];const {data:row,error}=await supabaseClient.from("questions").insert({module_id:Number(moduleId),lecture_id:Number(lectureId),question_text:q.question,options:q.options,difficulty,question_category:category,is_published:false}).select("id").single();if(error){failed.push(`السؤال ${i+1}: ${error.message}`);continue;}const {error:ae}=await supabaseClient.from("question_answers").insert({question_id:row.id,correct_option:Number(q.correctOption),explanation:q.explanation});if(ae)failed.push(`السؤال ${i+1}: تم حفظ السؤال وفشل حفظ الإجابة: ${ae.message}`);else saved++;setStatus("bulkQuestionsStatus",`تم حفظ ${saved} من ${parsedBulkQuestions.length}...`);}
+    btn.disabled=false;setStatus("bulkQuestionsStatus",`تم حفظ ${saved} من ${parsedBulkQuestions.length}.`+(failed.length?"\n"+failed.join("\n"):" تم الاستيراد بنجاح."));if(!failed.length){$("bulkQuestionsText").value="";parsedBulkQuestions=[];renderBulkPreview([],"bulkQuestionsPreview","bulkQuestionsStatus","importBulkQuestions");}await loadAdminQuestions();
+});
+$("parseBulkExamQuestions").addEventListener("click",()=>{parsedBulkExamQuestions=parseBulkQuestionText($("bulkExamQuestionsText").value);renderBulkPreview(parsedBulkExamQuestions,"bulkExamQuestionsPreview","bulkExamQuestionsStatus","importBulkExamQuestions");if(!parsedBulkExamQuestions.length)setStatus("bulkExamQuestionsStatus","لم أتعرف على أسئلة. تأكد أن كل سؤال يبدأ بسطر مثل Question 1:");});
+$("clearBulkExamQuestions").addEventListener("click",()=>{$("bulkExamQuestionsText").value="";parsedBulkExamQuestions=[];renderBulkPreview([],"bulkExamQuestionsPreview","bulkExamQuestionsStatus","importBulkExamQuestions");setStatus("bulkExamQuestionsStatus","");});
+$("importBulkExamQuestions").addEventListener("click",async()=>{
+    const examId=$("adminExamSelect").value||selectedAdminExamId||"",subjectId=$("pastQuestionSubject").value;
+    if(!examId){setStatus("bulkExamQuestionsStatus","اختار امتحاناً أولاً من Select Exam to Manage.");return;}
+    if(!subjectId){setStatus("bulkExamQuestionsStatus","اختار المادة أولاً.");return;}
+    if(!parsedBulkExamQuestions.length)return;
+    const exam=pastExams.find(e=>String(e.id)===String(examId));if(!exam){setStatus("bulkExamQuestionsStatus","تعذر العثور على بيانات الامتحان المحدد.");return;}
+    const relation=relationsData.find(r=>String(r.module_id)===String(exam.module_id)&&String(r.subject_id)===String(subjectId));if(!relation){setStatus("bulkExamQuestionsStatus","المادة غير مرتبطة بموديول الامتحان.");return;}
+    const {data:existing,error:ce}=await supabaseClient.from("exam_questions").select("id").eq("exam_id",Number(examId));if(ce){setStatus("bulkExamQuestionsStatus",ce.message);return;}
+    const btn=$("importBulkExamQuestions");btn.disabled=true;let order=(existing||[]).length+1,saved=0,failed=[];setStatus("bulkExamQuestionsStatus","جاري استيراد أسئلة الامتحان...");
+    for(let i=0;i<parsedBulkExamQuestions.length;i++){const q=parsedBulkExamQuestions[i];const {data:row,error}=await supabaseClient.from("exam_questions").insert({exam_id:Number(examId),subject_id:Number(subjectId),question_text:q.question,options:q.options,difficulty:"Medium",question_order:order}).select("id").single();if(error){failed.push(`السؤال ${i+1}: ${error.message}`);continue;}const {error:ae}=await supabaseClient.from("exam_answers").insert({question_id:row.id,correct_option:Number(q.correctOption),explanation:q.explanation});if(ae){failed.push(`السؤال ${i+1}: تم حفظ السؤال وفشل حفظ الإجابة: ${ae.message}`);continue;}saved++;order++;setStatus("bulkExamQuestionsStatus",`تم حفظ ${saved} من ${parsedBulkExamQuestions.length}...`);}
+    btn.disabled=false;setStatus("bulkExamQuestionsStatus",`تم حفظ ${saved} من ${parsedBulkExamQuestions.length}.`+(failed.length?"\n"+failed.join("\n"):" تم الاستيراد بنجاح."));if(!failed.length){$("bulkExamQuestionsText").value="";parsedBulkExamQuestions=[];renderBulkPreview([],"bulkExamQuestionsPreview","bulkExamQuestionsStatus","importBulkExamQuestions");}await loadAdminPastQuestions(examId);
 });
 
 
@@ -5599,7 +5664,7 @@ function showPastResults(result){
 
     backButton.className = "button";
 
-    backButton.textContent = "Choose Another Previous Exam";
+    backButton.textContent = "Choose Another Past Paper";
 
     backButton.addEventListener("click",()=>{
 

@@ -1158,6 +1158,20 @@ footer{
 
         <div id="questionStatus" class="status"></div>
 
+        <!-- BULK QUESTION IMPORT -->
+        <div class="management-list" id="bulkQuestionImport" style="margin-top:22px;padding:20px">
+            <h4 style="color:#42d6b0;margin-bottom:10px">📥 Import Multiple Questions</h4>
+            <p style="margin-bottom:12px">Paste a group of questions in the same format: Question 1, options a)–d), Correct Answer, and Explanation.</p>
+            <textarea id="bulkQuestionsText" class="full-width" rows="14" placeholder="Paste all questions here..." style="width:100%;min-height:260px"></textarea>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+                <button type="button" class="button" id="parseBulkQuestions">Preview Questions</button>
+                <button type="button" class="button secondary-button" id="clearBulkQuestions">Clear</button>
+            </div>
+            <div id="bulkQuestionsStatus" class="status"></div>
+            <div id="bulkQuestionsPreview" style="margin-top:14px"></div>
+            <button type="button" class="button" id="importBulkQuestions" style="display:none;margin-top:14px">Import All Questions</button>
+        </div>
+
         <div class="management-list">
             <h4>Existing Questions</h4>
             <div id="adminQuestionsList">جاري تحميل الأسئلة...</div>
@@ -3675,6 +3689,95 @@ $("questionForm").addEventListener("submit",async function(e){
 
     setLoading("addQuestionButton",false);
 
+});
+
+
+// ==================================================
+// ADMIN: BULK QUESTION IMPORT (PASTE TEXT)
+// ==================================================
+let parsedBulkQuestions = [];
+
+function parseBulkQuestionText(raw){
+    const normalized = String(raw || "").replace(/\r/g, "").trim();
+    if(!normalized) return [];
+    const chunks = normalized.split(/(?=^\s*Question\s*#?\s*\d+\s*:?\s*$)/gim).filter(x=>x.trim());
+    return chunks.map((chunk,index)=>{
+        const lines = chunk.split("\n");
+        let question = "", explanation = "", correct = null;
+        const options = ["","","",""];
+        let mode = "question";
+        for(const rawLine of lines){
+            const line = rawLine.trim();
+            if(!line || /^Question\s*#?\s*\d+\s*:?$/i.test(line)) continue;
+            const answerMatch = line.match(/^Correct\s*Answer\s*:\s*([A-D])\s*(?:[).:-])?\s*(.*)$/i);
+            if(answerMatch){ correct = answerMatch[1].toUpperCase().charCodeAt(0)-65; mode="afterAnswer"; continue; }
+            const explanationMatch = line.match(/^Explanation\s*:\s*(.*)$/i);
+            if(explanationMatch){ explanation=explanationMatch[1].trim(); mode="explanation"; continue; }
+            const optionMatch = line.match(/^([a-d])\s*[).:-]\s*(.*)$/i);
+            if(optionMatch){ options[optionMatch[1].toLowerCase().charCodeAt(0)-97]=optionMatch[2].trim(); mode="options"; continue; }
+            if(mode==="explanation") explanation += (explanation?"\n":"")+line;
+            else if(mode==="question") question += (question?"\n":"")+line;
+        }
+        return {number:index+1,question:question.trim(),options,correctOption:correct,explanation:explanation.trim()};
+    });
+}
+
+function renderBulkQuestionPreview(){
+    const preview=$("bulkQuestionsPreview");
+    const importButton=$("importBulkQuestions");
+    if(!parsedBulkQuestions.length){preview.innerHTML="";importButton.style.display="none";return;}
+    const invalid=parsedBulkQuestions.filter(q=>!q.question || q.options.some(o=>!o) || q.correctOption===null || q.correctOption<0 || q.correctOption>3);
+    preview.innerHTML=parsedBulkQuestions.map((q,i)=>{
+        const good=!!q.question && q.options.every(Boolean) && q.correctOption!==null && q.correctOption>=0 && q.correctOption<=3;
+        const esc=v=>String(v||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+        return `<div style="background:#080e19;border:1px solid ${good?'#286b5b':'#a83245'};border-radius:8px;padding:12px;margin:9px 0"><strong>Question ${i+1} ${good?'✓':'— Needs correction'}</strong><p style="margin:8px 0">${esc(q.question)}</p><ol type="A" style="padding-left:24px">${q.options.map(o=>`<li>${esc(o)}</li>`).join('')}</ol><small>Correct answer: ${q.correctOption===null?'Missing':String.fromCharCode(65+q.correctOption)} | ${esc(q.explanation)}</small></div>`;
+    }).join("");
+    importButton.style.display=invalid.length?"none":"inline-block";
+    setStatus("bulkQuestionsStatus",`${parsedBulkQuestions.length} سؤال تم اكتشافه. ${invalid.length?invalid.length+" سؤال يحتاج تصحيح قبل الاستيراد.":"كل الأسئلة سليمة وجاهزة للمراجعة والاستيراد."}`);
+}
+
+$("parseBulkQuestions").addEventListener("click",()=>{
+    parsedBulkQuestions=parseBulkQuestionText($("bulkQuestionsText").value);
+    renderBulkQuestionPreview();
+    if(!parsedBulkQuestions.length) setStatus("bulkQuestionsStatus","لم أتعرف على أسئلة. تأكد أن كل سؤال يبدأ بسطر مثل Question 1.");
+});
+
+$("clearBulkQuestions").addEventListener("click",()=>{
+    $("bulkQuestionsText").value="";parsedBulkQuestions=[];
+    $("bulkQuestionsPreview").innerHTML="";$("importBulkQuestions").style.display="none";
+    setStatus("bulkQuestionsStatus","");
+});
+
+$("importBulkQuestions").addEventListener("click",async()=>{
+    const moduleId=$("questionModule").value;
+    const lectureId=$("questionLecture").value;
+    const category=$("questionCategory").value;
+    const difficulty=$("questionDifficulty").value || "Medium";
+    if(!$("questionYear").value || !moduleId || !$("questionSubject").value || !lectureId){
+        setStatus("bulkQuestionsStatus","اختار السنة والموديول والمادة والمحاضرة من نموذج إضافة السؤال العادي أولاً.");return;
+    }
+    if(!parsedBulkQuestions.length){setStatus("bulkQuestionsStatus","اعمل Preview للأسئلة أولاً.");return;}
+    const button=$("importBulkQuestions");button.disabled=true;
+    let saved=0,failed=[];
+    setStatus("bulkQuestionsStatus","جاري استيراد الأسئلة...");
+    for(let i=0;i<parsedBulkQuestions.length;i++){
+        const q=parsedBulkQuestions[i];
+        const {data:inserted,error:qError}=await supabaseClient.from("questions").insert({
+            module_id:Number(moduleId),lecture_id:Number(lectureId),question_text:q.question,
+            options:q.options,difficulty,question_category:category,is_published:false
+        }).select("id").single();
+        if(qError){failed.push(`السؤال ${i+1}: ${qError.message}`);continue;}
+        const {error:aError}=await supabaseClient.from("question_answers").insert({
+            question_id:inserted.id,correct_option:Number(q.correctOption),explanation:q.explanation
+        });
+        if(aError){failed.push(`السؤال ${i+1}: تم حفظ السؤال لكن فشل حفظ الإجابة: ${aError.message}`);continue;}
+        saved++;
+        setStatus("bulkQuestionsStatus",`تم حفظ ${saved} من ${parsedBulkQuestions.length}...`);
+    }
+    button.disabled=false;
+    if(failed.length){setStatus("bulkQuestionsStatus",`تم حفظ ${saved} من ${parsedBulkQuestions.length}. توجد أخطاء:\n`+failed.join("\n"));}
+    else{setStatus("bulkQuestionsStatus",`تم استيراد ${saved} سؤال بنجاح!`);$("bulkQuestionsText").value="";parsedBulkQuestions=[];$("bulkQuestionsPreview").innerHTML="";button.style.display="none";}
+    await loadAdminQuestions();
 });
 
 

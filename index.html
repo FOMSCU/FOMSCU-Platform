@@ -253,6 +253,9 @@ nav a{
 .admin-record:last-child{border-bottom:0}
 .admin-record small{display:block;color:#aebbd0;margin-top:4px}
 .management-list{margin-top:25px}
+.admin-list-search{width:100%;margin:0 0 12px;padding:10px 12px;border:1px solid #34465f;border-radius:8px;background:#101b2b;color:#fff}
+.admin-row-actions button.move-row{background:#334155;color:#fff;min-width:38px}
+.admin-row-actions button.move-row:disabled{opacity:.35;cursor:not-allowed}
 
 .management-list h4{
     color:#42d6b0;
@@ -2570,7 +2573,8 @@ async function loadModules(){
 
     const {data,error} = await supabaseClient
         .from("modules")
-        .select("id,name,year_id")
+        .select("id,name,year_id,sort_order")
+        .order("sort_order",{ascending:true,nullsFirst:false})
         .order("id");
 
     if(error){
@@ -2583,6 +2587,7 @@ async function loadModules(){
 
     modulesData = data || [];
 
+    ensureAdminListSearch($("modulesList"),"ابحث عن موديول...");
     $("modulesList").innerHTML = "";
 
     if(!modulesData.length){
@@ -2603,7 +2608,9 @@ async function loadModules(){
             "📖 "+module.name,
             (year?year.name:"Year not assigned")+" · ID: "+module.id,
             [
-                {label:"Rename",className:"edit-row",action:"rename-module",id:module.id},
+                {label:"Edit / Move",className:"edit-row",action:"edit-module",id:module.id},
+                {label:"↑",className:"move-row",action:"move-module-up",id:module.id,disabled:modulesData.filter(m=>String(m.year_id)===String(module.year_id)).sort((a,b)=>(a.sort_order??a.id)-(b.sort_order??b.id))[0]?.id===module.id},
+                {label:"↓",className:"move-row",action:"move-module-down",id:module.id,disabled:modulesData.filter(m=>String(m.year_id)===String(module.year_id)).sort((a,b)=>(a.sort_order??a.id)-(b.sort_order??b.id)).at(-1)?.id===module.id},
                 {label:"Delete permanently",className:"delete-row",action:"delete-module",id:module.id}
             ]
         );
@@ -2658,6 +2665,7 @@ async function loadSubjects(){
 
     subjectsData = data || [];
 
+    ensureAdminListSearch($("subjectsList"),"ابحث عن مادة...");
     await loadRelations();
 
 }
@@ -2667,7 +2675,9 @@ async function loadRelations(){
 
     const {data,error} = await supabaseClient
         .from("module_subjects")
-        .select("id,module_id,subject_id");
+        .select("id,module_id,subject_id,sort_order")
+        .order("sort_order",{ascending:true,nullsFirst:false})
+        .order("id");
 
     if(error){
 
@@ -2723,6 +2733,9 @@ async function loadRelations(){
                 " · Subject ID: "+subject.id+" · Link ID: "+relation.id,
                 [
                     {label:"Rename",className:"edit-row",action:"rename-subject",id:subject.id},
+                    {label:"Move link",className:"toggle-row",action:"move-subject-link",id:subject.id,relationId:relation.id},
+                    {label:"↑",className:"move-row",action:"move-subject-up",id:subject.id,relationId:relation.id},
+                    {label:"↓",className:"move-row",action:"move-subject-down",id:subject.id,relationId:relation.id},
                     {label:"Delete permanently",className:"delete-row",action:"delete-subject",id:subject.id}
                 ]
             );
@@ -2899,7 +2912,14 @@ function makeCollegeSlug(name){
         .replace(/^-+|-+$/g,"");
 }
 
-function renderAdminRecord(container, title, subtitle, actions){
+function ensureAdminListSearch(container,placeholder){
+    if(!container || container.previousElementSibling?.classList.contains("admin-list-search"))return;
+    const input=document.createElement("input"); input.type="search"; input.className="admin-list-search"; input.placeholder=placeholder;
+    input.addEventListener("input",()=>{const term=input.value.trim().toLowerCase();container.querySelectorAll(".admin-record").forEach(row=>{row.style.display=row.textContent.toLowerCase().includes(term)?"":"none";});});
+    container.parentNode.insertBefore(input,container);
+}
+
+function renderAdminRecord(container, title, subtitle, actions, options={}){
     const row=document.createElement("div");
     row.className="admin-record";
     const heading=document.createElement("strong");
@@ -2912,13 +2932,15 @@ function renderAdminRecord(container, title, subtitle, actions){
     }
     const actionBox=document.createElement("div");
     actionBox.className="admin-row-actions";
-    actions.forEach(({label,className,action,id})=>{
+    actions.forEach(({label,className,action,id,relationId,disabled})=>{
         const button=document.createElement("button");
         button.type="button";
         button.textContent=label;
         button.className=className||"";
         button.dataset.adminAction=action;
         button.dataset.recordId=String(id);
+        if(relationId!==undefined)button.dataset.relationId=String(relationId);
+        if(disabled)button.disabled=true;
         actionBox.appendChild(button);
     });
     row.appendChild(actionBox);
@@ -2939,12 +2961,14 @@ async function loadAdminAcademicStructure(){
         return;
     }
     const allColleges=colleges||[];
+    ensureAdminListSearch(collegesBox,"ابحث عن كلية...");
+    ensureAdminListSearch(yearsBox,"ابحث عن سنة دراسية...");
     collegesBox.innerHTML="";
     if(!allColleges.length)collegesBox.textContent="لا توجد كليات حتى الآن.";
     allColleges.forEach(college=>{
         renderAdminRecord(collegesBox,college.name,
             "ID: "+college.id+" · "+(college.is_active?"نشطة":"متوقفة"),[
-                {label:"Rename",className:"edit-row",action:"rename-college",id:college.id},
+                {label:"Edit",className:"edit-row",action:"edit-college",id:college.id},
                 {label:college.is_active?"Deactivate":"Activate",className:"toggle-row",action:"toggle-college",id:college.id},
                 {label:"Delete permanently",className:"delete-row",action:"delete-college",id:college.id}
             ]);
@@ -3015,15 +3039,16 @@ $("adminDashboard").addEventListener("click",async function(e){
     const action=button.dataset.adminAction;
     button.disabled=true;
     try{
-        if(action==="rename-college"){
-            const {data:college,error}=await supabaseClient.from("colleges").select("name").eq("id",id).single();
+        if(action==="edit-college"){
+            const {data:college,error}=await supabaseClient.from("colleges").select("name,slug").eq("id",id).single();
             if(error)throw error;
-            const name=prompt("اكتب الاسم الجديد للكلية:",college.name);
-            if(name===null)return;
+            const name=prompt("اسم الكلية:",college.name); if(name===null)return;
             if(!name.trim()){alert("اسم الكلية لا يمكن أن يكون فارغاً.");return;}
-            const {error:updateError}=await supabaseClient.from("colleges").update({name:name.trim()}).eq("id",id);
+            const slug=prompt("College slug (رابط/معرّف الكلية):",college.slug||makeCollegeSlug(name)); if(slug===null)return;
+            if(!slug.trim()){alert("Slug لا يمكن أن يكون فارغاً.");return;}
+            const {error:updateError}=await supabaseClient.from("colleges").update({name:name.trim(),slug:slug.trim().toLowerCase()}).eq("id",id);
             if(updateError)throw updateError;
-            setStatus("collegeStatus","تم تعديل اسم الكلية.");
+            setStatus("collegeStatus","تم تعديل اسم وSlug الكلية.");
             await loadAdminAcademicStructure();
             await loadSignupColleges();
             await loadStudentColleges();
@@ -3080,18 +3105,43 @@ $("adminDashboard").addEventListener("click",async function(e){
             setStatus("yearStatus","تم تعديل اسم السنة والكلية التابعة لها بنجاح.");
             await refreshAll();
             await loadAdminAcademicStructure();
-        }else if(action==="rename-module"){
-            const {data:module,error}=await supabaseClient.from("modules").select("name").eq("id",id).single();
-            if(error)throw error;
-            const name=prompt("اكتب الاسم الجديد للموديول:",module.name);
-            if(name===null)return;
+        }else if(action==="edit-module"){
+            const {data:module,error}=await supabaseClient.from("modules").select("name,year_id").eq("id",id).single(); if(error)throw error;
+            const name=prompt("اسم الموديول:",module.name); if(name===null)return;
             if(!name.trim()){alert("اسم الموديول لا يمكن أن يكون فارغاً.");return;}
-            const {error:updateError}=await supabaseClient.from("modules").update({name:name.trim()}).eq("id",id);
-            if(updateError)throw updateError;
-            setStatus("moduleStatus","تم تعديل اسم الموديول بنجاح.");
+            const {data:years,error:yearsError}=await supabaseClient.from("years").select("id,name").order("id"); if(yearsError)throw yearsError;
+            const choices=(years||[]).map((y,i)=>`${i+1}) ${y.name}${String(y.id)===String(module.year_id)?" (الحالية)":""}`).join("\n");
+            const current=(years||[]).findIndex(y=>String(y.id)===String(module.year_id));
+            const choice=prompt("اختار السنة التي يتبعها الموديول بكتابة الرقم:\n\n"+choices,String(current+1)); if(choice===null)return;
+            const index=Number(choice)-1; if(!Number.isInteger(index)||index<0||index>=years.length){alert("اختيار السنة غير صحيح.");return;}
+            const targetYear=years[index];
+            const {error:updateError}=await supabaseClient.from("modules").update({name:name.trim(),year_id:targetYear.id}).eq("id",id); if(updateError)throw updateError;
+            setStatus("moduleStatus","تم تعديل الموديول ونقله للسنة المختارة.");
             await refreshAll();
             await loadQuizCurriculum();
             await loadPastStudentYears();
+        }else if(action==="move-subject-link"){
+            const relationId=button.dataset.relationId;
+            if(!relationId){alert("لا يوجد ارتباط موديول لنقله.");return;}
+            const {data:relation,error:relationError}=await supabaseClient.from("module_subjects").select("id,module_id,subject_id").eq("id",relationId).single(); if(relationError)throw relationError;
+            const {data:subjectModules,error:smError}=await supabaseClient.from("modules").select("id,name,year_id").order("id"); if(smError)throw smError;
+            const choices=(subjectModules||[]).map((m,i)=>`${i+1}) ${m.name} · ${yearsData.find(y=>String(y.id)===String(m.year_id))?.name||""}${String(m.id)===String(relation.module_id)?" (الحالي)":""}`).join("\n");
+            const current=(subjectModules||[]).findIndex(m=>String(m.id)===String(relation.module_id));
+            const choice=prompt("انقل ارتباط المادة إلى موديول آخر (اكتب الرقم):\n\n"+choices,String(current+1)); if(choice===null)return;
+            const index=Number(choice)-1; if(!Number.isInteger(index)||index<0||index>=subjectModules.length){alert("اختيار الموديول غير صحيح.");return;}
+            const target=subjectModules[index];
+            if(String(target.id)===String(relation.module_id)){alert("المادة مرتبطة بالفعل بهذا الموديول.");return;}
+            const {count,error:duplicateError}=await supabaseClient.from("module_subjects").select("id",{count:"exact",head:true}).eq("module_id",target.id).eq("subject_id",relation.subject_id); if(duplicateError)throw duplicateError;
+            if(count){alert("المادة مرتبطة بالفعل بالموديول المختار.");return;}
+            if(!confirm("سيتم نقل ارتباط المادة إلى الموديول المختار مع الحفاظ على رقم الارتباط حتى لا تنفصل المحاضرات التابعة. متابعة؟"))return;
+            const {error:updateError}=await supabaseClient.from("module_subjects").update({module_id:target.id}).eq("id",relationId); if(updateError)throw updateError;
+            const {count:remainingLinks,error:countError}=await supabaseClient.from("module_subjects").select("id",{count:"exact",head:true}).eq("subject_id",relation.subject_id);
+            if(countError)throw countError;
+            if(remainingLinks===1){
+                const {error:legacyError}=await supabaseClient.from("subjects").update({module_id:target.id}).eq("id",relation.subject_id);
+                if(legacyError)console.warn("Legacy subject module_id update:",legacyError);
+            }
+            setStatus("subjectStatus","تم نقل ارتباط المادة مع الحفاظ على المحاضرات."); await refreshAll();
         }else if(action==="rename-subject"){
             const {data:subject,error}=await supabaseClient.from("subjects").select("name").eq("id",id).single();
             if(error)throw error;
@@ -3112,6 +3162,20 @@ $("adminDashboard").addEventListener("click",async function(e){
             if(updateError)throw updateError;
             setStatus("lectureStatus","تم تعديل اسم المحاضرة.");
             await refreshAll();
+        }else if(action==="move-module-up"||action==="move-module-down"){
+            const current=modulesData.find(m=>String(m.id)===String(id)); if(!current)return;
+            const group=modulesData.filter(m=>String(m.year_id)===String(current.year_id)).sort((a,b)=>(a.sort_order??a.id)-(b.sort_order??b.id));
+            const index=group.findIndex(m=>String(m.id)===String(id)); const other=group[index+(action.endsWith("up")?-1:1)]; if(!other)return;
+            const a=current.sort_order??index, b=other.sort_order??(index+(action.endsWith("up")?-1:1));
+            const updates=await Promise.all([supabaseClient.from("modules").update({sort_order:b}).eq("id",current.id),supabaseClient.from("modules").update({sort_order:a}).eq("id",other.id)]);
+            const failed=updates.find(x=>x.error); if(failed)throw failed.error; await loadModules();
+        }else if(action==="move-subject-up"||action==="move-subject-down"){
+            const relationId=button.dataset.relationId; const current=relationsData.find(r=>String(r.id)===String(relationId)); if(!current)return;
+            const group=relationsData.filter(r=>String(r.module_id)===String(current.module_id)).sort((a,b)=>(a.sort_order??a.id)-(b.sort_order??b.id));
+            const index=group.findIndex(r=>String(r.id)===String(relationId)); const other=group[index+(action.endsWith("up")?-1:1)]; if(!other)return;
+            const a=current.sort_order??index, b=other.sort_order??(index+(action.endsWith("up")?-1:1));
+            const updates=await Promise.all([supabaseClient.from("module_subjects").update({sort_order:b}).eq("id",current.id),supabaseClient.from("module_subjects").update({sort_order:a}).eq("id",other.id)]);
+            const failed=updates.find(x=>x.error); if(failed)throw failed.error; await loadSubjects();
         }else if(action==="delete-college"){
             const {data:children,error:checkError}=await supabaseClient.from("years").select("id,name").eq("college_id",id);
             if(checkError)throw checkError;
@@ -3226,7 +3290,7 @@ $("adminDashboard").addEventListener("click",async function(e){
             await loadAdminQuestions();
         }
     }catch(error){
-        const target=action.includes("college")?"collegeStatus":"yearStatus";
+        const target=action.includes("college")?"collegeStatus":action.includes("module")?"moduleStatus":action.includes("subject")?"subjectStatus":"yearStatus";
         setStatus(target,"فشلت العملية: "+(error.message||"حدث خطأ غير متوقع."));
     }finally{
         button.disabled=false;

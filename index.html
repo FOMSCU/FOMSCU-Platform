@@ -968,6 +968,12 @@ footer{
         <div id="collegeStatus" class="status" role="status" aria-live="polite"></div>
         <div class="management-list">
             <h4>Existing Colleges</h4>
+            <div class="bulk-record-toolbar" data-list="collegesList" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0">
+                <button type="button" class="button bulk-select-all">Select All</button>
+                <button type="button" class="button bulk-clear-selection">Clear Selection</button>
+                <button type="button" class="button bulk-delete-selected" style="background:#a83242">Delete Selected</button>
+                <span class="bulk-selection-count" style="color:#aebbd0">0 selected</span>
+            </div>
             <div id="collegesList">Loading colleges...</div>
         </div>
 
@@ -980,6 +986,12 @@ footer{
         <div id="yearStatus" class="status" role="status" aria-live="polite"></div>
         <div class="management-list">
             <h4>Existing Academic Years</h4>
+            <div class="bulk-record-toolbar" data-list="yearsList" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0">
+                <button type="button" class="button bulk-select-all">Select All</button>
+                <button type="button" class="button bulk-clear-selection">Clear Selection</button>
+                <button type="button" class="button bulk-delete-selected" style="background:#a83242">Delete Selected</button>
+                <span class="bulk-selection-count" style="color:#aebbd0">0 selected</span>
+            </div>
             <div id="yearsList">Loading academic years...</div>
         </div>
     </div>
@@ -1010,6 +1022,12 @@ footer{
 
         <div class="management-list">
             <h4>Existing Modules</h4>
+            <div class="bulk-record-toolbar" data-list="modulesList" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0">
+                <button type="button" class="button bulk-select-all">Select All</button>
+                <button type="button" class="button bulk-clear-selection">Clear Selection</button>
+                <button type="button" class="button bulk-delete-selected" style="background:#a83242">Delete Selected</button>
+                <span class="bulk-selection-count" style="color:#aebbd0">0 selected</span>
+            </div>
             <div id="modulesList">Loading...</div>
         </div>
 
@@ -1045,6 +1063,12 @@ footer{
 
         <div class="management-list">
             <h4>Existing Subject Connections</h4>
+            <div class="bulk-record-toolbar" data-list="subjectsList" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0">
+                <button type="button" class="button bulk-select-all">Select All</button>
+                <button type="button" class="button bulk-clear-selection">Clear Selection</button>
+                <button type="button" class="button bulk-delete-selected" style="background:#a83242">Delete Selected</button>
+                <span class="bulk-selection-count" style="color:#aebbd0">0 selected</span>
+            </div>
             <div id="subjectsList">Loading...</div>
         </div>
 
@@ -1084,6 +1108,12 @@ footer{
 
         <div class="management-list">
             <h4>Existing Lectures</h4>
+            <div class="bulk-record-toolbar" data-list="lecturesList" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0">
+                <button type="button" class="button bulk-select-all">Select All</button>
+                <button type="button" class="button bulk-clear-selection">Clear Selection</button>
+                <button type="button" class="button bulk-delete-selected" style="background:#a83242">Delete Selected</button>
+                <span class="bulk-selection-count" style="color:#aebbd0">0 selected</span>
+            </div>
             <div id="lecturesList">Loading...</div>
         </div>
 
@@ -1158,22 +1188,15 @@ footer{
 
         <div id="questionStatus" class="status"></div>
 
-        <!-- BULK QUESTION IMPORT -->
-        <div class="management-list" id="bulkQuestionImport" style="margin-top:22px;padding:20px">
-            <h4 style="color:#42d6b0;margin-bottom:10px">📥 Import Multiple Questions</h4>
-            <p style="margin-bottom:12px">Paste a group of questions in the same format: Question 1, options a)–d), Correct Answer, and Explanation.</p>
-            <textarea id="bulkQuestionsText" class="full-width" rows="14" placeholder="Paste all questions here..." style="width:100%;min-height:260px"></textarea>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
-                <button type="button" class="button" id="parseBulkQuestions">Preview Questions</button>
-                <button type="button" class="button secondary-button" id="clearBulkQuestions">Clear</button>
-            </div>
-            <div id="bulkQuestionsStatus" class="status"></div>
-            <div id="bulkQuestionsPreview" style="margin-top:14px"></div>
-            <button type="button" class="button" id="importBulkQuestions" style="display:none;margin-top:14px">Import All Questions</button>
-        </div>
-
         <div class="management-list">
             <h4>Existing Questions</h4>
+            <div id="questionBulkToolbar" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0">
+                <button type="button" id="selectAllQuestions" class="button">Select All</button>
+                <button type="button" id="clearQuestionSelection" class="button">Clear Selection</button>
+                <button type="button" id="publishSelectedQuestions" class="button" style="background:#168b68">Publish Selected</button>
+                <button type="button" id="deleteSelectedQuestions" class="button" style="background:#a83242">Delete Selected</button>
+                <span id="questionSelectionCount" style="color:#aebbd0">0 selected</span>
+            </div>
             <div id="adminQuestionsList">جاري تحميل الأسئلة...</div>
             <button type="button" id="refreshAdminQuestions" class="button" style="margin-top:12px">Refresh Questions</button>
         </div>
@@ -2726,7 +2749,7 @@ async function loadRelations(){
                 {label:"Rename",className:"edit-row",action:"rename-subject",id:subject.id},
                 {label:"Move link",className:"toggle-row",action:"move-subject-link",id:subject.id,relationId:relation.id},
                 {label:"Delete permanently",className:"delete-row",action:"delete-subject",id:subject.id}
-            ],{sortType:"module_subjects",sortId:relation.id,sortGroup:relation.module_id}
+            ],{sortType:"module_subjects",sortId:relation.id,sortGroup:relation.module_id,selectId:subject.id}
         );
     });
 
@@ -2815,7 +2838,7 @@ async function loadLectures(){
             "🎓 "+lecture.name,
             (subject?subject.name:"Unknown Subject")+" — "+
             (module?module.name:"Not linked")+" · Lecture ID: "+lecture.id,
-            [{label:"Rename",className:"edit-row",action:"rename-lecture",id:lecture.id}]
+            [{label:"Rename",className:"edit-row",action:"rename-lecture",id:lecture.id},{label:"Delete permanently",className:"delete-row",action:"delete-lecture",id:lecture.id}]
         );
 
     });
@@ -2876,8 +2899,15 @@ async function loadAdminQuestions(){
         renderAdminRecord(box,preview||("Question #"+q.id),
             "#"+q.id+" · "+(lecture?lecture.name:"Lecture unavailable")+" · "+category+" · "+(q.is_published?"Published":"Draft")+" · Correct: "+(answer?"ABCD"[Number(answer.correct_option)]||"?":"Not set"),[
                 {label:"Edit",className:"edit-row",action:"edit-question",id:q.id},
-                {label:q.is_published?"Unpublish":"Publish",className:"toggle-row",action:"toggle-question",id:q.id}
+                {label:q.is_published?"Unpublish":"Publish",className:"toggle-row",action:"toggle-question",id:q.id},
+                {label:"Delete",className:"delete-row",action:"delete-question",id:q.id}
             ]);
+        const row=box.lastElementChild;
+        const select=document.createElement("input");
+        select.type="checkbox"; select.className="question-bulk-checkbox"; select.dataset.questionId=String(q.id);
+        select.setAttribute("aria-label","Select question "+q.id);
+        select.style.cssText="width:18px;height:18px;margin-inline-end:10px;flex:0 0 auto;cursor:pointer";
+        row.insertBefore(select,row.firstChild);
     });
 }
 
@@ -2933,6 +2963,17 @@ function renderAdminRecord(container, title, subtitle, actions, options={}){
         handle.setAttribute("role","button");
         handle.setAttribute("tabindex","0");
         row.appendChild(handle);
+    }
+    const listSelectTypes={collegesList:"college",yearsList:"year",modulesList:"module",subjectsList:"subject",lecturesList:"lecture"};
+    const selectType=listSelectTypes[container.id];
+    if(selectType){
+        const select=document.createElement("input");
+        select.type="checkbox"; select.className="record-select-checkbox";
+        select.dataset.recordType=selectType;
+        select.dataset.recordId=String(options.selectId!==undefined?options.selectId:(actions.find(a=>a.id!==undefined)?.id??""));
+        select.setAttribute("aria-label","Select "+selectType);
+        select.style.cssText="width:18px;height:18px;margin-inline-end:10px;flex:0 0 auto;cursor:pointer";
+        row.appendChild(select);
     }
     const heading=document.createElement("strong");
     heading.textContent=title;
@@ -3127,6 +3168,124 @@ $("yearForm").addEventListener("submit",async function(e){
     document.addEventListener("pointercancel",resetDrag);
 })();
 
+function getSelectedQuestionIds(){
+    return Array.from(document.querySelectorAll("#adminQuestionsList .question-bulk-checkbox:checked"))
+        .map(input=>Number(input.dataset.questionId)).filter(Number.isFinite);
+}
+function updateQuestionSelectionCount(){
+    const count=getSelectedQuestionIds().length;
+    const label=$("questionSelectionCount"); if(label)label.textContent=count+" selected";
+}
+$("adminQuestionsList").addEventListener("change",event=>{
+    if(event.target.matches(".question-bulk-checkbox"))updateQuestionSelectionCount();
+});
+$("selectAllQuestions").addEventListener("click",()=>{
+    document.querySelectorAll("#adminQuestionsList .question-bulk-checkbox").forEach(input=>input.checked=true);
+    updateQuestionSelectionCount();
+});
+$("clearQuestionSelection").addEventListener("click",()=>{
+    document.querySelectorAll("#adminQuestionsList .question-bulk-checkbox").forEach(input=>input.checked=false);
+    updateQuestionSelectionCount();
+});
+$("publishSelectedQuestions").addEventListener("click",async()=>{
+    const ids=getSelectedQuestionIds();
+    if(!ids.length){alert("حدد سؤالاً واحداً على الأقل أولاً.");return;}
+    if(!confirm("نشر "+ids.length+" سؤال للطلاب؟"))return;
+    const button=$("publishSelectedQuestions"); button.disabled=true;
+    try{
+        const {error}=await supabaseClient.from("questions").update({is_published:true}).in("id",ids);
+        if(error)throw error;
+        setStatus("questionStatus","تم نشر "+ids.length+" سؤال بنجاح.");
+        await loadAdminQuestions();
+    }catch(error){
+        setStatus("questionStatus","تعذر نشر الأسئلة: "+(error.message||error));
+    }finally{button.disabled=false;updateQuestionSelectionCount();}
+});
+
+// ==================================================
+// BULK SELECTION / SAFE BULK DELETE FOR ALL ADMIN LISTS
+// ==================================================
+const bulkListConfig={
+    collegesList:{type:"college",action:"delete-college"},
+    yearsList:{type:"year",action:"delete-year"},
+    modulesList:{type:"module",action:"delete-module"},
+    subjectsList:{type:"subject",action:"delete-subject"},
+    lecturesList:{type:"lecture",action:"delete-lecture"}
+};
+function updateBulkCount(toolbar){
+    const listId=toolbar.dataset.list, list=document.getElementById(listId);
+    const count=list?.querySelectorAll(".record-select-checkbox:checked").length||0;
+    const label=toolbar.querySelector(".bulk-selection-count"); if(label)label.textContent=count+" selected";
+}
+document.querySelectorAll(".bulk-record-toolbar").forEach(toolbar=>{
+    const list=document.getElementById(toolbar.dataset.list);
+    toolbar.querySelector(".bulk-select-all").addEventListener("click",()=>{list.querySelectorAll(".record-select-checkbox").forEach(x=>x.checked=true);updateBulkCount(toolbar);});
+    toolbar.querySelector(".bulk-clear-selection").addEventListener("click",()=>{list.querySelectorAll(".record-select-checkbox").forEach(x=>x.checked=false);updateBulkCount(toolbar);});
+    toolbar.querySelector(".bulk-delete-selected").addEventListener("click",async()=>{
+        const selected=[...list.querySelectorAll(".record-select-checkbox:checked")];
+        const type=bulkListConfig[toolbar.dataset.list]?.type;
+        const ids=[...new Set(selected.map(x=>Number(x.dataset.recordId)).filter(Number.isFinite))];
+        if(!ids.length){alert("حدد عنصرًا واحدًا على الأقل أولاً.");return;}
+        if(!confirm("هل تريد حذف "+ids.length+" عنصرًا محددًا؟ العناصر المرتبطة ببيانات أخرى سيتم تخطيها لحماية بياناتك."))return;
+        const btn=toolbar.querySelector(".bulk-delete-selected");btn.disabled=true;
+        let deleted=0,skipped=0; const reasons=[];
+        try{
+            for(const id of ids){
+                let table="", checks=[];
+                if(type==="college"){
+                    table="colleges"; checks=[await supabaseClient.from("years").select("id",{count:"exact",head:true}).eq("college_id",id)];
+                }else if(type==="year"){
+                    table="years"; checks=[await supabaseClient.from("modules").select("id",{count:"exact",head:true}).eq("year_id",id)];
+                }else if(type==="module"){
+                    table="modules";
+                    const links=await supabaseClient.from("module_subjects").select("id").eq("module_id",id);
+                    if(links.error)throw links.error;
+                    const linkIds=(links.data||[]).map(x=>x.id);
+                    checks=await Promise.all([
+                        supabaseClient.from("questions").select("id",{count:"exact",head:true}).eq("module_id",id),
+                        supabaseClient.from("module_exams").select("id",{count:"exact",head:true}).eq("module_id",id),
+                        linkIds.length?supabaseClient.from("lectures").select("id",{count:"exact",head:true}).in("module_subject_id",linkIds):Promise.resolve({count:0,error:null})
+                    ]);
+                    checks.push({count:linkIds.length,error:null});
+                }else if(type==="subject"){
+                    table="subjects"; checks=await Promise.all([
+                        supabaseClient.from("module_subjects").select("id",{count:"exact",head:true}).eq("subject_id",id),
+                        supabaseClient.from("lectures").select("id",{count:"exact",head:true}).eq("subject_id",id)
+                    ]);
+                }else if(type==="lecture"){
+                    table="lectures"; checks=[await supabaseClient.from("questions").select("id",{count:"exact",head:true}).eq("lecture_id",id)];
+                }
+                const failed=checks.find(x=>x.error);if(failed)throw failed.error;
+                const linked=checks.reduce((n,x)=>n+(x.count||0),0);
+                if(linked){skipped++;reasons.push(type+" #"+id+" مرتبط ببيانات أخرى");continue;}
+                const {error}=await supabaseClient.from(table).delete().eq("id",id);
+                if(error)throw error; deleted++;
+            }
+            alert("انتهى الحذف الجماعي.\nتم الحذف: "+deleted+"\nتم التخطي لحماية البيانات المرتبطة: "+skipped+(reasons.length?"\n\n"+reasons.slice(0,8).join("\n"):""));
+            if(type==="college"){await loadAdminAcademicStructure();await loadSignupColleges();await loadStudentColleges();}
+            else if(type==="year"){await refreshAll();await loadAdminAcademicStructure();}
+            else await refreshAll();
+        }catch(error){alert("حدث خطأ أثناء الحذف الجماعي: "+(error.message||error));}
+        finally{btn.disabled=false;updateBulkCount(toolbar);}
+    });
+    list.addEventListener("change",e=>{if(e.target.matches(".record-select-checkbox"))updateBulkCount(toolbar);});
+});
+$("deleteSelectedQuestions").addEventListener("click",async()=>{
+    const ids=getSelectedQuestionIds();
+    if(!ids.length){alert("حدد سؤالاً واحدًا على الأقل أولاً.");return;}
+    if(!confirm("حذف "+ids.length+" سؤالًا نهائيًا مع الإجابات والشروحات المرتبطة؟ لا يمكن التراجع."))return;
+    const btn=$("deleteSelectedQuestions");btn.disabled=true;
+    try{
+        const {error:answerError}=await supabaseClient.from("question_answers").delete().in("question_id",ids);
+        if(answerError)throw answerError;
+        const {error:questionError}=await supabaseClient.from("questions").delete().in("id",ids);
+        if(questionError)throw questionError;
+        setStatus("questionStatus","تم حذف "+ids.length+" سؤالًا مع الإجابات والشروحات.");
+        await loadAdminQuestions();
+    }catch(error){setStatus("questionStatus","تعذر حذف الأسئلة: "+(error.message||error));}
+    finally{btn.disabled=false;updateQuestionSelectionCount();}
+});
+
 $("adminDashboard").addEventListener("click",async function(e){
     const button=e.target.closest("button[data-admin-action]");
     if(!button)return;
@@ -3313,6 +3472,16 @@ $("adminDashboard").addEventListener("click",async function(e){
             if(!confirm("حذف المادة نهائياً: "+subject.name+"؟\nلا يمكن التراجع عن هذا الإجراء."))return;
             const {error:deleteError}=await supabaseClient.from("subjects").delete().eq("id",id); if(deleteError)throw deleteError;
             setStatus("subjectStatus","تم حذف المادة نهائياً."); await refreshAll();
+        }else if(action==="delete-lecture"){
+            const {data:linkedQuestions,error:checkError}=await supabaseClient.from("questions").select("id").eq("lecture_id",id);
+            if(checkError)throw checkError;
+            if(linkedQuestions && linkedQuestions.length){alert("لا يمكن حذف المحاضرة لأنها مرتبطة بـ "+linkedQuestions.length+" سؤال. احذف الأسئلة أو انقلها أولاً.");return;}
+            const {data:lecture,error}=await supabaseClient.from("lectures").select("name").eq("id",id).single();
+            if(error)throw error;
+            if(!confirm("حذف المحاضرة نهائيًا: "+lecture.name+"؟ لا يمكن التراجع."))return;
+            const {error:deleteError}=await supabaseClient.from("lectures").delete().eq("id",id);
+            if(deleteError)throw deleteError;
+            setStatus("lectureStatus","تم حذف المحاضرة."); await refreshAll();
         }else if(action==="toggle-question"){
             const {data:question,error}=await supabaseClient.from("questions").select("is_published").eq("id",id).single();
             if(error)throw error;
@@ -3321,6 +3490,18 @@ $("adminDashboard").addEventListener("click",async function(e){
             const {error:updateError}=await supabaseClient.from("questions").update({is_published:next}).eq("id",id);
             if(updateError)throw updateError;
             setStatus("questionStatus",next?"تم نشر السؤال.":"تم إلغاء نشر السؤال.");
+            await loadAdminQuestions();
+        }else if(action==="delete-question"){
+            const {data:question,error:questionError}=await supabaseClient.from("questions")
+                .select("question_text").eq("id",id).single();
+            if(questionError)throw questionError;
+            const preview=String(question.question_text||"").replace(/\s+/g," ").slice(0,120);
+            if(!confirm("هل تريد حذف السؤال نهائياً؟\n\n"+preview+"\n\nسيتم حذف الإجابة والشرح المرتبطين به أيضاً. لا يمكن التراجع."))return;
+            const {error:answerDeleteError}=await supabaseClient.from("question_answers").delete().eq("question_id",id);
+            if(answerDeleteError)throw answerDeleteError;
+            const {error:questionDeleteError}=await supabaseClient.from("questions").delete().eq("id",id);
+            if(questionDeleteError)throw questionDeleteError;
+            setStatus("questionStatus","تم حذف السؤال والإجابة والشرح المرتبطين به نهائياً.");
             await loadAdminQuestions();
         }else if(action==="edit-question"){
             const {data:question,error}=await supabaseClient.from("questions")
@@ -3689,95 +3870,6 @@ $("questionForm").addEventListener("submit",async function(e){
 
     setLoading("addQuestionButton",false);
 
-});
-
-
-// ==================================================
-// ADMIN: BULK QUESTION IMPORT (PASTE TEXT)
-// ==================================================
-let parsedBulkQuestions = [];
-
-function parseBulkQuestionText(raw){
-    const normalized = String(raw || "").replace(/\r/g, "").trim();
-    if(!normalized) return [];
-    const chunks = normalized.split(/(?=^\s*Question\s*#?\s*\d+\s*:?\s*$)/gim).filter(x=>x.trim());
-    return chunks.map((chunk,index)=>{
-        const lines = chunk.split("\n");
-        let question = "", explanation = "", correct = null;
-        const options = ["","","",""];
-        let mode = "question";
-        for(const rawLine of lines){
-            const line = rawLine.trim();
-            if(!line || /^Question\s*#?\s*\d+\s*:?$/i.test(line)) continue;
-            const answerMatch = line.match(/^Correct\s*Answer\s*:\s*([A-D])\s*(?:[).:-])?\s*(.*)$/i);
-            if(answerMatch){ correct = answerMatch[1].toUpperCase().charCodeAt(0)-65; mode="afterAnswer"; continue; }
-            const explanationMatch = line.match(/^Explanation\s*:\s*(.*)$/i);
-            if(explanationMatch){ explanation=explanationMatch[1].trim(); mode="explanation"; continue; }
-            const optionMatch = line.match(/^([a-d])\s*[).:-]\s*(.*)$/i);
-            if(optionMatch){ options[optionMatch[1].toLowerCase().charCodeAt(0)-97]=optionMatch[2].trim(); mode="options"; continue; }
-            if(mode==="explanation") explanation += (explanation?"\n":"")+line;
-            else if(mode==="question") question += (question?"\n":"")+line;
-        }
-        return {number:index+1,question:question.trim(),options,correctOption:correct,explanation:explanation.trim()};
-    });
-}
-
-function renderBulkQuestionPreview(){
-    const preview=$("bulkQuestionsPreview");
-    const importButton=$("importBulkQuestions");
-    if(!parsedBulkQuestions.length){preview.innerHTML="";importButton.style.display="none";return;}
-    const invalid=parsedBulkQuestions.filter(q=>!q.question || q.options.some(o=>!o) || q.correctOption===null || q.correctOption<0 || q.correctOption>3);
-    preview.innerHTML=parsedBulkQuestions.map((q,i)=>{
-        const good=!!q.question && q.options.every(Boolean) && q.correctOption!==null && q.correctOption>=0 && q.correctOption<=3;
-        const esc=v=>String(v||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-        return `<div style="background:#080e19;border:1px solid ${good?'#286b5b':'#a83245'};border-radius:8px;padding:12px;margin:9px 0"><strong>Question ${i+1} ${good?'✓':'— Needs correction'}</strong><p style="margin:8px 0">${esc(q.question)}</p><ol type="A" style="padding-left:24px">${q.options.map(o=>`<li>${esc(o)}</li>`).join('')}</ol><small>Correct answer: ${q.correctOption===null?'Missing':String.fromCharCode(65+q.correctOption)} | ${esc(q.explanation)}</small></div>`;
-    }).join("");
-    importButton.style.display=invalid.length?"none":"inline-block";
-    setStatus("bulkQuestionsStatus",`${parsedBulkQuestions.length} سؤال تم اكتشافه. ${invalid.length?invalid.length+" سؤال يحتاج تصحيح قبل الاستيراد.":"كل الأسئلة سليمة وجاهزة للمراجعة والاستيراد."}`);
-}
-
-$("parseBulkQuestions").addEventListener("click",()=>{
-    parsedBulkQuestions=parseBulkQuestionText($("bulkQuestionsText").value);
-    renderBulkQuestionPreview();
-    if(!parsedBulkQuestions.length) setStatus("bulkQuestionsStatus","لم أتعرف على أسئلة. تأكد أن كل سؤال يبدأ بسطر مثل Question 1.");
-});
-
-$("clearBulkQuestions").addEventListener("click",()=>{
-    $("bulkQuestionsText").value="";parsedBulkQuestions=[];
-    $("bulkQuestionsPreview").innerHTML="";$("importBulkQuestions").style.display="none";
-    setStatus("bulkQuestionsStatus","");
-});
-
-$("importBulkQuestions").addEventListener("click",async()=>{
-    const moduleId=$("questionModule").value;
-    const lectureId=$("questionLecture").value;
-    const category=$("questionCategory").value;
-    const difficulty=$("questionDifficulty").value || "Medium";
-    if(!$("questionYear").value || !moduleId || !$("questionSubject").value || !lectureId){
-        setStatus("bulkQuestionsStatus","اختار السنة والموديول والمادة والمحاضرة من نموذج إضافة السؤال العادي أولاً.");return;
-    }
-    if(!parsedBulkQuestions.length){setStatus("bulkQuestionsStatus","اعمل Preview للأسئلة أولاً.");return;}
-    const button=$("importBulkQuestions");button.disabled=true;
-    let saved=0,failed=[];
-    setStatus("bulkQuestionsStatus","جاري استيراد الأسئلة...");
-    for(let i=0;i<parsedBulkQuestions.length;i++){
-        const q=parsedBulkQuestions[i];
-        const {data:inserted,error:qError}=await supabaseClient.from("questions").insert({
-            module_id:Number(moduleId),lecture_id:Number(lectureId),question_text:q.question,
-            options:q.options,difficulty,question_category:category,is_published:false
-        }).select("id").single();
-        if(qError){failed.push(`السؤال ${i+1}: ${qError.message}`);continue;}
-        const {error:aError}=await supabaseClient.from("question_answers").insert({
-            question_id:inserted.id,correct_option:Number(q.correctOption),explanation:q.explanation
-        });
-        if(aError){failed.push(`السؤال ${i+1}: تم حفظ السؤال لكن فشل حفظ الإجابة: ${aError.message}`);continue;}
-        saved++;
-        setStatus("bulkQuestionsStatus",`تم حفظ ${saved} من ${parsedBulkQuestions.length}...`);
-    }
-    button.disabled=false;
-    if(failed.length){setStatus("bulkQuestionsStatus",`تم حفظ ${saved} من ${parsedBulkQuestions.length}. توجد أخطاء:\n`+failed.join("\n"));}
-    else{setStatus("bulkQuestionsStatus",`تم استيراد ${saved} سؤال بنجاح!`);$("bulkQuestionsText").value="";parsedBulkQuestions=[];$("bulkQuestionsPreview").innerHTML="";button.style.display="none";}
-    await loadAdminQuestions();
 });
 
 

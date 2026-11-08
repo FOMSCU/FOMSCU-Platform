@@ -2591,10 +2591,11 @@ async function loadModules(){
             y=>String(y.id)===String(module.year_id)
         );
 
-        addListItem(
+        renderAdminRecord(
             $("modulesList"),
-            "📖 "+module.name+" — "+
-            (year?year.name:"Year not assigned")
+            "📖 "+module.name,
+            (year?year.name:"Year not assigned")+" · ID: "+module.id,
+            [{label:"Rename",className:"edit-row",action:"rename-module",id:module.id}]
         );
 
     });
@@ -2678,9 +2679,11 @@ async function loadRelations(){
 
         if(!subjectRelations.length){
 
-            addListItem(
+            renderAdminRecord(
                 $("subjectsList"),
-                "📚 "+subject.name+" — غير مرتبطة"
+                "📚 "+subject.name,
+                "غير مرتبطة بأي موديول · ID: "+subject.id,
+                [{label:"Rename",className:"edit-row",action:"rename-subject",id:subject.id}]
             );
 
             return;
@@ -2699,11 +2702,13 @@ async function loadRelations(){
                 )
                 : null;
 
-            addListItem(
+            renderAdminRecord(
                 $("subjectsList"),
-                "📚 "+subject.name+" — "+
+                "📚 "+subject.name,
                 (module?module.name:"Unknown")+" — "+
-                (year?year.name:"")
+                (year?year.name:"Year not assigned")+
+                " · Subject ID: "+subject.id+" · Link ID: "+relation.id,
+                [{label:"Rename",className:"edit-row",action:"rename-subject",id:subject.id}]
             );
 
         });
@@ -2993,6 +2998,28 @@ $("adminDashboard").addEventListener("click",async function(e){
             setStatus("yearStatus","تم تعديل اسم السنة الدراسية.");
             await refreshAll();
             await loadAdminAcademicStructure();
+        }else if(action==="rename-module"){
+            const {data:module,error}=await supabaseClient.from("modules").select("name").eq("id",id).single();
+            if(error)throw error;
+            const name=prompt("اكتب الاسم الجديد للموديول:",module.name);
+            if(name===null)return;
+            if(!name.trim()){alert("اسم الموديول لا يمكن أن يكون فارغاً.");return;}
+            const {error:updateError}=await supabaseClient.from("modules").update({name:name.trim()}).eq("id",id);
+            if(updateError)throw updateError;
+            setStatus("moduleStatus","تم تعديل اسم الموديول بنجاح.");
+            await refreshAll();
+            await loadQuizCurriculum();
+            await loadPastStudentYears();
+        }else if(action==="rename-subject"){
+            const {data:subject,error}=await supabaseClient.from("subjects").select("name").eq("id",id).single();
+            if(error)throw error;
+            const name=prompt("اكتب الاسم الجديد للمادة:",subject.name);
+            if(name===null)return;
+            if(!name.trim()){alert("اسم المادة لا يمكن أن يكون فارغاً.");return;}
+            const {error:updateError}=await supabaseClient.from("subjects").update({name:name.trim()}).eq("id",id);
+            if(updateError)throw updateError;
+            setStatus("subjectStatus","تم تعديل اسم المادة بنجاح في كل الموديولات المرتبطة بها.");
+            await refreshAll();
         }
     }catch(error){
         const target=action.includes("college")?"collegeStatus":"yearStatus";

@@ -382,6 +382,19 @@ footer{
 
     .management-section{padding:18px}
 }
+
+
+/* KING leaderboard */
+#leaderboardSection{display:none;max-width:1100px;margin:35px auto;padding:30px;background:#101a2b;border:1px solid #42d6b0;border-radius:15px}
+.leaderboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:20px}
+.leaderboard-card{background:#121e30;border:1px solid #263750;border-radius:12px;padding:18px;min-width:0}
+.leaderboard-card h3{color:#42d6b0;margin-bottom:12px}
+.leaderboard-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #263750;color:#dce6f4;font-size:14px}
+.leaderboard-row:last-child{border-bottom:0}
+.leaderboard-row.me{color:#42d6b0;font-weight:bold}
+.king-badge{color:#ffd166;font-weight:bold;white-space:nowrap}
+.leaderboard-muted{color:#aebbd0;line-height:1.6}
+
 </style>
 </head>
 
@@ -504,6 +517,16 @@ footer{
         <option value="">جاري تحميل الكليات...</option>
     </select>
     <div id="collegeBrowserStatus" class="status"></div>
+</section>
+
+<!-- STUDENT KING LEADERBOARD -->
+<section id="leaderboardSection">
+    <h2 class="dashboard-title">👑 KING Leaderboard</h2>
+    <p class="dashboard-description">ترتيبك ونقاطك في كليتك ودفعتك والموديولات التابعة لها. نقاطك مرتبطة بكلية حسابك الأساسية، وليس بكلية التصفح.</p>
+    <div id="myPointsSummary" class="leaderboard-muted">جاري تحميل نقاطك...</div>
+    <div id="leaderboardStatus" class="status"></div>
+    <div id="leaderboardGrid" class="leaderboard-grid"></div>
+    <button type="button" id="refreshLeaderboard" class="button secondary-button">تحديث الترتيب</button>
 </section>
 
 <!-- STUDENT LECTURE MCQ -->
@@ -1341,6 +1364,82 @@ $("browseCollege").addEventListener("change",async function(){
     await selectBrowsingCollege(this.value);
 });
 
+async function loadMyLeaderboards(){
+    const section = $("leaderboardSection");
+    if(!section || currentUserRole !== "student") return;
+    section.style.display = "block";
+    $("leaderboardStatus").textContent = "جاري تحميل الترتيب...";
+    $("leaderboardGrid").innerHTML = "";
+    $("myPointsSummary").textContent = "جاري تحميل نقاطك...";
+
+    const {data,error} = await supabaseClient.rpc("get_my_leaderboards");
+    if(error){
+        $("leaderboardStatus").textContent = "تعذر تحميل الترتيب: " + error.message;
+        $("myPointsSummary").textContent = "";
+        return;
+    }
+
+    const rows = data || [];
+    if(!rows.length){
+        $("leaderboardStatus").textContent = "لا توجد بيانات ترتيب متاحة لحسابك.";
+        $("myPointsSummary").textContent = "";
+        return;
+    }
+
+    const myId = currentUser ? currentUser.id : null;
+    const ownRows = rows.filter(row => row.student_id === myId);
+    const totalPoints = ownRows.find(row => row.scope_type === "college")?.total_points ?? 0;
+    $("myPointsSummary").innerHTML = `<strong>إجمالي نقاطك في كليتك الأساسية: ${Number(totalPoints).toLocaleString("en-US")} نقطة</strong>`;
+
+    const scopes = [
+        {key:"college",title:"🏛️ ترتيب الكلية"},
+        {key:"year",title:"🎓 ترتيب الدفعة"}
+    ];
+    const moduleRows = rows.filter(row => row.scope_type === "module");
+    const cards = [];
+
+    for(const scope of scopes){
+        const list = rows.filter(row => row.scope_type === scope.key)
+            .sort((a,b) => Number(a.leaderboard_rank)-Number(b.leaderboard_rank) || String(a.student_name).localeCompare(String(b.student_name)));
+        if(list.length) cards.push({title:scope.title,rows:list});
+    }
+    const moduleGroups = new Map();
+    moduleRows.forEach(row=>{
+        const key = String(row.module_id);
+        if(!moduleGroups.has(key)) moduleGroups.set(key,{title:"📚 "+(row.module_name || "Module"),rows:[]});
+        moduleGroups.get(key).rows.push(row);
+    });
+    cards.push(...moduleGroups.values());
+
+    cards.forEach(card=>{
+        const box = document.createElement("div");
+        box.className = "leaderboard-card";
+        const heading = document.createElement("h3");
+        heading.textContent = card.title;
+        box.appendChild(heading);
+        card.rows.slice(0,10).forEach(row=>{
+            const line = document.createElement("div");
+            line.className = "leaderboard-row" + (row.student_id === myId ? " me" : "");
+            const name = document.createElement("span");
+            name.textContent = `${row.leaderboard_rank}. ${row.student_name}${row.student_id === myId ? " (أنت)" : ""}`;
+            const score = document.createElement("span");
+            score.textContent = `${Number(row.total_points).toLocaleString("en-US")} نقطة`;
+            line.append(name,score);
+            if(row.is_king){
+                const badge = document.createElement("span");
+                badge.className = "king-badge";
+                badge.textContent = " KING 👑";
+                line.appendChild(badge);
+            }
+            box.appendChild(line);
+        });
+        $("leaderboardGrid").appendChild(box);
+    });
+    $("leaderboardStatus").textContent = "تم تحديث الترتيب بنجاح.";
+}
+
+$("refreshLeaderboard").addEventListener("click",loadMyLeaderboards);
+
 async function showUserRole(){
 
     if(authCheckInProgress)return;
@@ -1350,6 +1449,8 @@ async function showUserRole(){
     try{
 
         hideAdminDashboard();
+
+        $("leaderboardSection").style.display = "none";
 
         $("quizSection").style.display = "none";
 
@@ -1430,9 +1531,11 @@ async function showUserRole(){
             $("quizSection").style.display = "none";
             hidePastPapers();
             setStatus("collegeBrowserStatus","اختار الكلية التي تريد تصفح محتواها.");
+            await loadMyLeaderboards();
         }
 
         if(data.role === "admin"){
+            $("leaderboardSection").style.display = "none";
             $("collegeBrowser").style.display = "none";
             $("quizSection").style.display = "none";
             hidePastPapers();
@@ -1539,6 +1642,7 @@ $("logoutButton").addEventListener("click",async()=>{
     $("collegeBrowser").style.display = "none";
 
     $("userRole").textContent = "";
+    $("leaderboardSection").style.display = "none";
 
     hideAdminDashboard();
 
@@ -1570,6 +1674,7 @@ supabaseClient.auth.onAuthStateChange(event=>{
         $("collegeBrowser").style.display = "none";
 
         $("userRole").textContent = "";
+        $("leaderboardSection").style.display = "none";
 
         hideAdminDashboard();
 

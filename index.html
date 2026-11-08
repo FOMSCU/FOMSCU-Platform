@@ -448,6 +448,30 @@ footer{
 .request-admin-controls textarea{min-height:75px;grid-column:1/-1}
 .request-status-badge{display:inline-block;padding:4px 9px;border-radius:20px;background:#183044;color:#42d6b0;font-size:12px;margin-inline-start:6px}
 
+
+/* Notifications center */
+.notification-area{position:relative;display:none;align-items:center;gap:8px;z-index:1000}
+.notification-bell{position:relative;border:1px solid #36516b;background:#0b1422;color:#eaf5f5;border-radius:12px;padding:10px 13px;font-size:20px;cursor:pointer}
+.notification-bell:hover{border-color:#42d6b0;color:#42d6b0}
+.notification-count{position:absolute;top:-7px;right:-7px;min-width:19px;height:19px;padding:0 5px;border-radius:20px;background:#e34d61;color:white;font-size:11px;font-weight:bold;display:grid;place-items:center}
+.notification-count:empty{display:none}
+.notification-dropdown{display:none;position:absolute;top:calc(100% + 12px);right:0;width:min(390px,calc(100vw - 24px));max-height:70vh;overflow:auto;background:#101a2b;border:1px solid #36516b;border-radius:14px;padding:14px;box-shadow:0 16px 40px #0009}
+.notification-dropdown.open{display:block}
+.notification-dropdown-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.notification-dropdown-head strong{color:#42d6b0}
+.notification-list{display:grid;gap:10px;margin-top:14px}
+.notification-card{background:#0b1422;border:1px solid #30445f;border-radius:11px;padding:14px;color:#e5edf7}
+.notification-card.unread{border-inline-start:4px solid #42d6b0;background:#102234}
+.notification-card h4{color:#42d6b0;font-size:15px;margin-bottom:7px;line-height:1.5}
+.notification-card p{color:#d5dfeb;font-size:14px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
+.notification-meta{color:#8fa2ba;font-size:12px;margin-top:8px}
+.notification-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.notification-actions button{border:1px solid #36516b;border-radius:7px;padding:7px 10px;background:#183044;color:#dce8f4;cursor:pointer;font-size:12px}
+.notification-actions button:hover{border-color:#42d6b0;color:#42d6b0}
+.notification-empty{padding:18px;text-align:center;color:#9fb0c5;background:#0b1422;border:1px dashed #36516b;border-radius:10px}
+.notification-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+@media(max-width:600px){.notification-area{align-self:flex-end}.notification-dropdown{right:auto;left:0}.notification-bell{padding:8px 11px}}
+
 </style>
 </head>
 
@@ -464,6 +488,14 @@ footer{
         <a href="#studentDashboard" data-view="arena">Medschool Arena</a>
         <a href="#studentDashboard" data-view="points">ترتيبك</a>
     </nav>
+    <div class="notification-area" id="notificationArea">
+        <button type="button" class="notification-bell" id="notificationBell" aria-label="الإشعارات" aria-expanded="false">🔔<span class="notification-count" id="notificationCount"></span></button>
+        <div class="notification-dropdown" id="notificationDropdown" aria-label="أحدث الإشعارات">
+            <div class="notification-dropdown-head"><strong>الإشعارات</strong><button type="button" class="button secondary-button" id="notificationDropdownRefresh" style="margin:0;padding:7px 10px">تحديث</button></div>
+            <div id="notificationDropdownList" class="notification-list"><div class="notification-empty">سجّل الدخول لعرض الإشعارات.</div></div>
+            <button type="button" class="button" id="openAllNotifications" style="width:100%;margin-top:12px">عرض كل الإشعارات</button>
+        </div>
+    </div>
 </header>
 
 <!-- STUDENT DASHBOARD -->
@@ -549,7 +581,15 @@ footer{
           <div id="myStudentRequestsList" class="management-list">لم يتم تحميل الطلبات بعد.</div>
         </div>
       </section>
-      <section class="student-view" id="view-updates"><h2>التحديثات</h2><p>آخر أخبار وإضافات المنصة.</p><div class="coming-soon">قريبًا — سيتم عرض تحديثات المنصة هنا.</div></section>
+      <section class="student-view" id="view-updates">
+        <h2>🔔 الإشعارات والتحديثات</h2>
+        <p>كل ما يخص دراستك وحسابك والمنصة في مكان واحد.</p>
+        <div class="notification-toolbar">
+          <button type="button" class="button secondary-button" id="refreshStudentNotifications">تحديث الإشعارات</button>
+          <button type="button" class="button" id="markAllStudentNotificationsRead">تحديد الكل كمقروء</button>
+        </div>
+        <div id="studentNotificationsList" class="notification-list"><div class="notification-empty">جاري تحميل الإشعارات...</div></div>
+      </section>
       <section class="student-view" id="view-messages"><h2>الرسائل</h2><p>رسائلك وإشعارات الإدارة.</p><div class="coming-soon">قريبًا — سيتم تفعيل الرسائل بعد إعداد نظامها.</div></section>
       <section class="student-view" id="view-settings"><h2>الإعدادات</h2><p>إعدادات الحساب والتنبيهات.</p><div class="coming-soon">إعدادات الحساب وتغيير كلمة المرور وتفضيلات الإشعارات سيتم ربطها في خطوة مستقلة.</div></section>
     </main>
@@ -1216,6 +1256,16 @@ footer{
       <div id="adminStudentRequestsStatus" class="status" role="status" aria-live="polite"></div>
     </div>
 
+    <div class="management-section" id="adminNotificationsSection">
+      <h3>🔔 Admin Notification Center — متابعة نشاط المنصة</h3>
+      <p>كل الإشعارات المسجلة لحساب الإدارة، بما فيها طلبات الطلاب وتحديثات المحتوى والنقاط.</p>
+      <div class="notification-toolbar">
+        <button type="button" class="button secondary-button" id="refreshAdminNotifications">تحديث الإشعارات</button>
+        <button type="button" class="button" id="markAllAdminNotificationsRead">تحديد الكل كمقروء</button>
+      </div>
+      <div id="adminNotificationsList" class="notification-list"><div class="notification-empty">جاري تحميل الإشعارات...</div></div>
+    </div>
+
 </section>
 
 
@@ -1274,6 +1324,8 @@ let pastSelectedAnswers = {};
 let pastDurationTimer = null;
 
 let authCheckInProgress = false;
+let notificationPollTimer = null;
+let notificationCache = [];
 
 
 function setStatus(id,message){
@@ -1639,6 +1691,155 @@ async function loadMyLeaderboards(){
 
 $("refreshLeaderboard").addEventListener("click",loadMyLeaderboards);
 
+// ==================================================
+// NOTIFICATIONS CENTER
+// ==================================================
+
+function formatNotificationDate(value){
+    if(!value) return "";
+    const date=new Date(value);
+    return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString("ar-EG");
+}
+
+function notificationTargetView(targetUrl){
+    const map={feedback:"feedback",modules:"academics",points:"points",profile:"profile"};
+    return map[targetUrl] || null;
+}
+
+function renderNotificationItems(container,items,compact=false){
+    if(!container) return;
+    container.replaceChildren();
+    if(!items || !items.length){
+        const empty=makeRequestElement("div","notification-empty","لا توجد إشعارات حتى الآن.");
+        container.appendChild(empty);
+        return;
+    }
+    items.forEach(item=>{
+        const card=makeRequestElement("article","notification-card"+(item.is_read?"":" unread"));
+        const title=makeRequestElement("h4","",item.title || "إشعار جديد");
+        const message=makeRequestElement("p","",item.message || "");
+        const meta=makeRequestElement("div","notification-meta",formatNotificationDate(item.created_at)+(item.is_read?" · مقروء":" · جديد"));
+        card.append(title,message,meta);
+        const actions=makeRequestElement("div","notification-actions");
+        if(!item.is_read){
+            const readButton=makeRequestElement("button","","تحديد كمقروء");
+            readButton.type="button";
+            readButton.addEventListener("click",()=>markNotificationRead(item.id));
+            actions.appendChild(readButton);
+        }
+        const view=notificationTargetView(item.target_url);
+        if(view && currentUserRole==="student"){
+            const openButton=makeRequestElement("button","","فتح القسم المرتبط");
+            openButton.type="button";
+            openButton.addEventListener("click",async()=>{
+                if(!item.is_read) await markNotificationRead(item.id);
+                openStudentView(view);
+                $("studentDashboard").scrollIntoView({behavior:"smooth",block:"start"});
+            });
+            actions.appendChild(openButton);
+        }
+        if(actions.childElementCount) card.appendChild(actions);
+        container.appendChild(card);
+        if(compact && container.children.length>=8) return;
+    });
+}
+
+async function loadNotifications(){
+    if(!currentUser || !currentUserRole) return;
+    const {data,error}=await supabaseClient
+        .from("notifications")
+        .select("id,event_type,title,message,target_url,metadata,is_read,created_at")
+        .eq("recipient_id",currentUser.id)
+        .order("created_at",{ascending:false})
+        .limit(100);
+    if(error){
+        console.error("Load notifications error:",error);
+        ["notificationDropdownList","studentNotificationsList","adminNotificationsList"].forEach(id=>{
+            const box=$(id);
+            if(box) box.textContent="تعذر تحميل الإشعارات: "+error.message;
+        });
+        return;
+    }
+    notificationCache=data || [];
+    const unreadCount=notificationCache.filter(item=>!item.is_read).length;
+    const badge=$("notificationCount");
+    if(badge) badge.textContent=unreadCount>99?"99+":(unreadCount?String(unreadCount):"");
+    renderNotificationItems($("notificationDropdownList"),notificationCache.slice(0,8),true);
+    if(currentUserRole==="student") renderNotificationItems($("studentNotificationsList"),notificationCache);
+    if(currentUserRole==="admin") renderNotificationItems($("adminNotificationsList"),notificationCache);
+}
+
+async function markNotificationRead(notificationId){
+    if(!currentUser) return;
+    const {error}=await supabaseClient
+        .from("notifications")
+        .update({is_read:true,read_at:new Date().toISOString()})
+        .eq("id",notificationId)
+        .eq("recipient_id",currentUser.id);
+    if(error){
+        console.error("Mark notification read error:",error);
+        alert("تعذر تحديث الإشعار: "+error.message);
+        return;
+    }
+    await loadNotifications();
+}
+
+async function markAllNotificationsRead(){
+    if(!currentUser) return;
+    const unreadIds=notificationCache.filter(item=>!item.is_read).map(item=>item.id);
+    if(!unreadIds.length) return;
+    const {error}=await supabaseClient
+        .from("notifications")
+        .update({is_read:true,read_at:new Date().toISOString()})
+        .eq("recipient_id",currentUser.id)
+        .eq("is_read",false);
+    if(error){
+        console.error("Mark all notifications read error:",error);
+        alert("تعذر تحديد الإشعارات كمقروءة: "+error.message);
+        return;
+    }
+    await loadNotifications();
+}
+
+function startNotificationPolling(){
+    if(notificationPollTimer) clearInterval(notificationPollTimer);
+    notificationPollTimer=setInterval(()=>{
+        if(currentUser && currentUserRole) loadNotifications();
+    },30000);
+}
+
+$("notificationBell").addEventListener("click",async()=>{
+    const dropdown=$("notificationDropdown");
+    const open=!dropdown.classList.contains("open");
+    dropdown.classList.toggle("open",open);
+    $("notificationBell").setAttribute("aria-expanded",String(open));
+    if(open) await loadNotifications();
+});
+
+$("notificationDropdownRefresh").addEventListener("click",loadNotifications);
+$("openAllNotifications").addEventListener("click",()=>{
+    $("notificationDropdown").classList.remove("open");
+    $("notificationBell").setAttribute("aria-expanded","false");
+    if(currentUserRole==="student"){
+        openStudentView("updates");
+        $("studentDashboard").scrollIntoView({behavior:"smooth",block:"start"});
+    }else if(currentUserRole==="admin"){
+        $("adminNotificationsSection").scrollIntoView({behavior:"smooth",block:"start"});
+    }
+});
+$("refreshStudentNotifications").addEventListener("click",loadNotifications);
+$("markAllStudentNotificationsRead").addEventListener("click",markAllNotificationsRead);
+$("refreshAdminNotifications").addEventListener("click",loadNotifications);
+$("markAllAdminNotificationsRead").addEventListener("click",markAllNotificationsRead);
+
+document.addEventListener("click",event=>{
+    const area=$("notificationArea");
+    if(area && !area.contains(event.target)){
+        $("notificationDropdown").classList.remove("open");
+        $("notificationBell").setAttribute("aria-expanded","false");
+    }
+});
+
 async function showUserRole(){
 
     if(authCheckInProgress)return;
@@ -1699,6 +1900,7 @@ async function showUserRole(){
         }
 
         currentUserRole = data.role;
+        $("notificationArea").style.display = "flex";
 
         if(data.role === "admin"){
 
@@ -1715,6 +1917,9 @@ async function showUserRole(){
             await loadTeamManagement();
 
             await loadAllStudentRequests();
+
+            await loadNotifications();
+            startNotificationPolling();
 
         }else{
 
@@ -1758,6 +1963,8 @@ async function showUserRole(){
             hidePastPapers();
             setStatus("collegeBrowserStatus","اختار الكلية التي تريد تصفح محتواها.");
             await loadMyLeaderboards();
+            await loadNotifications();
+            startNotificationPolling();
         }
 
         if(data.role === "admin"){
@@ -1870,6 +2077,9 @@ function openStudentView(viewName){
     if(viewName==="feedback"){
         loadMyStudentRequests();
     }
+    if(viewName==="updates"){
+        loadNotifications();
+    }
     if(viewName==="points"){
         const mount=$("pointsMount");
         if(mount && !mount.contains($("leaderboardSection"))) mount.appendChild($("leaderboardSection"));
@@ -1906,6 +2116,9 @@ $("logoutButton").addEventListener("click",async()=>{
     currentUser = null;
     currentUserRole = null;
     currentBrowsingCollegeId = null;
+    $("notificationArea").style.display = "none";
+    $("notificationDropdown").classList.remove("open");
+    if(notificationPollTimer){clearInterval(notificationPollTimer);notificationPollTimer=null;}
     $("authPanel").style.display = "block";
     $("studentDashboard").style.display = "none";
     document.querySelector(".hero").style.display = "block";
@@ -1945,6 +2158,9 @@ supabaseClient.auth.onAuthStateChange(event=>{
         currentUser = null;
         currentUserRole = null;
         currentBrowsingCollegeId = null;
+        $("notificationArea").style.display = "none";
+        $("notificationDropdown").classList.remove("open");
+        if(notificationPollTimer){clearInterval(notificationPollTimer);notificationPollTimer=null;}
         $("collegeBrowser").style.display = "none";
 
         $("userRole").textContent = "";

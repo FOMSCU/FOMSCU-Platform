@@ -249,20 +249,18 @@ nav a{
 .admin-row-actions button{padding:8px 12px;border:0;border-radius:7px;cursor:pointer;font-weight:700;background:#263750;color:#fff}
 .admin-row-actions button.edit-row{background:#176b61;color:#fff}
 .admin-row-actions button.toggle-row{background:#805d20;color:#fff}
-.admin-record{padding:13px 0;border-bottom:1px solid #263750;color:#dce6f4;user-select:none;position:relative}
-.admin-record.sortable-record{padding-left:38px}
-.drag-handle{position:absolute;left:0;top:10px;width:30px;height:34px;display:flex;align-items:center;justify-content:center;color:#8da4c2;font-size:23px;line-height:1;cursor:grab;touch-action:none;user-select:none;border-radius:6px}
-.drag-handle:hover{background:#263750;color:#42d6b0}
-.dragging-record .drag-handle{cursor:grabbing;color:#42d6b0}
-.admin-record{transition:background .12s ease, opacity .12s ease}
-.admin-record.dragging-record{opacity:.78;background:#203b55;box-shadow:0 8px 22px rgba(0,0,0,.28);position:relative;z-index:5}
-.admin-record.drag-over-record{border-top:3px solid #42d6b0;background:#172d42}
-.admin-record.drag-placeholder{min-height:54px;border:1px dashed #42d6b0;border-radius:8px;background:rgba(66,214,176,.07)}
+.admin-record{padding:13px 0;border-bottom:1px solid #263750;color:#dce6f4;touch-action:pan-y;user-select:none;position:relative}
+.admin-record.sortable-record{cursor:grab;padding-left:28px}
+.admin-record.sortable-record:before{content:"⠿";position:absolute;left:5px;top:15px;color:#8da4c2;font-size:20px}
+.admin-record.dragging-record{opacity:.45;background:#1c2c43;cursor:grabbing}
+.admin-record.drag-over-record{border-top:3px solid #42d6b0}
 .drag-hint{font-size:12px;color:#8da4c2;margin:0 0 10px}
 .admin-record:last-child{border-bottom:0}
 .admin-record small{display:block;color:#aebbd0;margin-top:4px}
 .management-list{margin-top:25px}
 .admin-list-search{width:100%;margin:0 0 12px;padding:10px 12px;border:1px solid #34465f;border-radius:8px;background:#101b2b;color:#fff}
+.admin-row-actions button.move-row{background:#334155;color:#fff;min-width:38px}
+.admin-row-actions button.move-row:disabled{opacity:.35;cursor:not-allowed}
 
 .management-list h4{
     color:#42d6b0;
@@ -968,12 +966,6 @@ footer{
         <div id="collegeStatus" class="status" role="status" aria-live="polite"></div>
         <div class="management-list">
             <h4>Existing Colleges</h4>
-            <div class="bulk-record-toolbar" data-list="collegesList" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0">
-                <button type="button" class="button bulk-select-all">Select All</button>
-                <button type="button" class="button bulk-clear-selection">Clear Selection</button>
-                <button type="button" class="button bulk-delete-selected" style="background:#a83242">Delete Selected</button>
-                <span class="bulk-selection-count" style="color:#aebbd0">0 selected</span>
-            </div>
             <div id="collegesList">Loading colleges...</div>
         </div>
 
@@ -986,12 +978,6 @@ footer{
         <div id="yearStatus" class="status" role="status" aria-live="polite"></div>
         <div class="management-list">
             <h4>Existing Academic Years</h4>
-            <div class="bulk-record-toolbar" data-list="yearsList" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0">
-                <button type="button" class="button bulk-select-all">Select All</button>
-                <button type="button" class="button bulk-clear-selection">Clear Selection</button>
-                <button type="button" class="button bulk-delete-selected" style="background:#a83242">Delete Selected</button>
-                <span class="bulk-selection-count" style="color:#aebbd0">0 selected</span>
-            </div>
             <div id="yearsList">Loading academic years...</div>
         </div>
     </div>
@@ -1022,12 +1008,6 @@ footer{
 
         <div class="management-list">
             <h4>Existing Modules</h4>
-            <div class="bulk-record-toolbar" data-list="modulesList" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0">
-                <button type="button" class="button bulk-select-all">Select All</button>
-                <button type="button" class="button bulk-clear-selection">Clear Selection</button>
-                <button type="button" class="button bulk-delete-selected" style="background:#a83242">Delete Selected</button>
-                <span class="bulk-selection-count" style="color:#aebbd0">0 selected</span>
-            </div>
             <div id="modulesList">Loading...</div>
         </div>
 
@@ -1063,12 +1043,6 @@ footer{
 
         <div class="management-list">
             <h4>Existing Subject Connections</h4>
-            <div class="bulk-record-toolbar" data-list="subjectsList" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0">
-                <button type="button" class="button bulk-select-all">Select All</button>
-                <button type="button" class="button bulk-clear-selection">Clear Selection</button>
-                <button type="button" class="button bulk-delete-selected" style="background:#a83242">Delete Selected</button>
-                <span class="bulk-selection-count" style="color:#aebbd0">0 selected</span>
-            </div>
             <div id="subjectsList">Loading...</div>
         </div>
 
@@ -1108,12 +1082,6 @@ footer{
 
         <div class="management-list">
             <h4>Existing Lectures</h4>
-            <div class="bulk-record-toolbar" data-list="lecturesList" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0">
-                <button type="button" class="button bulk-select-all">Select All</button>
-                <button type="button" class="button bulk-clear-selection">Clear Selection</button>
-                <button type="button" class="button bulk-delete-selected" style="background:#a83242">Delete Selected</button>
-                <span class="bulk-selection-count" style="color:#aebbd0">0 selected</span>
-            </div>
             <div id="lecturesList">Loading...</div>
         </div>
 
@@ -1190,13 +1158,6 @@ footer{
 
         <div class="management-list">
             <h4>Existing Questions</h4>
-            <div id="questionBulkToolbar" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0">
-                <button type="button" id="selectAllQuestions" class="button">Select All</button>
-                <button type="button" id="clearQuestionSelection" class="button">Clear Selection</button>
-                <button type="button" id="publishSelectedQuestions" class="button" style="background:#168b68">Publish Selected</button>
-                <button type="button" id="deleteSelectedQuestions" class="button" style="background:#a83242">Delete Selected</button>
-                <span id="questionSelectionCount" style="color:#aebbd0">0 selected</span>
-            </div>
             <div id="adminQuestionsList">جاري تحميل الأسئلة...</div>
             <button type="button" id="refreshAdminQuestions" class="button" style="margin-top:12px">Refresh Questions</button>
         </div>
@@ -1756,27 +1717,69 @@ async function loadMyLeaderboards(){
     cards.forEach(card=>{
         const box = document.createElement("div");
         box.className = "leaderboard-card";
+
         const heading = document.createElement("h3");
         heading.textContent = card.title;
         box.appendChild(heading);
-        card.rows.slice(0,10).forEach(row=>{
+
+        const maxRank = Math.max(
+            ...card.rows.map(row => Number(row.leaderboard_rank))
+        );
+
+        // Show the first 10 students, plus the last-ranked student(s).
+        const displayRows = [...card.rows.slice(0, 10)];
+
+        card.rows.forEach(row => {
+            const rank = Number(row.leaderboard_rank);
+
+            if (
+                rank === maxRank &&
+                rank > 10 &&
+                !displayRows.some(item => item.student_id === row.student_id)
+            ) {
+                displayRows.push(row);
+            }
+        });
+
+        displayRows.forEach(row=>{
+            const rank = Number(row.leaderboard_rank);
+
             const line = document.createElement("div");
-            line.className = "leaderboard-row" + (row.student_id === myId ? " me" : "");
+            line.className = "leaderboard-row" +
+                (row.student_id === myId ? " me" : "");
+
             const name = document.createElement("span");
-            name.textContent = `${row.leaderboard_rank}. ${row.student_name}${row.student_id === myId ? " (أنت)" : ""}`;
+            name.textContent =
+                `${rank}. ${row.student_name}${row.student_id === myId ? " (أنت)" : ""}`;
+
             const score = document.createElement("span");
-            score.textContent = `${Number(row.total_points).toLocaleString("en-US")} نقطة`;
-            line.append(name,score);
-            if(row.is_king){
+            score.textContent =
+                `${Number(row.total_points).toLocaleString("en-US")} نقطة`;
+
+            line.append(name, score);
+
+            let title = "";
+
+            if (rank === 1) title = "KING 👑";
+            else if (rank === 2) title = "SUB KING 👑";
+            else if (rank === 3) title = "أسطورة 🔥";
+            else if (rank === 4) title = "جامد 💪";
+            else if (rank === 5) title = "نجم صاعد ⭐";
+            else if (rank === maxRank && rank > 5) title = "خليها على الله 😂";
+
+            if (title) {
                 const badge = document.createElement("span");
                 badge.className = "king-badge";
-                badge.textContent = " KING 👑";
+                badge.textContent = title;
                 line.appendChild(badge);
             }
+
             box.appendChild(line);
         });
+
         $("leaderboardGrid").appendChild(box);
     });
+
     $("leaderboardStatus").textContent = "تم تحديث الترتيب بنجاح.";
 }
 
@@ -2749,7 +2752,7 @@ async function loadRelations(){
                 {label:"Rename",className:"edit-row",action:"rename-subject",id:subject.id},
                 {label:"Move link",className:"toggle-row",action:"move-subject-link",id:subject.id,relationId:relation.id},
                 {label:"Delete permanently",className:"delete-row",action:"delete-subject",id:subject.id}
-            ],{sortType:"module_subjects",sortId:relation.id,sortGroup:relation.module_id,selectId:subject.id}
+            ],{sortType:"module_subjects",sortId:relation.id,sortGroup:relation.module_id}
         );
     });
 
@@ -2838,7 +2841,7 @@ async function loadLectures(){
             "🎓 "+lecture.name,
             (subject?subject.name:"Unknown Subject")+" — "+
             (module?module.name:"Not linked")+" · Lecture ID: "+lecture.id,
-            [{label:"Rename",className:"edit-row",action:"rename-lecture",id:lecture.id},{label:"Delete permanently",className:"delete-row",action:"delete-lecture",id:lecture.id}]
+            [{label:"Rename",className:"edit-row",action:"rename-lecture",id:lecture.id}]
         );
 
     });
@@ -2899,15 +2902,8 @@ async function loadAdminQuestions(){
         renderAdminRecord(box,preview||("Question #"+q.id),
             "#"+q.id+" · "+(lecture?lecture.name:"Lecture unavailable")+" · "+category+" · "+(q.is_published?"Published":"Draft")+" · Correct: "+(answer?"ABCD"[Number(answer.correct_option)]||"?":"Not set"),[
                 {label:"Edit",className:"edit-row",action:"edit-question",id:q.id},
-                {label:q.is_published?"Unpublish":"Publish",className:"toggle-row",action:"toggle-question",id:q.id},
-                {label:"Delete",className:"delete-row",action:"delete-question",id:q.id}
+                {label:q.is_published?"Unpublish":"Publish",className:"toggle-row",action:"toggle-question",id:q.id}
             ]);
-        const row=box.lastElementChild;
-        const select=document.createElement("input");
-        select.type="checkbox"; select.className="question-bulk-checkbox"; select.dataset.questionId=String(q.id);
-        select.setAttribute("aria-label","Select question "+q.id);
-        select.style.cssText="width:18px;height:18px;margin-inline-end:10px;flex:0 0 auto;cursor:pointer";
-        row.insertBefore(select,row.firstChild);
     });
 }
 
@@ -2953,27 +2949,6 @@ function renderAdminRecord(container, title, subtitle, actions, options={}){
         row.dataset.sortId=String(options.sortId);
         row.dataset.sortGroup=String(options.sortGroup);
         row.title="اضغط مطولاً ثم اسحب لإعادة الترتيب";
-    }
-    if(options.sortType){
-        const handle=document.createElement("span");
-        handle.className="drag-handle";
-        handle.textContent="⠿";
-        handle.setAttribute("aria-label","اسحب لإعادة الترتيب");
-        handle.setAttribute("title","اضغط مطولاً على النقاط ثم اسحب");
-        handle.setAttribute("role","button");
-        handle.setAttribute("tabindex","0");
-        row.appendChild(handle);
-    }
-    const listSelectTypes={collegesList:"college",yearsList:"year",modulesList:"module",subjectsList:"subject",lecturesList:"lecture"};
-    const selectType=listSelectTypes[container.id];
-    if(selectType){
-        const select=document.createElement("input");
-        select.type="checkbox"; select.className="record-select-checkbox";
-        select.dataset.recordType=selectType;
-        select.dataset.recordId=String(options.selectId!==undefined?options.selectId:(actions.find(a=>a.id!==undefined)?.id??""));
-        select.setAttribute("aria-label","Select "+selectType);
-        select.style.cssText="width:18px;height:18px;margin-inline-end:10px;flex:0 0 auto;cursor:pointer";
-        row.appendChild(select);
     }
     const heading=document.createElement("strong");
     heading.textContent=title;
@@ -3087,204 +3062,70 @@ $("yearForm").addEventListener("submit",async function(e){
     setLoading("addYearButton",false);
 });
 
-// Smooth drag-and-drop: reorder within a group or move records between parent groups.
-(function enableFlexibleSorting(){
-    const config={
-        colleges:{table:"colleges",parent:null,reload:async()=>{await loadAdminAcademicStructure();}},
-        years:{table:"years",parent:"college_id",reload:async()=>{await loadAdminAcademicStructure();await loadYears();}},
-        modules:{table:"modules",parent:"year_id",reload:async()=>{await loadModules();}},
-        module_subjects:{table:"module_subjects",parent:"module_id",reload:async()=>{await loadSubjects();}}
-    };
-    let activeRow=null, pointerId=null, startX=0, startY=0, dragging=false, sourceGroup=null, raf=0, lastPoint=null;
-
-    function resetDrag(){
-        if(raf)cancelAnimationFrame(raf); raf=0; lastPoint=null;
-        document.querySelectorAll(".drag-over-record").forEach(el=>el.classList.remove("drag-over-record"));
-        document.querySelectorAll(".drag-placeholder").forEach(el=>el.remove());
+// Long-press drag-and-drop sorting for colleges, years, modules and subject links.
+(function enableLongPressSorting(){
+    const sortableTables={colleges:"colleges",years:"years",modules:"modules",module_subjects:"module_subjects"};
+    let pressTimer=null, activeRow=null, pointerId=null, moved=false;
+    function clearDrag(){
+        if(pressTimer)clearTimeout(pressTimer); pressTimer=null;
+        document.querySelectorAll(".drag-over-record").forEach(x=>x.classList.remove("drag-over-record"));
         if(activeRow)activeRow.classList.remove("dragging-record");
-        activeRow=null; pointerId=null; dragging=false; sourceGroup=null;
-    }
-    function placeRowAtPoint(x,y){
-        if(!activeRow)return;
-        const target=document.elementFromPoint(x,y)?.closest(".admin-record.sortable-record");
-        if(!target || target===activeRow || target.dataset.sortType!==activeRow.dataset.sortType || target.parentElement!==activeRow.parentElement)return;
-        document.querySelectorAll(".drag-over-record").forEach(el=>el.classList.remove("drag-over-record"));
-        const rect=target.getBoundingClientRect();
-        const before=y<rect.top+rect.height/2;
-        const newGroup=target.dataset.sortGroup;
-        activeRow.dataset.sortGroup=newGroup;
-        target.classList.add("drag-over-record");
-        if(before)target.parentElement.insertBefore(activeRow,target);
-        else target.parentElement.insertBefore(activeRow,target.nextSibling);
+        activeRow=null; pointerId=null; moved=false;
     }
     document.addEventListener("pointerdown",e=>{
-        const handle=e.target.closest(".drag-handle");
-        if(!handle || e.button!==0)return;
-        const row=handle.closest(".admin-record.sortable-record");
-        if(!row)return;
-        activeRow=row; pointerId=e.pointerId; startX=e.clientX; startY=e.clientY;
-        sourceGroup=row.dataset.sortGroup; dragging=false;
+        const row=e.target.closest(".admin-record.sortable-record");
+        if(!row || e.target.closest("button,input,select,a"))return;
+        activeRow=row; pointerId=e.pointerId; moved=false;
+        pressTimer=setTimeout(()=>{
+            if(!activeRow)return;
+            activeRow.classList.add("dragging-record");
+            if(navigator.vibrate)navigator.vibrate(25);
+        },380);
     });
     document.addEventListener("pointermove",e=>{
         if(!activeRow || e.pointerId!==pointerId)return;
-        if(!dragging){
-            if(Math.hypot(e.clientX-startX,e.clientY-startY)<6)return;
-            dragging=true; activeRow.classList.add("dragging-record");
-            if(navigator.vibrate)navigator.vibrate(15);
+        if(!activeRow.classList.contains("dragging-record")){
+            if(Math.abs(e.movementX)+Math.abs(e.movementY)>10){clearTimeout(pressTimer);pressTimer=null;}
+            return;
         }
-        e.preventDefault(); lastPoint={x:e.clientX,y:e.clientY};
-        if(!raf)raf=requestAnimationFrame(()=>{raf=0;if(lastPoint)placeRowAtPoint(lastPoint.x,lastPoint.y);});
-    },{passive:false});
+        moved=true;
+        const target=document.elementFromPoint(e.clientX,e.clientY)?.closest(".admin-record.sortable-record");
+        if(!target || target===activeRow || target.parentElement!==activeRow.parentElement || target.dataset.sortType!==activeRow.dataset.sortType || target.dataset.sortGroup!==activeRow.dataset.sortGroup)return;
+        target.classList.add("drag-over-record");
+        const rect=target.getBoundingClientRect();
+        if(e.clientY<rect.top+rect.height/2)target.parentElement.insertBefore(activeRow,target);
+        else target.parentElement.insertBefore(activeRow,target.nextSibling);
+        target.classList.remove("drag-over-record");
+    });
     document.addEventListener("pointerup",async e=>{
         if(!activeRow || e.pointerId!==pointerId)return;
-        const row=activeRow, didDrag=dragging, type=row.dataset.sortType, targetGroup=row.dataset.sortGroup;
-        const listContainer=row.parentElement;
-        resetDrag();
-        if(!didDrag || !listContainer || !config[type])return;
-        const cfg=config[type], table=cfg.table;
+        const row=activeRow, wasDragging=row.classList.contains("dragging-record"), didMove=moved;
+        clearDrag();
+        if(!wasDragging || !didMove)return;
+        const type=row.dataset.sortType, group=row.dataset.sortGroup;
+        const siblings=[...row.parentElement.querySelectorAll(`.admin-record[data-sort-type="${type}"][data-sort-group="${group}"]`)];
+        const table=sortableTables[type];
         try{
-            if(cfg.parent && String(sourceGroup)!==String(targetGroup)){
-                const {error}=await supabaseClient.from(table).update({[cfg.parent]:targetGroup}).eq("id",row.dataset.sortId);
+            for(let i=0;i<siblings.length;i++){
+                const id=siblings[i].dataset.sortId;
+                const {error}=await supabaseClient.from(table).update({sort_order:(i+1)*10}).eq("id",id);
                 if(error)throw error;
             }
-            const allRows=[...listContainer.querySelectorAll(`.admin-record[data-sort-type="${type}"]`)];
-            const groups=new Set([String(sourceGroup),String(targetGroup)]);
-            for(const group of groups){
-                const siblings=allRows.filter(el=>String(el.dataset.sortGroup)===group);
-                for(let i=0;i<siblings.length;i++){
-                    const {error}=await supabaseClient.from(table).update({sort_order:(i+1)*10}).eq("id",siblings[i].dataset.sortId);
-                    if(error)throw error;
-                }
-            }
-            await cfg.reload();
-            const notice=document.createElement("div"); notice.className="drag-hint"; notice.textContent="تم حفظ الترتيب / النقل بنجاح.";
-            const currentList=document.getElementById(type==="colleges"?"collegesList":type==="years"?"yearsList":type==="modules"?"modulesList":"subjectsList");
-            if(currentList?.parentElement){currentList.parentElement.insertBefore(notice,currentList);setTimeout(()=>notice.remove(),2500);}
+            if(type==="colleges")await loadAdminAcademicStructure();
+            else if(type==="years"){await loadAdminAcademicStructure();await loadYears();}
+            else if(type==="modules"){await loadModules();}
+            else if(type==="module_subjects"){await loadSubjects();}
+            const notice=document.createElement("div"); notice.className="drag-hint"; notice.textContent="تم حفظ الترتيب الجديد بنجاح.";
+            row.parentElement.parentElement.insertBefore(notice,row.parentElement);
+            setTimeout(()=>notice.remove(),2200);
         }catch(err){
-            alert("لم يتم حفظ الترتيب أو النقل: "+(err.message||err));
-            try{await cfg.reload();}catch(reloadError){console.error(reloadError);}
+            alert("لم يتم حفظ الترتيب: "+(err.message||err));
+            if(type==="colleges"||type==="years")await loadAdminAcademicStructure();
+            else if(type==="modules")await loadModules(); else await loadSubjects();
         }
     });
-    document.addEventListener("pointercancel",resetDrag);
+    document.addEventListener("pointercancel",clearDrag);
 })();
-
-function getSelectedQuestionIds(){
-    return Array.from(document.querySelectorAll("#adminQuestionsList .question-bulk-checkbox:checked"))
-        .map(input=>Number(input.dataset.questionId)).filter(Number.isFinite);
-}
-function updateQuestionSelectionCount(){
-    const count=getSelectedQuestionIds().length;
-    const label=$("questionSelectionCount"); if(label)label.textContent=count+" selected";
-}
-$("adminQuestionsList").addEventListener("change",event=>{
-    if(event.target.matches(".question-bulk-checkbox"))updateQuestionSelectionCount();
-});
-$("selectAllQuestions").addEventListener("click",()=>{
-    document.querySelectorAll("#adminQuestionsList .question-bulk-checkbox").forEach(input=>input.checked=true);
-    updateQuestionSelectionCount();
-});
-$("clearQuestionSelection").addEventListener("click",()=>{
-    document.querySelectorAll("#adminQuestionsList .question-bulk-checkbox").forEach(input=>input.checked=false);
-    updateQuestionSelectionCount();
-});
-$("publishSelectedQuestions").addEventListener("click",async()=>{
-    const ids=getSelectedQuestionIds();
-    if(!ids.length){alert("حدد سؤالاً واحداً على الأقل أولاً.");return;}
-    if(!confirm("نشر "+ids.length+" سؤال للطلاب؟"))return;
-    const button=$("publishSelectedQuestions"); button.disabled=true;
-    try{
-        const {error}=await supabaseClient.from("questions").update({is_published:true}).in("id",ids);
-        if(error)throw error;
-        setStatus("questionStatus","تم نشر "+ids.length+" سؤال بنجاح.");
-        await loadAdminQuestions();
-    }catch(error){
-        setStatus("questionStatus","تعذر نشر الأسئلة: "+(error.message||error));
-    }finally{button.disabled=false;updateQuestionSelectionCount();}
-});
-
-// ==================================================
-// BULK SELECTION / SAFE BULK DELETE FOR ALL ADMIN LISTS
-// ==================================================
-const bulkListConfig={
-    collegesList:{type:"college",action:"delete-college"},
-    yearsList:{type:"year",action:"delete-year"},
-    modulesList:{type:"module",action:"delete-module"},
-    subjectsList:{type:"subject",action:"delete-subject"},
-    lecturesList:{type:"lecture",action:"delete-lecture"}
-};
-function updateBulkCount(toolbar){
-    const listId=toolbar.dataset.list, list=document.getElementById(listId);
-    const count=list?.querySelectorAll(".record-select-checkbox:checked").length||0;
-    const label=toolbar.querySelector(".bulk-selection-count"); if(label)label.textContent=count+" selected";
-}
-document.querySelectorAll(".bulk-record-toolbar").forEach(toolbar=>{
-    const list=document.getElementById(toolbar.dataset.list);
-    toolbar.querySelector(".bulk-select-all").addEventListener("click",()=>{list.querySelectorAll(".record-select-checkbox").forEach(x=>x.checked=true);updateBulkCount(toolbar);});
-    toolbar.querySelector(".bulk-clear-selection").addEventListener("click",()=>{list.querySelectorAll(".record-select-checkbox").forEach(x=>x.checked=false);updateBulkCount(toolbar);});
-    toolbar.querySelector(".bulk-delete-selected").addEventListener("click",async()=>{
-        const selected=[...list.querySelectorAll(".record-select-checkbox:checked")];
-        const type=bulkListConfig[toolbar.dataset.list]?.type;
-        const ids=[...new Set(selected.map(x=>Number(x.dataset.recordId)).filter(Number.isFinite))];
-        if(!ids.length){alert("حدد عنصرًا واحدًا على الأقل أولاً.");return;}
-        if(!confirm("هل تريد حذف "+ids.length+" عنصرًا محددًا؟ العناصر المرتبطة ببيانات أخرى سيتم تخطيها لحماية بياناتك."))return;
-        const btn=toolbar.querySelector(".bulk-delete-selected");btn.disabled=true;
-        let deleted=0,skipped=0; const reasons=[];
-        try{
-            for(const id of ids){
-                let table="", checks=[];
-                if(type==="college"){
-                    table="colleges"; checks=[await supabaseClient.from("years").select("id",{count:"exact",head:true}).eq("college_id",id)];
-                }else if(type==="year"){
-                    table="years"; checks=[await supabaseClient.from("modules").select("id",{count:"exact",head:true}).eq("year_id",id)];
-                }else if(type==="module"){
-                    table="modules";
-                    const links=await supabaseClient.from("module_subjects").select("id").eq("module_id",id);
-                    if(links.error)throw links.error;
-                    const linkIds=(links.data||[]).map(x=>x.id);
-                    checks=await Promise.all([
-                        supabaseClient.from("questions").select("id",{count:"exact",head:true}).eq("module_id",id),
-                        supabaseClient.from("module_exams").select("id",{count:"exact",head:true}).eq("module_id",id),
-                        linkIds.length?supabaseClient.from("lectures").select("id",{count:"exact",head:true}).in("module_subject_id",linkIds):Promise.resolve({count:0,error:null})
-                    ]);
-                    checks.push({count:linkIds.length,error:null});
-                }else if(type==="subject"){
-                    table="subjects"; checks=await Promise.all([
-                        supabaseClient.from("module_subjects").select("id",{count:"exact",head:true}).eq("subject_id",id),
-                        supabaseClient.from("lectures").select("id",{count:"exact",head:true}).eq("subject_id",id)
-                    ]);
-                }else if(type==="lecture"){
-                    table="lectures"; checks=[await supabaseClient.from("questions").select("id",{count:"exact",head:true}).eq("lecture_id",id)];
-                }
-                const failed=checks.find(x=>x.error);if(failed)throw failed.error;
-                const linked=checks.reduce((n,x)=>n+(x.count||0),0);
-                if(linked){skipped++;reasons.push(type+" #"+id+" مرتبط ببيانات أخرى");continue;}
-                const {error}=await supabaseClient.from(table).delete().eq("id",id);
-                if(error)throw error; deleted++;
-            }
-            alert("انتهى الحذف الجماعي.\nتم الحذف: "+deleted+"\nتم التخطي لحماية البيانات المرتبطة: "+skipped+(reasons.length?"\n\n"+reasons.slice(0,8).join("\n"):""));
-            if(type==="college"){await loadAdminAcademicStructure();await loadSignupColleges();await loadStudentColleges();}
-            else if(type==="year"){await refreshAll();await loadAdminAcademicStructure();}
-            else await refreshAll();
-        }catch(error){alert("حدث خطأ أثناء الحذف الجماعي: "+(error.message||error));}
-        finally{btn.disabled=false;updateBulkCount(toolbar);}
-    });
-    list.addEventListener("change",e=>{if(e.target.matches(".record-select-checkbox"))updateBulkCount(toolbar);});
-});
-$("deleteSelectedQuestions").addEventListener("click",async()=>{
-    const ids=getSelectedQuestionIds();
-    if(!ids.length){alert("حدد سؤالاً واحدًا على الأقل أولاً.");return;}
-    if(!confirm("حذف "+ids.length+" سؤالًا نهائيًا مع الإجابات والشروحات المرتبطة؟ لا يمكن التراجع."))return;
-    const btn=$("deleteSelectedQuestions");btn.disabled=true;
-    try{
-        const {error:answerError}=await supabaseClient.from("question_answers").delete().in("question_id",ids);
-        if(answerError)throw answerError;
-        const {error:questionError}=await supabaseClient.from("questions").delete().in("id",ids);
-        if(questionError)throw questionError;
-        setStatus("questionStatus","تم حذف "+ids.length+" سؤالًا مع الإجابات والشروحات.");
-        await loadAdminQuestions();
-    }catch(error){setStatus("questionStatus","تعذر حذف الأسئلة: "+(error.message||error));}
-    finally{btn.disabled=false;updateQuestionSelectionCount();}
-});
 
 $("adminDashboard").addEventListener("click",async function(e){
     const button=e.target.closest("button[data-admin-action]");
@@ -3472,16 +3313,6 @@ $("adminDashboard").addEventListener("click",async function(e){
             if(!confirm("حذف المادة نهائياً: "+subject.name+"؟\nلا يمكن التراجع عن هذا الإجراء."))return;
             const {error:deleteError}=await supabaseClient.from("subjects").delete().eq("id",id); if(deleteError)throw deleteError;
             setStatus("subjectStatus","تم حذف المادة نهائياً."); await refreshAll();
-        }else if(action==="delete-lecture"){
-            const {data:linkedQuestions,error:checkError}=await supabaseClient.from("questions").select("id").eq("lecture_id",id);
-            if(checkError)throw checkError;
-            if(linkedQuestions && linkedQuestions.length){alert("لا يمكن حذف المحاضرة لأنها مرتبطة بـ "+linkedQuestions.length+" سؤال. احذف الأسئلة أو انقلها أولاً.");return;}
-            const {data:lecture,error}=await supabaseClient.from("lectures").select("name").eq("id",id).single();
-            if(error)throw error;
-            if(!confirm("حذف المحاضرة نهائيًا: "+lecture.name+"؟ لا يمكن التراجع."))return;
-            const {error:deleteError}=await supabaseClient.from("lectures").delete().eq("id",id);
-            if(deleteError)throw deleteError;
-            setStatus("lectureStatus","تم حذف المحاضرة."); await refreshAll();
         }else if(action==="toggle-question"){
             const {data:question,error}=await supabaseClient.from("questions").select("is_published").eq("id",id).single();
             if(error)throw error;
@@ -3490,18 +3321,6 @@ $("adminDashboard").addEventListener("click",async function(e){
             const {error:updateError}=await supabaseClient.from("questions").update({is_published:next}).eq("id",id);
             if(updateError)throw updateError;
             setStatus("questionStatus",next?"تم نشر السؤال.":"تم إلغاء نشر السؤال.");
-            await loadAdminQuestions();
-        }else if(action==="delete-question"){
-            const {data:question,error:questionError}=await supabaseClient.from("questions")
-                .select("question_text").eq("id",id).single();
-            if(questionError)throw questionError;
-            const preview=String(question.question_text||"").replace(/\s+/g," ").slice(0,120);
-            if(!confirm("هل تريد حذف السؤال نهائياً؟\n\n"+preview+"\n\nسيتم حذف الإجابة والشرح المرتبطين به أيضاً. لا يمكن التراجع."))return;
-            const {error:answerDeleteError}=await supabaseClient.from("question_answers").delete().eq("question_id",id);
-            if(answerDeleteError)throw answerDeleteError;
-            const {error:questionDeleteError}=await supabaseClient.from("questions").delete().eq("id",id);
-            if(questionDeleteError)throw questionDeleteError;
-            setStatus("questionStatus","تم حذف السؤال والإجابة والشرح المرتبطين به نهائياً.");
             await loadAdminQuestions();
         }else if(action==="edit-question"){
             const {data:question,error}=await supabaseClient.from("questions")

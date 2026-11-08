@@ -1147,6 +1147,12 @@ footer{
 
         <div id="questionStatus" class="status"></div>
 
+        <div class="management-list">
+            <h4>Existing Questions</h4>
+            <div id="adminQuestionsList">جاري تحميل الأسئلة...</div>
+            <button type="button" id="refreshAdminQuestions" class="button" style="margin-top:12px">Refresh Questions</button>
+        </div>
+
     </div>
 
 
@@ -2786,11 +2792,12 @@ async function loadLectures(){
             )
             : null;
 
-        addListItem(
+        renderAdminRecord(
             $("lecturesList"),
-            "🎓 "+lecture.name+" — "+
+            "🎓 "+lecture.name,
             (subject?subject.name:"Unknown Subject")+" — "+
-            (module?module.name:"Not linked")
+            (module?module.name:"Not linked")+" · Lecture ID: "+lecture.id,
+            [{label:"Rename",className:"edit-row",action:"rename-lecture",id:lecture.id}]
         );
 
     });
@@ -2825,6 +2832,37 @@ function updateAllLectureSelects(){
 
 }
 
+async function loadAdminQuestions(){
+    const box=$("adminQuestionsList");
+    if(!box)return;
+    box.textContent="جاري تحميل الأسئلة...";
+    const {data:questions,error}=await supabaseClient
+        .from("questions")
+        .select("id,module_id,lecture_id,question_text,options,difficulty,question_category,is_published")
+        .order("id",{ascending:false})
+        .limit(200);
+    if(error){box.textContent="تعذر تحميل الأسئلة: "+error.message;return;}
+    if(!questions || !questions.length){box.textContent="لا توجد أسئلة مسجلة حتى الآن.";return;}
+    const ids=questions.map(q=>q.id);
+    const {data:answers,error:answerError}=await supabaseClient
+        .from("question_answers")
+        .select("question_id,correct_option,explanation")
+        .in("question_id",ids);
+    if(answerError){box.textContent="تعذر تحميل إجابات الأسئلة: "+answerError.message;return;}
+    box.innerHTML="";
+    questions.forEach(q=>{
+        const lecture=lecturesData.find(l=>String(l.id)===String(q.lecture_id));
+        const answer=(answers||[]).find(a=>String(a.question_id)===String(q.id));
+        const preview=String(q.question_text||"").replace(/\s+/g," ").slice(0,150);
+        const category=q.question_category||"Uncategorised";
+        renderAdminRecord(box,preview||("Question #"+q.id),
+            "#"+q.id+" · "+(lecture?lecture.name:"Lecture unavailable")+" · "+category+" · "+(q.is_published?"Published":"Draft")+" · Correct: "+(answer?"ABCD"[Number(answer.correct_option)]||"?":"Not set"),[
+                {label:"Edit",className:"edit-row",action:"edit-question",id:q.id},
+                {label:q.is_published?"Unpublish":"Publish",className:"toggle-row",action:"toggle-question",id:q.id}
+            ]);
+    });
+}
+
 
 async function refreshAll(){
 
@@ -2835,6 +2873,8 @@ async function refreshAll(){
     await loadSubjects();
 
     await loadLectures();
+
+    await loadAdminQuestions();
 
 }
 
@@ -3020,6 +3060,72 @@ $("adminDashboard").addEventListener("click",async function(e){
             if(updateError)throw updateError;
             setStatus("subjectStatus","تم تعديل اسم المادة بنجاح في كل الموديولات المرتبطة بها.");
             await refreshAll();
+        }else if(action==="rename-lecture"){
+            const {data:lecture,error}=await supabaseClient.from("lectures").select("name").eq("id",id).single();
+            if(error)throw error;
+            const name=prompt("اكتب الاسم الجديد للمحاضرة:",lecture.name);
+            if(name===null)return;
+            if(!name.trim()){alert("اسم المحاضرة لا يمكن أن يكون فارغاً.");return;}
+            const {error:updateError}=await supabaseClient.from("lectures").update({name:name.trim()}).eq("id",id);
+            if(updateError)throw updateError;
+            setStatus("lectureStatus","تم تعديل اسم المحاضرة.");
+            await refreshAll();
+        }else if(action==="toggle-question"){
+            const {data:question,error}=await supabaseClient.from("questions").select("is_published").eq("id",id).single();
+            if(error)throw error;
+            const next=!question.is_published;
+            if(!confirm(next?"نشر السؤال للطلاب؟":"إلغاء نشر السؤال؟"))return;
+            const {error:updateError}=await supabaseClient.from("questions").update({is_published:next}).eq("id",id);
+            if(updateError)throw updateError;
+            setStatus("questionStatus",next?"تم نشر السؤال.":"تم إلغاء نشر السؤال.");
+            await loadAdminQuestions();
+        }else if(action==="edit-question"){
+            const {data:question,error}=await supabaseClient.from("questions")
+                .select("id,question_text,options,difficulty,question_category,is_published")
+                .eq("id",id).single();
+            if(error)throw error;
+            const {data:answer,error:answerError}=await supabaseClient.from("question_answers")
+                .select("correct_option,explanation").eq("question_id",id).maybeSingle();
+            if(answerError)throw answerError;
+            const newText=prompt("نص السؤال:",question.question_text||"");
+            if(newText===null)return;
+            if(!newText.trim()){alert("نص السؤال لا يمكن أن يكون فارغاً.");return;}
+            const oldOptions=Array.isArray(question.options)?question.options:["","","",""];
+            const labels=["A","B","C","D"];
+            const newOptions=[];
+            for(let i=0;i<4;i++){
+                const value=prompt("Option "+labels[i]+":",oldOptions[i]||"");
+                if(value===null)return;
+                if(!value.trim()){alert("كل الاختيارات الأربعة مطلوبة.");return;}
+                newOptions.push(value.trim());
+            }
+            const currentCorrect=answer?String(answer.correct_option):"0";
+            const correct=prompt("رقم الإجابة الصحيحة: 0 = A, 1 = B, 2 = C, 3 = D",currentCorrect);
+            if(correct===null)return;
+            if(!["0","1","2","3"].includes(correct.trim())){alert("اكتب 0 أو 1 أو 2 أو 3 فقط.");return;}
+            const category=prompt("تصنيف السؤال (Medschool MCQ أو Seminars and Old Exams MCQ):",question.question_category||"Medschool MCQ");
+            if(category===null)return;
+            if(!["Medschool MCQ","Seminars and Old Exams MCQ"].includes(category.trim())){alert("التصنيف غير صحيح.");return;}
+            const difficulty=prompt("الصعوبة (Easy / Medium / Hard):",question.difficulty||"Medium");
+            if(difficulty===null)return;
+            if(!["Easy","Medium","Hard"].includes(difficulty.trim())){alert("مستوى الصعوبة غير صحيح.");return;}
+            const explanation=prompt("شرح الإجابة:",answer?answer.explanation||"":"");
+            if(explanation===null)return;
+            const {error:updateError}=await supabaseClient.from("questions").update({
+                question_text:newText.trim(),options:newOptions,difficulty:difficulty.trim(),question_category:category.trim()
+            }).eq("id",id);
+            if(updateError)throw updateError;
+            let answerWriteError=null;
+            if(answer){
+                const result=await supabaseClient.from("question_answers").update({correct_option:Number(correct),explanation}).eq("question_id",id);
+                answerWriteError=result.error;
+            }else{
+                const result=await supabaseClient.from("question_answers").insert({question_id:Number(id),correct_option:Number(correct),explanation});
+                answerWriteError=result.error;
+            }
+            if(answerWriteError)throw answerWriteError;
+            setStatus("questionStatus","تم تعديل السؤال والاختيارات والإجابة والشرح.");
+            await loadAdminQuestions();
         }
     }catch(error){
         const target=action.includes("college")?"collegeStatus":"yearStatus";
@@ -3342,6 +3448,8 @@ $("questionForm").addEventListener("submit",async function(e){
 
 });
 
+
+$("refreshAdminQuestions").addEventListener("click",loadAdminQuestions);
 
 // ==================================================
 // ADMIN DROPDOWN EVENTS

@@ -941,7 +941,7 @@ footer{
                 <option value="">Select Subject</option>
             </select>
 
-            <textarea id="adminPastQuestionText"
+            <textarea id="pastQuestionText"
             class="full-width"
             placeholder="Write question..."
             required></textarea>
@@ -1055,17 +1055,6 @@ let pastSelectedAnswers = {};
 let pastDurationTimer = null;
 
 let authCheckInProgress = false;
-
-
-function getSelectedAdminExamId(){
-
-    const selectedValue = $("adminExamSelect").value;
-
-    const examId = selectedValue || selectedAdminExamId;
-
-    return examId ? String(examId) : "";
-
-}
 
 
 function setStatus(id,message){
@@ -2721,7 +2710,10 @@ $("adminExamSelect").addEventListener(
 
 async function loadSelectedAdminExam(){
 
-    const examId = $("adminExamSelect").value || "";
+    const select = $("adminExamSelect");
+    const examId = select.selectedOptions.length
+        ? select.selectedOptions[0].value
+        : "";
 
     selectedAdminExamId = examId || null;
 
@@ -2844,7 +2836,10 @@ $("pastQuestionForm").addEventListener("submit",async function(e){
 
     if(currentUserRole!=="admin")return;
 
-    const examId = getSelectedAdminExamId();
+    const examSelect = $("adminExamSelect");
+    const examId = examSelect.selectedOptions.length
+        ? examSelect.selectedOptions[0].value
+        : (selectedAdminExamId || "");
 
     if(!examId){
 
@@ -2859,7 +2854,7 @@ $("pastQuestionForm").addEventListener("submit",async function(e){
 
     const subjectId = $("pastQuestionSubject").value;
 
-    const questionText = $("adminPastQuestionText").value.trim();
+    const questionText = $("pastQuestionText").value.trim();
 
     const options = [
         $("pastOptionA").value.trim(),
@@ -2995,7 +2990,10 @@ $("pastQuestionForm").addEventListener("submit",async function(e){
 
 $("publishPastExam").addEventListener("click",async()=>{
 
-    const examId = getSelectedAdminExamId();
+    const examSelect = $("adminExamSelect");
+    const examId = examSelect.selectedOptions.length
+        ? examSelect.selectedOptions[0].value
+        : (selectedAdminExamId || "");
 
     if(!examId){
 
@@ -3054,7 +3052,10 @@ $("publishPastExam").addEventListener("click",async()=>{
 
 $("unpublishPastExam").addEventListener("click",async()=>{
 
-    const examId = getSelectedAdminExamId();
+    const examSelect = $("adminExamSelect");
+    const examId = examSelect.selectedOptions.length
+        ? examSelect.selectedOptions[0].value
+        : (selectedAdminExamId || "");
 
     if(!examId){
 
@@ -3292,7 +3293,7 @@ $("startPastExam").addEventListener("click",async function(){
         "start_exam_attempt",
         {
             p_exam_id:examId,
-            pumode:pastMode
+            p_mode:pastMode
         }
     );
 

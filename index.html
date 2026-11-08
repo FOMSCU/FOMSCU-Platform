@@ -125,12 +125,15 @@ nav a{
 
 .auth-box h2{text-align:center}
 
-.auth-box input{
+.auth-box input,
+.auth-box select{
     width:100%;
     padding:13px;
     margin:8px 0;
     border:1px solid #ccc;
     border-radius:8px;
+    background:white;
+    color:#17233b;
 }
 
 .auth-box button{
@@ -451,6 +454,10 @@ footer{
 
         <input id="signupName" type="text"
         placeholder="الاسم بالكامل" required>
+
+        <select id="signupCollege" required>
+            <option value="">جاري تحميل الكليات...</option>
+        </select>
 
         <input id="signupEmail" type="email"
         placeholder="البريد الإلكتروني" required>
@@ -1238,6 +1245,44 @@ function resetPastQuiz(){
 // AUTHENTICATION
 // ==================================================
 
+// Load active colleges for the signup form
+async function loadSignupColleges(){
+
+    const select = $("signupCollege");
+    if(!select) return;
+
+    select.innerHTML = '<option value="">اختر الكلية</option>';
+    select.disabled = true;
+
+    const {data,error} = await supabaseClient
+        .from("colleges")
+        .select("id,name")
+        .eq("is_active",true)
+        .order("name",{ascending:true});
+
+    if(error){
+        select.innerHTML = '<option value="">تعذر تحميل الكليات</option>';
+        $("authMessage").textContent = "تعذر تحميل قائمة الكليات: " + error.message;
+        console.error(error);
+        return;
+    }
+
+    if(!data || !data.length){
+        select.innerHTML = '<option value="">لا توجد كليات متاحة حالياً</option>';
+        return;
+    }
+
+    data.forEach(college=>{
+        const option = document.createElement("option");
+        option.value = college.id;
+        option.textContent = college.name;
+        select.appendChild(option);
+    });
+
+    select.disabled = false;
+}
+
+
 async function showUserRole(){
 
     if(authCheckInProgress)return;
@@ -1272,7 +1317,7 @@ async function showUserRole(){
 
         const {data,error} = await supabaseClient
             .from("profiles")
-            .select("role")
+            .select("role,college_id")
             .eq("id",user.id)
             .single();
 
@@ -1302,8 +1347,21 @@ async function showUserRole(){
 
         }else{
 
-            $("userRole").textContent =
-            "Student - طالب";
+            let studentLabel = "Student - طالب";
+
+            if(data.college_id){
+                const {data:collegeData,error:collegeError} = await supabaseClient
+                    .from("colleges")
+                    .select("name")
+                    .eq("id",data.college_id)
+                    .maybeSingle();
+
+                if(!collegeError && collegeData){
+                    studentLabel += " | " + collegeData.name;
+                }
+            }
+
+            $("userRole").textContent = studentLabel;
 
         }
 
@@ -1336,6 +1394,12 @@ $("signupForm").addEventListener("submit",async e=>{
     const email = $("signupEmail").value.trim();
 
     const password = $("signupPassword").value;
+    const collegeId = $("signupCollege").value;
+
+    if(!collegeId){
+        $("authMessage").textContent = "من فضلك اختار الكلية قبل إنشاء الحساب.";
+        return;
+    }
 
     const {error} = await supabaseClient.auth.signUp({
 
@@ -1343,7 +1407,10 @@ $("signupForm").addEventListener("submit",async e=>{
         password,
 
         options:{
-            data:{full_name:name},
+            data:{
+                full_name:name,
+                college_id:collegeId
+            },
 
             emailRedirectTo:
             "https://fomscu.github.io/FOMSCU-Platform/"
@@ -3959,6 +4026,7 @@ function showPastResults(result){
 // INITIAL SESSION
 // ==================================================
 
+loadSignupColleges();
 showUserRole();
 
 </script>

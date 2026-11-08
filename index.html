@@ -479,6 +479,7 @@ footer{
 .notification-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
 @media(max-width:600px){.notification-area{align-self:flex-end}.notification-dropdown{right:auto;left:0}.notification-bell{padding:8px 11px}}
 
+.delete-row{background:#7f1d1d!important;color:#fff!important;border:1px solid #ef4444!important}.delete-row:hover{background:#991b1b!important}
 </style>
 </head>
 
@@ -2601,7 +2602,10 @@ async function loadModules(){
             $("modulesList"),
             "📖 "+module.name,
             (year?year.name:"Year not assigned")+" · ID: "+module.id,
-            [{label:"Rename",className:"edit-row",action:"rename-module",id:module.id}]
+            [
+                {label:"Rename",className:"edit-row",action:"rename-module",id:module.id},
+                {label:"Delete permanently",className:"delete-row",action:"delete-module",id:module.id}
+            ]
         );
 
     });
@@ -2689,7 +2693,10 @@ async function loadRelations(){
                 $("subjectsList"),
                 "📚 "+subject.name,
                 "غير مرتبطة بأي موديول · ID: "+subject.id,
-                [{label:"Rename",className:"edit-row",action:"rename-subject",id:subject.id}]
+                [
+                    {label:"Rename",className:"edit-row",action:"rename-subject",id:subject.id},
+                    {label:"Delete permanently",className:"delete-row",action:"delete-subject",id:subject.id}
+                ]
             );
 
             return;
@@ -2714,7 +2721,10 @@ async function loadRelations(){
                 (module?module.name:"Unknown")+" — "+
                 (year?year.name:"Year not assigned")+
                 " · Subject ID: "+subject.id+" · Link ID: "+relation.id,
-                [{label:"Rename",className:"edit-row",action:"rename-subject",id:subject.id}]
+                [
+                    {label:"Rename",className:"edit-row",action:"rename-subject",id:subject.id},
+                    {label:"Delete permanently",className:"delete-row",action:"delete-subject",id:subject.id}
+                ]
             );
 
         });
@@ -2935,7 +2945,8 @@ async function loadAdminAcademicStructure(){
         renderAdminRecord(collegesBox,college.name,
             "ID: "+college.id+" · "+(college.is_active?"نشطة":"متوقفة"),[
                 {label:"Rename",className:"edit-row",action:"rename-college",id:college.id},
-                {label:college.is_active?"Deactivate":"Activate",className:"toggle-row",action:"toggle-college",id:college.id}
+                {label:college.is_active?"Deactivate":"Activate",className:"toggle-row",action:"toggle-college",id:college.id},
+                {label:"Delete permanently",className:"delete-row",action:"delete-college",id:college.id}
             ]);
     });
 
@@ -2954,7 +2965,8 @@ async function loadAdminAcademicStructure(){
         const college=allColleges.find(c=>String(c.id)===String(year.college_id));
         renderAdminRecord(yearsBox,year.name,
             (college?college.name:"College not assigned")+" · ID: "+year.id,[
-                {label:"Edit",className:"edit-row",action:"edit-year",id:year.id}
+                {label:"Edit",className:"edit-row",action:"edit-year",id:year.id},
+                {label:"Delete permanently",className:"delete-row",action:"delete-year",id:year.id}
             ]);
     });
 }
@@ -3070,6 +3082,62 @@ $("adminDashboard").addEventListener("click",async function(e){
             if(updateError)throw updateError;
             setStatus("lectureStatus","تم تعديل اسم المحاضرة.");
             await refreshAll();
+        }else if(action==="delete-college"){
+            const {data:children,error:checkError}=await supabaseClient.from("years").select("id,name").eq("college_id",id);
+            if(checkError)throw checkError;
+            if(children && children.length){
+                alert("لا يمكن حذف الكلية الآن؛ لأنها مرتبطة بـ "+children.length+" سنة دراسية. احذف أو انقل السنوات التابعة أولاً.");
+                return;
+            }
+            const {data:college,error}=await supabaseClient.from("colleges").select("name").eq("id",id).single();
+            if(error)throw error;
+            if(!confirm("تحذير: سيتم حذف الكلية نهائياً: "+college.name+"\nلا يمكن التراجع عن هذا الإجراء. هل أنت متأكد؟"))return;
+            const {error:deleteError}=await supabaseClient.from("colleges").delete().eq("id",id);
+            if(deleteError)throw deleteError;
+            setStatus("collegeStatus","تم حذف الكلية نهائياً.");
+            await loadAdminAcademicStructure(); await loadSignupColleges(); await loadStudentColleges();
+        }else if(action==="delete-year"){
+            const {data:children,error:checkError}=await supabaseClient.from("modules").select("id,name").eq("year_id",id);
+            if(checkError)throw checkError;
+            if(children && children.length){
+                alert("لا يمكن حذف السنة؛ لأنها تحتوي على "+children.length+" موديول. انقل الموديولات أو احذفها أولاً.");
+                return;
+            }
+            const {data:year,error}=await supabaseClient.from("years").select("name").eq("id",id).single();
+            if(error)throw error;
+            if(!confirm("سيتم حذف السنة الدراسية نهائياً: "+year.name+"\nهل أنت متأكد؟"))return;
+            const {error:deleteError}=await supabaseClient.from("years").delete().eq("id",id);
+            if(deleteError)throw deleteError;
+            setStatus("yearStatus","تم حذف السنة الدراسية نهائياً.");
+            await refreshAll(); await loadAdminAcademicStructure();
+        }else if(action==="delete-module"){
+            const {data:moduleLinks,error:linksError}=await supabaseClient.from("module_subjects").select("id").eq("module_id",id);
+            if(linksError)throw linksError;
+            const linkIds=(moduleLinks||[]).map(x=>x.id);
+            const checks=await Promise.all([
+                supabaseClient.from("questions").select("id",{count:"exact",head:true}).eq("module_id",id),
+                supabaseClient.from("module_exams").select("id",{count:"exact",head:true}).eq("module_id",id),
+                linkIds.length ? supabaseClient.from("lectures").select("id",{count:"exact",head:true}).in("module_subject_id",linkIds) : Promise.resolve({count:0,error:null})
+            ]);
+            const failed=checks.find(x=>x.error); if(failed)throw failed.error;
+            const linked=linkIds.length+checks.reduce((n,x)=>n+(x.count||0),0);
+            if(linked){alert("لا يمكن حذف الموديول لأنه مرتبط بمواد أو محاضرات أو أسئلة أو امتحانات ("+linked+" سجل). انقل أو احذف البيانات التابعة أولاً.");return;}
+            const {data:module,error}=await supabaseClient.from("modules").select("name").eq("id",id).single(); if(error)throw error;
+            if(!confirm("حذف الموديول نهائياً: "+module.name+"؟\nلا يمكن التراجع عن هذا الإجراء."))return;
+            const {error:deleteError}=await supabaseClient.from("modules").delete().eq("id",id); if(deleteError)throw deleteError;
+            setStatus("moduleStatus","تم حذف الموديول نهائياً."); await refreshAll(); await loadQuizCurriculum(); await loadPastStudentYears();
+        }else if(action==="delete-subject"){
+            const checks=await Promise.all([
+                supabaseClient.from("module_subjects").select("id",{count:"exact",head:true}).eq("subject_id",id),
+                supabaseClient.from("lectures").select("id",{count:"exact",head:true}).eq("subject_id",id)
+            ]);
+            const failed=checks.find(x=>x.error); if(failed)throw failed.error;
+            const linked=checks.reduce((n,x)=>n+(x.count||0),0);
+            if(linked){alert("لا يمكن حذف المادة نهائياً لأنها مرتبطة بـ "+(checks[0].count||0)+" موديول و"+(checks[1].count||0)+" محاضرة. افصل الارتباطات أو انقل المحاضرات أولاً.");return;}
+            const {data:subject,error}=await supabaseClient.from("subjects").select("name").eq("id",id).single(); if(error)throw error;
+            if(!confirm("حذف المادة نهائياً: "+subject.name+"؟\nلا يمكن التراجع عن هذا الإجراء."))return;
+            const {error:deleteError}=await supabaseClient.from("subjects").delete().eq("id",id); if(deleteError)throw deleteError;
+            setStatus("subjectStatus","تم حذف المادة نهائياً."); await refreshAll();
         }else if(action==="toggle-question"){
             const {data:question,error}=await supabaseClient.from("questions").select("is_published").eq("id",id).single();
             if(error)throw error;

@@ -13,7 +13,7 @@
 body{
     font-family:Arial,sans-serif;
     background:#080e19;
-    color:white;ِ
+    color:white;
 }
 
 header{
@@ -437,6 +437,17 @@ footer{
 .team-member-row{padding:13px;margin:10px 0;background:#101c2d;border:1px solid #30445f;border-radius:9px}
 .team-member-row strong{color:#42d6b0}
 .team-member-meta{color:#aebbd0;font-size:13px;line-height:1.7;margin-top:5px}
+
+.request-card{background:#0b1422;border:1px solid #30445f;border-radius:11px;padding:16px;margin:12px 0}
+.request-card h4{color:#42d6b0;margin-bottom:8px;overflow-wrap:anywhere}
+.request-meta{color:#9fb0c5;font-size:13px;line-height:1.8;margin:6px 0 12px}
+.request-description{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;color:#e4ebf5;margin:10px 0}
+.request-response{background:#14263a;border-right:3px solid #42d6b0;padding:12px;border-radius:8px;margin-top:10px;white-space:pre-wrap;line-height:1.7;color:#dce8f4}
+.request-admin-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:14px}
+.request-admin-controls select,.request-admin-controls textarea{width:100%;padding:11px;border:1px solid #40516b;border-radius:8px;background:#080e19;color:white}
+.request-admin-controls textarea{min-height:75px;grid-column:1/-1}
+.request-status-badge{display:inline-block;padding:4px 9px;border-radius:20px;background:#183044;color:#42d6b0;font-size:12px;margin-inline-start:6px}
+
 </style>
 </head>
 
@@ -507,7 +518,37 @@ footer{
       <section class="student-view" id="view-arena"><h2>Medschool Arena – ساحة التحدي</h2><p>المسابقات والتحديات اليومية والأسبوعية.</p><div class="coming-soon">قريبًا — نجهّز نظام المسابقات ومواعيدها ونقاطها قبل تفعيله.</div></section>
       <section class="student-view" id="view-history"><h2>سجل درجاتك</h2><p>تاريخ إجاباتك ومحاولاتك ونتائج الامتحانات.</p><div class="coming-soon">قريبًا — سيتم ربط سجل المحاولات بنتائجك الفعلية من قاعدة البيانات.</div></section>
       <section class="student-view" id="view-ai"><h2>Medschool AI</h2><p>مساعد ذكاء اصطناعي للتعلم الطبي.</p><div class="coming-soon">قريبًا — سنبني المساعد بربط آمن من الخادم، ولن نضع مفاتيح API داخل كود الموقع.</div></section>
-      <section class="student-view" id="view-feedback"><h2>الشكاوى والاقتراحات</h2><p>مساحة لإرسال ملاحظاتك لإدارة Medschool.</p><div class="coming-soon">قريبًا — سيتم تفعيل الإرسال ومتابعة حالة الشكوى بعد تجهيز قاعدة البيانات.</div></section>
+      <section class="student-view" id="view-feedback">
+        <h2>الشكاوى والاقتراحات</h2>
+        <p>ابعت ملاحظتك لإدارة Medschool، وتابع حالة طلبك ورد الإدارة من نفس المكان.</p>
+        <div class="management-section">
+          <h3>إرسال طلب جديد</h3>
+          <form id="studentRequestForm" class="management-form">
+            <select id="studentRequestType" required>
+              <option value="">اختر نوع الطلب</option>
+              <option value="account_issue">مشكلة في الحساب</option>
+              <option value="name_change">تعديل الاسم</option>
+              <option value="email_change">تغيير البريد الإلكتروني</option>
+              <option value="technical_issue">مشكلة تقنية</option>
+              <option value="question_correction">تصحيح سؤال أو إجابة</option>
+              <option value="content_request">طلب محتوى تعليمي</option>
+              <option value="complaint">شكوى</option>
+              <option value="suggestion">اقتراح</option>
+              <option value="account_deactivation">إيقاف الحساب</option>
+              <option value="other">طلب آخر</option>
+            </select>
+            <input id="studentRequestSubject" type="text" maxlength="180" placeholder="عنوان مختصر للطلب" required>
+            <textarea id="studentRequestDescription" class="full-width" minlength="10" maxlength="5000" placeholder="اكتب تفاصيل الطلب بوضوح (10 أحرف على الأقل)" required></textarea>
+            <button id="submitStudentRequestButton" type="submit" class="full-width">إرسال الطلب</button>
+          </form>
+          <div id="studentRequestStatus" class="status" role="status" aria-live="polite"></div>
+        </div>
+        <div class="management-section">
+          <h3>طلباتي السابقة</h3>
+          <button type="button" id="refreshMyRequests" class="button secondary-button">تحديث طلباتي</button>
+          <div id="myStudentRequestsList" class="management-list">لم يتم تحميل الطلبات بعد.</div>
+        </div>
+      </section>
       <section class="student-view" id="view-updates"><h2>التحديثات</h2><p>آخر أخبار وإضافات المنصة.</p><div class="coming-soon">قريبًا — سيتم عرض تحديثات المنصة هنا.</div></section>
       <section class="student-view" id="view-messages"><h2>الرسائل</h2><p>رسائلك وإشعارات الإدارة.</p><div class="coming-soon">قريبًا — سيتم تفعيل الرسائل بعد إعداد نظامها.</div></section>
       <section class="student-view" id="view-settings"><h2>الإعدادات</h2><p>إعدادات الحساب والتنبيهات.</p><div class="coming-soon">إعدادات الحساب وتغيير كلمة المرور وتفضيلات الإشعارات سيتم ربطها في خطوة مستقلة.</div></section>
@@ -1167,6 +1208,14 @@ footer{
 
     </div>
 
+    <div class="management-section" id="adminStudentRequestsSection">
+      <h3>📨 Student Requests Center — إدارة طلبات الطلاب</h3>
+      <p>راجع طلبات الطلاب، حدّث الحالة، واكتب الرد الذي سيظهر للطالب.</p>
+      <button type="button" id="refreshAllStudentRequests" class="button secondary-button">تحديث الطلبات</button>
+      <div id="allStudentRequestsList" class="management-list">اضغط تحديث الطلبات لعرض الطلبات.</div>
+      <div id="adminStudentRequestsStatus" class="status" role="status" aria-live="polite"></div>
+    </div>
+
 </section>
 
 
@@ -1665,6 +1714,8 @@ async function showUserRole(){
 
             await loadTeamManagement();
 
+            await loadAllStudentRequests();
+
         }else{
 
             const studentName = (data.full_name || user.user_metadata?.full_name || user.email?.split("@")[0] || "دكتور").trim();
@@ -1815,6 +1866,9 @@ function openStudentView(viewName){
         if(mount && !mount.contains($("pastPapers"))) mount.appendChild($("pastPapers"));
         $("collegeBrowser").style.display="block";
         if(currentBrowsingCollegeId){$("quizSection").style.display="block";showPastPapers();}
+    }
+    if(viewName==="feedback"){
+        loadMyStudentRequests();
     }
     if(viewName==="points"){
         const mount=$("pointsMount");
@@ -2039,6 +2093,177 @@ $("teamMemberForm").addEventListener("submit",async event=>{
 });
 
 $("refreshTeamMembers").addEventListener("click",loadTeamMembers);
+
+// ==================================================
+// STUDENT REQUESTS CENTER
+// ==================================================
+
+const requestStatusLabels = {
+    pending:"قيد المراجعة",
+    in_progress:"جاري العمل عليه",
+    need_info:"مطلوب معلومات إضافية",
+    approved:"تمت الموافقة",
+    rejected:"مرفوض",
+    completed:"مكتمل"
+};
+
+const requestTypeLabels = {
+    account_issue:"مشكلة في الحساب",
+    name_change:"تعديل الاسم",
+    email_change:"تغيير البريد الإلكتروني",
+    technical_issue:"مشكلة تقنية",
+    question_correction:"تصحيح سؤال أو إجابة",
+    content_request:"طلب محتوى تعليمي",
+    complaint:"شكوى",
+    suggestion:"اقتراح",
+    account_deactivation:"إيقاف الحساب",
+    other:"طلب آخر"
+};
+
+function makeRequestElement(tag,className,text){
+    const element=document.createElement(tag);
+    if(className) element.className=className;
+    if(text!==undefined) element.textContent=text;
+    return element;
+}
+
+function formatRequestDate(value){
+    if(!value) return "—";
+    const date=new Date(value);
+    return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString("ar-EG");
+}
+
+async function loadMyStudentRequests(){
+    const box=$("myStudentRequestsList");
+    if(!box || currentUserRole!=="student") return;
+    box.textContent="جاري تحميل طلباتك...";
+    const {data,error}=await supabaseClient.rpc("get_my_student_requests");
+    if(error){
+        box.textContent="تعذر تحميل الطلبات: "+error.message;
+        return;
+    }
+    box.replaceChildren();
+    if(!data || !data.length){
+        box.textContent="لسه مبعتش أي طلب. تقدر تبعت أول طلب من النموذج بالأعلى.";
+        return;
+    }
+    data.forEach(request=>{
+        const card=makeRequestElement("article","request-card");
+        const title=makeRequestElement("h4","",request.subject || "طلب بدون عنوان");
+        const meta=makeRequestElement("div","request-meta",
+            (requestTypeLabels[request.request_type] || request.request_type)+" · "+
+            (requestStatusLabels[request.request_status] || request.request_status)+" · "+
+            "تاريخ الإرسال: "+formatRequestDate(request.request_date));
+        const description=makeRequestElement("p","request-description",request.description || "");
+        card.append(title,meta,description);
+        if(request.admin_response){
+            card.appendChild(makeRequestElement("div","request-response","رد الإدارة: "+request.admin_response));
+        }
+        box.appendChild(card);
+    });
+}
+
+$("studentRequestForm").addEventListener("submit",async event=>{
+    event.preventDefault();
+    if(currentUserRole!=="student"){
+        setStatus("studentRequestStatus","لازم تسجل الدخول بحساب طالب لإرسال طلب.");
+        return;
+    }
+    const button=$("submitStudentRequestButton");
+    button.disabled=true;
+    setStatus("studentRequestStatus","جاري إرسال الطلب...");
+    try{
+        const {data,error}=await supabaseClient.rpc("submit_student_request",{
+            p_request_type:$("studentRequestType").value,
+            p_subject:$("studentRequestSubject").value.trim(),
+            p_description:$("studentRequestDescription").value.trim()
+        });
+        if(error) throw error;
+        if(data && data.success===false) throw new Error(data.message || data.error || "تعذر إرسال الطلب.");
+        $("studentRequestForm").reset();
+        setStatus("studentRequestStatus","تم إرسال طلبك بنجاح. تقدر تتابع حالته من قسم طلباتي السابقة.");
+        await loadMyStudentRequests();
+    }catch(error){
+        console.error("Submit student request error:",error);
+        setStatus("studentRequestStatus","لم يتم إرسال الطلب: "+(error.message || "حدث خطأ غير متوقع."));
+    }finally{
+        button.disabled=false;
+    }
+});
+
+$("refreshMyRequests").addEventListener("click",loadMyStudentRequests);
+
+async function loadAllStudentRequests(){
+    const box=$("allStudentRequestsList");
+    if(!box || currentUserRole!=="admin") return;
+    box.textContent="جاري تحميل طلبات الطلاب...";
+    setStatus("adminStudentRequestsStatus","");
+    const {data,error}=await supabaseClient.rpc("get_all_student_requests");
+    if(error){
+        box.textContent="تعذر تحميل الطلبات: "+error.message;
+        return;
+    }
+    box.replaceChildren();
+    if(!data || !data.length){
+        box.textContent="لا توجد طلبات طلاب حتى الآن.";
+        return;
+    }
+    data.forEach(request=>{
+        const card=makeRequestElement("article","request-card");
+        const title=makeRequestElement("h4","",request.subject || "طلب بدون عنوان");
+        const meta=makeRequestElement("div","request-meta",
+            "الطالب: "+(request.student_name || "—")+" · "+(request.college_name || "—")+"\n"+
+            (requestTypeLabels[request.request_type] || request.request_type)+" · "+
+            (requestStatusLabels[request.request_status] || request.request_status)+" · "+
+            "تاريخ الإرسال: "+formatRequestDate(request.request_date));
+        const description=makeRequestElement("p","request-description",request.description || "");
+        card.append(title,meta,description);
+        if(request.admin_response) card.appendChild(makeRequestElement("div","request-response","الرد الحالي: "+request.admin_response));
+        const controls=makeRequestElement("div","request-admin-controls");
+        const status=document.createElement("select");
+        status.setAttribute("aria-label","حالة الطلب");
+        Object.entries(requestStatusLabels).forEach(([value,label])=>{
+            const option=document.createElement("option"); option.value=value; option.textContent=label;
+            if(value===request.request_status) option.selected=true;
+            status.appendChild(option);
+        });
+        const response=document.createElement("textarea");
+        response.maxLength=5000;
+        response.placeholder="اكتب رد الإدارة الذي سيظهر للطالب (اختياري)";
+        response.value=request.admin_response || "";
+        const note=document.createElement("textarea");
+        note.maxLength=5000;
+        note.placeholder="ملاحظة داخلية للإدارة فقط (اختياري)";
+        note.value=request.admin_note || "";
+        const save=document.createElement("button");
+        save.type="button"; save.className="button"; save.textContent="حفظ التحديث";
+        save.addEventListener("click",async()=>{
+            save.disabled=true;
+            setStatus("adminStudentRequestsStatus","جاري حفظ تحديث الطلب #"+request.request_id+"...");
+            try{
+                const {data:result,error:saveError}=await supabaseClient.rpc("review_student_request",{
+                    p_request_id:request.request_id,
+                    p_status:status.value,
+                    p_admin_response:response.value.trim() || null,
+                    p_admin_note:note.value.trim() || null
+                });
+                if(saveError) throw saveError;
+                if(result && result.success===false) throw new Error(result.message || result.error || "تعذر حفظ التحديث.");
+                setStatus("adminStudentRequestsStatus","تم حفظ تحديث الطلب #"+request.request_id+" بنجاح.");
+                await loadAllStudentRequests();
+            }catch(error){
+                console.error("Review student request error:",error);
+                setStatus("adminStudentRequestsStatus","فشل حفظ التحديث: "+(error.message || "حدث خطأ غير متوقع."));
+                save.disabled=false;
+            }
+        });
+        controls.append(status,response,note,save);
+        card.appendChild(controls);
+        box.appendChild(card);
+    });
+}
+
+$("refreshAllStudentRequests").addEventListener("click",loadAllStudentRequests);
 
 // ==================================================
 // ACADEMIC DATA

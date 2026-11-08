@@ -158,7 +158,7 @@ nav a{
     color:#087f8c;
 }
 
-#adminDashboard,#quizSection,#pastPapers{
+#adminDashboard,#quizSection,#pastPapers,#collegeBrowser{
     display:none;
     max-width:1100px;
     margin:40px auto;
@@ -375,7 +375,7 @@ footer{
 
     .hero h1{font-size:34px}
 
-    #adminDashboard,#quizSection,#pastPapers{
+    #adminDashboard,#quizSection,#pastPapers,#collegeBrowser{
         margin:25px 12px;
         padding:18px;
     }
@@ -495,6 +495,16 @@ footer{
 
 </div>
 
+
+<!-- STUDENT COLLEGE BROWSER -->
+<section id="collegeBrowser" class="container" style="max-width:1100px;margin:35px auto;padding:30px;background:#101a2b;border:1px solid #42d6b0;border-radius:15px">
+    <h2 class="dashboard-title">🏛️ اختار الكلية للتصفح</h2>
+    <p class="dashboard-description">اختيارك هنا يحدد المحتوى الذي تتصفحه فقط، ولا يغيّر الكلية الأساسية المرتبطة بحسابك.</p>
+    <select id="browseCollege" style="width:100%;max-width:600px;padding:14px;border-radius:8px;background:#fff;color:#17233b">
+        <option value="">جاري تحميل الكليات...</option>
+    </select>
+    <div id="collegeBrowserStatus" class="status"></div>
+</section>
 
 <!-- STUDENT LECTURE MCQ -->
 
@@ -1047,6 +1057,7 @@ let quizQuestions = [];
 let currentQuestionIndex = 0;
 let currentUser = null;
 let currentUserRole = null;
+let currentBrowsingCollegeId = null;
 let currentQuestionAnswered = false;
 let quizScore = 0;
 
@@ -1283,6 +1294,53 @@ async function loadSignupColleges(){
 }
 
 
+async function loadStudentColleges(){
+    const select = $("browseCollege");
+    if(!select) return;
+    select.innerHTML = '<option value="">اختر الكلية</option>';
+    const {data,error} = await supabaseClient
+        .from("colleges")
+        .select("id,name")
+        .eq("is_active",true)
+        .order("name",{ascending:true});
+    if(error){
+        setStatus("collegeBrowserStatus","تعذر تحميل الكليات: "+error.message);
+        return;
+    }
+    (data||[]).forEach(college=>{
+        const option = document.createElement("option");
+        option.value = String(college.id);
+        option.textContent = college.name;
+        select.appendChild(option);
+    });
+    select.disabled = !(data && data.length);
+    if(currentBrowsingCollegeId && (data||[]).some(c=>String(c.id)===String(currentBrowsingCollegeId))){
+        select.value = String(currentBrowsingCollegeId);
+    }
+}
+
+async function selectBrowsingCollege(collegeId){
+    currentBrowsingCollegeId = collegeId ? String(collegeId) : null;
+    $("quizSection").style.display = "none";
+    hidePastPapers();
+    resetQuiz();
+    resetPastQuiz();
+    if(!currentBrowsingCollegeId){
+        setStatus("collegeBrowserStatus","اختار كلية لعرض المحتوى الدراسي.");
+        return;
+    }
+    setStatus("collegeBrowserStatus","جاري تحميل محتوى الكلية...");
+    await loadQuizCurriculum();
+    await loadPastStudentYears();
+    $("quizSection").style.display = "block";
+    showPastPapers();
+    setStatus("collegeBrowserStatus","تم اختيار الكلية. يمكنك تغييرها في أي وقت من القائمة أعلاه.");
+}
+
+$("browseCollege").addEventListener("change",async function(){
+    await selectBrowsingCollege(this.value);
+});
+
 async function showUserRole(){
 
     if(authCheckInProgress)return;
@@ -1308,6 +1366,8 @@ async function showUserRole(){
 
             currentUser = null;
             currentUserRole = null;
+            currentBrowsingCollegeId = null;
+            $("collegeBrowser").style.display = "none";
 
             return;
 
@@ -1362,16 +1422,18 @@ async function showUserRole(){
             }
 
             $("userRole").textContent = studentLabel;
-
+            $("collegeBrowser").style.display = "block";
+            await loadStudentColleges();
+            $("quizSection").style.display = "none";
+            hidePastPapers();
+            setStatus("collegeBrowserStatus","اختار الكلية التي تريد تصفح محتواها.");
         }
 
-        $("quizSection").style.display = "block";
-
-        showPastPapers();
-
-        await loadQuizCurriculum();
-
-        await loadPastStudentYears();
+        if(data.role === "admin"){
+            $("collegeBrowser").style.display = "none";
+            $("quizSection").style.display = "none";
+            hidePastPapers();
+        }
 
     }finally{
 
@@ -1469,6 +1531,8 @@ $("logoutButton").addEventListener("click",async()=>{
 
     currentUser = null;
     currentUserRole = null;
+    currentBrowsingCollegeId = null;
+    $("collegeBrowser").style.display = "none";
 
     $("userRole").textContent = "";
 
@@ -1497,6 +1561,8 @@ supabaseClient.auth.onAuthStateChange(event=>{
 
         currentUser = null;
         currentUserRole = null;
+        currentBrowsingCollegeId = null;
+        $("collegeBrowser").style.display = "none";
 
         $("userRole").textContent = "";
 
@@ -1523,7 +1589,7 @@ async function loadYears(){
 
     const {data,error} = await supabaseClient
         .from("years")
-        .select("id,name")
+        .select("id,name,college_id")
         .order("id");
 
     if(error){
@@ -1629,7 +1695,7 @@ async function loadSubjects(){
 
     const {data,error} = await supabaseClient
         .from("subjects")
-        .select("id,name")
+        .select("id,name,college_id")
         .order("name");
 
     if(error){
@@ -1908,7 +1974,15 @@ $("subjectForm").addEventListener("submit",async function(e){
 
     setLoading("addSubjectButton",true);
 
+    const selectedYear = yearsData.find(y=>String(y.id)===String(yearId));
+    if(!selectedYear || !selectedYear.college_id){
+        setStatus("subjectStatus","تعذر تحديد الكلية التابعة للسنة الدراسية.");
+        setLoading("addSubjectButton",false);
+        return;
+    }
+
     let subject = subjectsData.find(s=>
+        String(s.college_id)===String(selectedYear.college_id) &&
         s.name.trim().toLowerCase()===name.toLowerCase()
     );
 
@@ -1916,8 +1990,8 @@ $("subjectForm").addEventListener("submit",async function(e){
 
         const {data,error} = await supabaseClient
             .from("subjects")
-            .insert({name})
-            .select("id,name")
+            .insert({name,college_id:Number(selectedYear.college_id)})
+            .select("id,name,college_id")
             .single();
 
         if(error){
@@ -2169,9 +2243,15 @@ $("questionSubject").addEventListener("change",()=>{
 
 async function loadQuizCurriculum(){
 
+    if(!currentBrowsingCollegeId){
+        setStatus("quizStatus","اختار الكلية أولاً.");
+        return;
+    }
+
     const {data:years,error} = await supabaseClient
         .from("years")
         .select("id,name")
+        .eq("college_id",Number(currentBrowsingCollegeId))
         .order("id");
 
     if(error){
@@ -3160,9 +3240,15 @@ $("unpublishPastExam").addEventListener("click",async()=>{
 
 async function loadPastStudentYears(){
 
+    if(!currentBrowsingCollegeId){
+        setStatus("pastStatus","اختار الكلية أولاً.");
+        return;
+    }
+
     const {data,error} = await supabaseClient
         .from("years")
         .select("id,name")
+        .eq("college_id",Number(currentBrowsingCollegeId))
         .order("id");
 
     if(error){

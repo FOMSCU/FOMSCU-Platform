@@ -3877,20 +3877,35 @@ $("questionForm").addEventListener("submit",async function(e){
 // ADMIN: BULK IMPORT FOR LECTURE MCQs AND PREVIOUS EXAMS
 // ==================================================
 function parseBulkQuestionText(raw){
-    const normalized=String(raw||"").replace(/\r/g,"").trim();
+    // Supports Question 1:, numbered headings such as "1) Question text",
+    // Markdown bold (**...**), HTML entities, and pasted lines ending in backslashes.
+    const normalized=String(raw||"")
+        .replace(/\r/g,"")
+        .replace(/\\\s*\n/g,"\n")
+        .trim();
     if(!normalized)return [];
-    // Accept both formats: "Question 1:" on its own line, and
-    // "Question 1: Write the question here" on the same line.
-    const chunks=normalized.split(/(?=^\s*Question\s*#?\s*\d+\s*:?[^\n]*$)/gim).filter(x=>x.trim());
+    const lines=normalized.split("\n").map(line=>line.trim());
+    const isQuestionStart=line=>/^(?:\*\*?\s*)?(?:Question\s*#?\s*\d+\s*:|\d+\s*[.)]\s+).*/i.test(line);
+    const chunks=[];let current=[];
+    for(const line of lines){
+        if(isQuestionStart(line)&&current.length){chunks.push(current);current=[];}
+        if(line)current.push(line);
+    }
+    if(current.length)chunks.push(current);
     return chunks.map((chunk,index)=>{
-        const lines=chunk.split("\n");let question="",explanation="",correct=null,mode="question";
+        let question="",explanation="",correct=null,mode="question";
         const options=["","","",""];
-        lines.forEach((rawLine,lineIndex)=>{
-            let line=rawLine.trim();
+        chunk.forEach((rawLine,lineIndex)=>{
+            let line=rawLine.trim().replace(/\\+\s*$/g,"").trim();
             if(!line)return;
+            // Remove Markdown bold markers commonly included when copying formatted notes.
+            line=line.replace(/\*\*/g,"").trim();
             if(lineIndex===0){
-                const header=line.match(/^Question\s*#?\s*\d+\s*:?\s*(.*)$/i);
-                if(header){line=header[1].trim();if(!line)return;}
+                const questionHeader=line.match(/^Question\s*#?\s*\d+\s*:\s*(.*)$/i);
+                const numberedHeader=line.match(/^\d+\s*[.)]\s*(.*)$/);
+                if(questionHeader)line=questionHeader[1].trim();
+                else if(numberedHeader)line=numberedHeader[1].trim();
+                if(!line)return;
             }
             const a=line.match(/^Correct\s*Answer\s*:\s*([A-D])\s*(?:[).:-])?\s*(.*)$/i);
             if(a){correct=a[1].toUpperCase().charCodeAt(0)-65;mode="afterAnswer";return;}

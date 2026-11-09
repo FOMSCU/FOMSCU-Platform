@@ -492,6 +492,7 @@ footer{
 /* Medschool new student tools */
 .profile-edit-grid,.arena-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:16px}
 .profile-edit-grid input,.profile-edit-grid button,.arena-form-grid input,.arena-form-grid select,.arena-form-grid textarea{width:100%;padding:12px;border-radius:9px;border:1px solid #34465f;background:#0b1422;color:#eef4fb}
+.arena-date-field{display:flex;flex-direction:column;gap:7px;min-width:0;color:#cbd7e6;font-size:14px}.arena-date-field input{min-height:46px;color-scheme:dark;direction:ltr;text-align:left}.arena-date-field span{font-weight:600}
 .profile-avatar-preview{width:104px;height:104px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#1b3447;border:2px solid #42d6b0;color:#42d6b0;font-size:30px;font-weight:700;background-size:cover;background-position:center;overflow:hidden}
 .profile-panel,.history-card,.arena-card{background:#0b1422;border:1px solid #293b52;border-radius:12px;padding:16px;margin:12px 0}
 .history-card h4,.arena-card h4{color:#42d6b0;margin-bottom:8px}
@@ -997,8 +998,10 @@ footer{
         <select id="arenaAdminCollege" required><option value="">اختر الكلية</option></select>
         <select id="arenaAdminModule" required disabled><option value="">اختر الموديول</option></select>
         <input id="arenaAdminTitle" type="text" maxlength="150" placeholder="اسم المسابقة" required>
-        <input id="arenaAdminStarts" type="datetime-local" required>
-        <input id="arenaAdminEnds" type="datetime-local" required>
+        <label class="arena-date-field"><span>تاريخ بداية التحدي</span><input id="arenaAdminStartDate" type="date" required></label>
+        <label class="arena-date-field"><span>وقت بداية التحدي</span><input id="arenaAdminStartTime" type="time" step="60" required></label>
+        <label class="arena-date-field"><span>تاريخ نهاية التحدي</span><input id="arenaAdminEndDate" type="date" required></label>
+        <label class="arena-date-field"><span>وقت نهاية التحدي</span><input id="arenaAdminEndTime" type="time" step="60" required></label>
         <textarea id="arenaAdminDescription" placeholder="وصف المسابقة (اختياري)" rows="2"></textarea>
         <button type="submit" class="full-width" id="createArenaCompetitionButton">إنشاء المسابقة</button>
       </form>
@@ -5941,11 +5944,15 @@ $("studentProfileForm").addEventListener("submit",async function(e){
     let avatarUrl=null;
     if(file){
       const ext=file.type==="image/png"?"png":file.type==="image/webp"?"webp":"jpg";
-      const path=`${currentUser.id}/avatar.${ext}`;
-      const {error:uploadError}=await supabaseClient.storage.from("profile-avatars").upload(path,file,{upsert:true,contentType:file.type,cacheControl:"3600"});
+      // Use a unique object path for every upload. This avoids Storage upsert
+      // requiring SELECT permission on the existing object and prevents stale caching.
+      const uploadVersion=Date.now();
+      const path=`${currentUser.id}/avatar-${uploadVersion}.${ext}`;
+      const {error:uploadError}=await supabaseClient.storage.from("profile-avatars").upload(path,file,{upsert:false,contentType:file.type,cacheControl:"0"});
       if(uploadError)throw uploadError;
       const {data:publicData}=supabaseClient.storage.from("profile-avatars").getPublicUrl(path);
-      avatarUrl=publicData.publicUrl+"?v="+Date.now();
+      if(!publicData?.publicUrl)throw new Error("تعذر إنشاء رابط الصورة بعد رفعها.");
+      avatarUrl=publicData.publicUrl+"?v="+uploadVersion;
     }
     const {error:saveError}=await supabaseClient.rpc("update_my_student_profile",{p_full_name:name,p_avatar_url:avatarUrl});
     if(saveError)throw saveError;
@@ -6039,15 +6046,31 @@ $("arenaAdminCollege").addEventListener("change",async function(){
   const {data:mods,error:me}=await supabaseClient.from("modules").select("id,name,year_id").in("year_id",ids).order("name");if(me){setStatus("arenaAdminStatus",me.message);return;}
   sel.innerHTML='<option value="">اختر الموديول</option>';(mods||[]).forEach(m=>{const o=document.createElement("option");o.value=m.id;o.textContent=m.name;sel.appendChild(o);});sel.disabled=!(mods||[]).length;
 });
+// Build an unambiguous local date/time from separate native date and time fields.
+function getArenaLocalDateTime(dateId,timeId){
+  const dateValue=$(dateId).value;
+  const timeValue=$(timeId).value;
+  if(!dateValue||!timeValue)return null;
+  const [year,month,day]=dateValue.split("-").map(Number);
+  const [hour,minute]=timeValue.split(":").map(Number);
+  const value=new Date(year,month-1,day,hour,minute,0,0);
+  if(value.getFullYear()!==year||value.getMonth()!==month-1||value.getDate()!==day||value.getHours()!==hour||value.getMinutes()!==minute)return null;
+  return value;
+}
 $("arenaCompetitionForm").addEventListener("submit",async function(e){
   e.preventDefault();if(currentUserRole!=="admin")return;
-  const college=Number($("arenaAdminCollege").value),module=Number($("arenaAdminModule").value),title=$("arenaAdminTitle").value.trim(),start=$("arenaAdminStarts").value,end=$("arenaAdminEnds").value;
-  if(!college||!module||!title||!start||!end){setStatus("arenaAdminStatus","أكمل بيانات المسابقة.");return;}
-  if(new Date(end)<=new Date(start)){setStatus("arenaAdminStatus","وقت الإغلاق يجب أن يكون بعد وقت الفتح.");return;}
-  const btn=$("createArenaCompetitionButton");btn.disabled=true;
-  const {data,error}=await supabaseClient.from("arena_competitions").insert({college_id:college,module_id:module,title,description:$("arenaAdminDescription").value.trim(),starts_at:new Date(start).toISOString(),ends_at:new Date(end).toISOString(),is_active:true,created_by:currentUser.id}).select("id").single();
-  btn.disabled=false;if(error){setStatus("arenaAdminStatus","تعذر إنشاء المسابقة: "+error.message);return;}
-  setStatus("arenaAdminStatus","تم إنشاء المسابقة. اختر الأسئلة المنشورة الآن.");this.reset();await loadArenaAdminCompetitions();await selectArenaAdminCompetition(data.id);
+  const college=Number($("arenaAdminCollege").value),module=Number($("arenaAdminModule").value),title=$("arenaAdminTitle").value.trim();
+  const start=getArenaLocalDateTime("arenaAdminStartDate","arenaAdminStartTime");
+  const end=getArenaLocalDateTime("arenaAdminEndDate","arenaAdminEndTime");
+  if(!college||!module||!title||!start||!end){setStatus("arenaAdminStatus","أكمل الكلية والموديول والاسم وتاريخ ووقت البداية والنهاية بشكل صحيح.");return;}
+  if(end.getTime()<=start.getTime()){setStatus("arenaAdminStatus","تاريخ ووقت النهاية يجب أن يكونا بعد تاريخ ووقت البداية.");return;}
+  const btn=$("createArenaCompetitionButton");btn.disabled=true;setStatus("arenaAdminStatus","جاري إنشاء التحدي...");
+  try{
+    const {data,error}=await supabaseClient.from("arena_competitions").insert({college_id:college,module_id:module,title,description:$("arenaAdminDescription").value.trim(),starts_at:start.toISOString(),ends_at:end.toISOString(),is_active:true,created_by:currentUser.id}).select("id").single();
+    if(error)throw error;
+    setStatus("arenaAdminStatus","تم إنشاء التحدي بنجاح. اختر الأسئلة المنشورة الآن.");this.reset();await loadArenaAdminCompetitions();await selectArenaAdminCompetition(data.id);
+  }catch(error){setStatus("arenaAdminStatus","تعذر إنشاء التحدي: "+(error.message||String(error)));}
+  finally{btn.disabled=false;}
 });
 async function loadArenaAdminCompetitions(){
   const box=$("arenaAdminCompetitions");if(!box||currentUserRole!=="admin")return;box.textContent="جاري التحميل...";

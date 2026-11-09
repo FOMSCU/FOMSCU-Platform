@@ -488,6 +488,24 @@ footer{
 @media(max-width:600px){.notification-area{align-self:flex-end}.notification-dropdown{right:auto;left:0}.notification-bell{padding:8px 11px}}
 
 .delete-row{background:#7f1d1d!important;color:#fff!important;border:1px solid #ef4444!important}.delete-row:hover{background:#991b1b!important}
+
+/* Medschool new student tools */
+.profile-edit-grid,.arena-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:16px}
+.profile-edit-grid input,.profile-edit-grid button,.arena-form-grid input,.arena-form-grid select,.arena-form-grid textarea{width:100%;padding:12px;border-radius:9px;border:1px solid #34465f;background:#0b1422;color:#eef4fb}
+.profile-avatar-preview{width:104px;height:104px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#1b3447;border:2px solid #42d6b0;color:#42d6b0;font-size:30px;font-weight:700;background-size:cover;background-position:center;overflow:hidden}
+.profile-panel,.history-card,.arena-card{background:#0b1422;border:1px solid #293b52;border-radius:12px;padding:16px;margin:12px 0}
+.history-card h4,.arena-card h4{color:#42d6b0;margin-bottom:8px}
+.history-meta,.arena-meta{color:#9fb0c5;font-size:13px;line-height:1.8}
+.history-answer{padding:10px;border-bottom:1px solid #263750;line-height:1.7}
+.history-correct{color:#42d6b0}.history-wrong{color:#ff9ba7}
+.arena-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.arena-option{display:flex;gap:10px;align-items:flex-start;padding:12px;margin:8px 0;background:#101b2b;border:1px solid #30435c;border-radius:9px;cursor:pointer}
+.arena-option input{margin-top:4px}
+.admin-setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid #2b4058;border-radius:10px;margin:8px 0;background:#0b1422}
+.admin-setting-row label{display:flex;gap:10px;align-items:center;cursor:pointer}
+.admin-setting-row input[type=checkbox]{width:20px;height:20px;accent-color:#42d6b0}
+@media(max-width:600px){.profile-edit-grid,.arena-form-grid{grid-template-columns:1fr}.admin-setting-row{align-items:flex-start;flex-direction:column}}
+
 </style>
 </head>
 
@@ -561,16 +579,27 @@ footer{
         </div>
       </section>
       <section class="student-view" id="view-profile">
-        <h2>الملف الشخصي</h2><p>بيانات حسابك على Medschool.</p>
+        <h2>الملف الشخصي</h2><p>حدّث اسمك وصورتك الشخصية. لا يمكن تعديل صلاحية الحساب أو الكلية أو السنة الدراسية من هذه الصفحة.</p>
         <div class="student-profile-card"><span class="student-avatar" id="profileAvatar">M</span><div><h3 id="profileStudentName">اسم الطالب</h3><p id="profileStudentEmail"></p></div></div>
-        <div class="profile-note">تعديل الاسم والصورة وبيانات الحساب سيتم تفعيله بعد تجهيز حقول الملف الشخصي وسياسات الحماية اللازمة في قاعدة البيانات. لن نسمح بتغيير صلاحية الحساب أو الكلية والسنة الأساسية من هنا.</div>
+        <form id="studentProfileForm" class="profile-panel">
+          <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+            <div class="profile-avatar-preview" id="profileAvatarPreview">M</div>
+            <div style="flex:1;min-width:220px"><label for="profileAvatarFile">الصورة الشخصية</label><input id="profileAvatarFile" type="file" accept="image/png,image/jpeg,image/webp" style="display:block;margin-top:10px;max-width:100%"><small style="display:block;color:#9fb0c5;margin-top:7px">PNG أو JPG أو WEBP — بحد أقصى 3 MB.</small></div>
+          </div>
+          <div class="profile-edit-grid">
+            <input id="profileFullNameInput" type="text" maxlength="120" placeholder="الاسم بالكامل" required>
+            <input id="profileEmailReadonly" type="email" readonly aria-label="البريد الإلكتروني">
+            <button type="submit" id="saveStudentProfileButton">حفظ التعديلات</button>
+          </div>
+          <div id="profileStatus" class="status" role="status" aria-live="polite"></div>
+        </form>
       </section>
       <section class="student-view" id="view-academics"><h2>الكليات والموديولات</h2><p>اختار الكلية التي تريد تصفح محتواها الدراسي. اختيار التصفح لا يغيّر الكلية الأساسية لحسابك.</p><div id="academicsMount"></div></section>
       <section class="student-view" id="view-mcqbank"><h2>Medschool MCQ Bank</h2><p>حل أسئلة المحاضرات بشكل مستقل عن الامتحانات السابقة.</p><div id="mcqBankMount"></div></section>
       <section class="student-view" id="view-previousexams"><h2>Previous Exams</h2><p>اختر امتحانًا سابقًا وحلّه في وضع التدريب أو وضع الامتحان.</p><div id="previousExamsMount"></div></section>
       <section class="student-view" id="view-points"><h2>بنك درجاتك</h2><p>رصيد نقاطك وترتيبك في الكلية والدفعة والموديولات.</p><div id="collegeRankSummary" class="college-rank-summary">جاري حساب ترتيبك بين طلاب كليتك...</div><div id="pointsMount"></div></section>
-      <section class="student-view" id="view-arena"><h2>Medschool Arena – ساحة التحدي</h2><p>المسابقات والتحديات اليومية والأسبوعية.</p><div class="coming-soon">قريبًا — نجهّز نظام المسابقات ومواعيدها ونقاطها قبل تفعيله.</div></section>
-      <section class="student-view" id="view-history"><h2>سجل درجاتك</h2><p>تاريخ إجاباتك ومحاولاتك ونتائج الامتحانات.</p><div class="coming-soon">قريبًا — سيتم ربط سجل المحاولات بنتائجك الفعلية من قاعدة البيانات.</div></section>
+      <section class="student-view" id="view-arena"><h2>Medschool Arena – ساحة التحدي</h2><p>المسابقات المتاحة لطلاب كليتك، مع ترتيب المشاركين ونتائج كل مسابقة.</p><div id="studentArenaList"><div class="coming-soon">جاري تحميل المسابقات...</div></div><div id="studentArenaQuiz" class="profile-panel" style="display:none"><h3 id="arenaQuizTitle" style="color:#42d6b0"></h3><p id="arenaQuizProgress"></p><h3 id="arenaQuestionText" style="margin:16px 0;line-height:1.8"></h3><div id="arenaOptions"></div><div id="arenaFeedback" class="status"></div><div class="arena-actions"><button type="button" id="arenaSubmitAnswer" class="button">تأكيد الإجابة</button><button type="button" id="arenaNextQuestion" class="button hidden">السؤال التالي</button><button type="button" id="arenaFinishButton" class="button hidden">إنهاء المسابقة</button></div></div><div id="arenaStudentStatus" class="status"></div></section>
+      <section class="student-view" id="view-history"><h2>سجل درجاتك</h2><p>كل إجاباتك المسجلة ونتائج محاولات Previous Exams، مع ملخص أدائك حسب المادة.</p><button type="button" id="refreshStudentHistory" class="button">تحديث السجل</button><div id="studentHistoryStatus" class="status"></div><div id="studentHistorySummary"></div><div id="studentQuestionHistory"></div><div id="studentExamHistory"></div></section>
       <section class="student-view" id="view-ai"><h2>Medschool AI</h2><p>مساعد ذكاء اصطناعي للتعلم الطبي.</p><div class="coming-soon">قريبًا — سنبني المساعد بربط آمن من الخادم، ولن نضع مفاتيح API داخل كود الموقع.</div></section>
       <section class="student-view" id="view-feedback">
         <h2>الشكاوى والاقتراحات</h2>
@@ -770,6 +799,7 @@ footer{
             <option value="Seminars and Old Exams MCQ">
                 Seminars and Old Exams MCQ
             </option>
+            <option value="Department Book MCQ" id="studentDepartmentBookOption" hidden>Department Book MCQ</option>
         </select>
 
         <button type="button" id="startQuizButton"
@@ -959,6 +989,31 @@ footer{
     </div>
 
 
+    <!-- MEDSCHOOL ARENA ADMIN -->
+    <div class="management-section" id="arenaAdminSection">
+      <h3>⚔️ Medschool Arena — إدارة المسابقات</h3>
+      <p>أنشئ مسابقة لكل كلية وموديول، وحدد موعد فتحها وإغلاقها، ثم اختر الأسئلة المنشورة التي ستدخل المسابقة.</p>
+      <form id="arenaCompetitionForm" class="arena-form-grid">
+        <select id="arenaAdminCollege" required><option value="">اختر الكلية</option></select>
+        <select id="arenaAdminModule" required disabled><option value="">اختر الموديول</option></select>
+        <input id="arenaAdminTitle" type="text" maxlength="150" placeholder="اسم المسابقة" required>
+        <input id="arenaAdminStarts" type="datetime-local" required>
+        <input id="arenaAdminEnds" type="datetime-local" required>
+        <textarea id="arenaAdminDescription" placeholder="وصف المسابقة (اختياري)" rows="2"></textarea>
+        <button type="submit" class="full-width" id="createArenaCompetitionButton">إنشاء المسابقة</button>
+      </form>
+      <div id="arenaAdminStatus" class="status"></div>
+      <div class="management-list"><h4>المسابقات الحالية</h4><div id="arenaAdminCompetitions">جاري التحميل...</div></div>
+      <div class="management-section" id="arenaQuestionAssignment" style="display:none">
+        <h4 style="color:#42d6b0">اختيار أسئلة المسابقة: <span id="arenaSelectedCompetitionTitle"></span></h4>
+        <p>حدد الأسئلة المنشورة من الموديول المختار. لن يتم نسخ أو حذف أي سؤال من بنك الأسئلة الأصلي.</p>
+        <div id="arenaQuestionChoices">اختر مسابقة لعرض الأسئلة.</div>
+        <button type="button" id="saveArenaQuestionsButton" class="button">حفظ أسئلة المسابقة</button>
+        <div id="arenaQuestionAssignmentStatus" class="status"></div>
+      </div>
+      <div class="management-list"><h4>نتائج ومشاركو المسابقة المحددة</h4><div id="arenaAdminResults">اختر مسابقة لعرض النتائج.</div></div>
+    </div>
+
     <!-- COLLEGES & ACADEMIC YEARS -->
     <div class="management-section" id="academicStructureManagement">
         <h3>🏛️ Manage Colleges &amp; Academic Years</h3>
@@ -973,6 +1028,12 @@ footer{
         <div class="management-list">
             <h4>Existing Colleges</h4>
             <div id="collegesList">Loading colleges...</div>
+        </div>
+        <div class="management-section" style="margin-top:22px">
+          <h4 style="color:#42d6b0">📚 Department Book MCQ — إعدادات كل كلية</h4>
+          <p>فعّل أو أوقف ظهور بنك أسئلة كتاب القسم لكل كلية بشكل مستقل. الإعداد الافتراضي لأي كلية جديدة هو الإيقاف.</p>
+          <div id="departmentBookCollegeSettings">جاري تحميل إعدادات الكليات...</div>
+          <div id="departmentBookSettingsStatus" class="status"></div>
         </div>
 
         <h4 style="color:#42d6b0;margin:26px 0 12px">Add Academic Year</h4>
@@ -1123,6 +1184,7 @@ footer{
                 <option value="Seminars and Old Exams MCQ">
                     Seminars and Old Exams MCQ
                 </option>
+                <option value="Department Book MCQ">Department Book MCQ</option>
             </select>
 
             <select id="questionDifficulty" required>
@@ -1396,6 +1458,12 @@ let currentQuestionIndex = 0;
 let currentUser = null;
 let currentUserRole = null;
 let currentBrowsingCollegeId = null;
+let currentStudentCollegeId = null;
+let currentArenaCompetition = null;
+let arenaQuestions = [];
+let arenaQuestionIndex = 0;
+let arenaAttemptId = null;
+let arenaAnsweredCurrent = false;
 let currentQuestionAnswered = false;
 let quizScore = 0;
 
@@ -2013,7 +2081,7 @@ async function showUserRole(){
 
         const {data,error} = await supabaseClient
             .from("profiles")
-            .select("role,college_id,full_name")
+            .select("role,college_id,full_name,avatar_url")
             .eq("id",user.id)
             .single();
 
@@ -2029,6 +2097,7 @@ async function showUserRole(){
         }
 
         currentUserRole = data.role;
+        currentStudentCollegeId = data.college_id || null;
         $("notificationArea").style.display = "flex";
 
         if(data.role === "admin"){
@@ -2046,6 +2115,8 @@ async function showUserRole(){
             await loadAdminPastExams();
 
             await loadTeamManagement();
+            await loadAdminDepartmentBookSettings();
+            await loadArenaAdminData();
 
             await loadAllStudentRequests();
 
@@ -2055,7 +2126,7 @@ async function showUserRole(){
         }else{
 
             const studentName = (data.full_name || user.user_metadata?.full_name || user.email?.split("@")[0] || "دكتور").trim();
-            const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || user.user_metadata?.photo_url || "";
+            const avatarUrl = data.avatar_url || user.user_metadata?.avatar_url || user.user_metadata?.picture || user.user_metadata?.photo_url || "";
             const initials = studentName.split(/\s+/).filter(Boolean).slice(0,2).map(part=>part[0]).join("").toUpperCase() || "M";
             $("welcomeStudentName").textContent = studentName;
             $("identityStudentName").textContent = studentName;
@@ -2090,6 +2161,7 @@ async function showUserRole(){
             $("userRole").textContent = studentLabel;
             $("collegeBrowser").style.display = "block";
             await loadStudentColleges();
+            await loadStudentProfile();
             $("quizSection").style.display = "none";
             hidePastPapers();
             setStatus("collegeBrowserStatus","اختار الكلية التي تريد تصفح محتواها.");
@@ -3451,9 +3523,9 @@ $("adminDashboard").addEventListener("click",async function(e){
             const correct=prompt("رقم الإجابة الصحيحة: 0 = A, 1 = B, 2 = C, 3 = D",currentCorrect);
             if(correct===null)return;
             if(!["0","1","2","3"].includes(correct.trim())){alert("اكتب 0 أو 1 أو 2 أو 3 فقط.");return;}
-            const category=prompt("تصنيف السؤال (Medschool MCQ أو Seminars and Old Exams MCQ):",question.question_category||"Medschool MCQ");
+            const category=prompt("تصنيف السؤال (Medschool MCQ أو Seminars and Old Exams MCQ أو Department Book MCQ):",question.question_category||"Medschool MCQ");
             if(category===null)return;
-            if(!["Medschool MCQ","Seminars and Old Exams MCQ"].includes(category.trim())){alert("التصنيف غير صحيح.");return;}
+            if(!["Medschool MCQ","Seminars and Old Exams MCQ","Department Book MCQ"].includes(category.trim())){alert("التصنيف غير صحيح.");return;}
             const difficulty=prompt("الصعوبة (Easy / Medium / Hard):",question.difficulty||"Medium");
             if(difficulty===null)return;
             if(!["Easy","Medium","Hard"].includes(difficulty.trim())){alert("مستوى الصعوبة غير صحيح.");return;}
@@ -5819,6 +5891,236 @@ function showPastResults(result){
 
 loadSignupColleges();
 showUserRole();
+
+
+
+// ==================================================
+// MEDSCHOOL EXTENSIONS: PROFILE, HISTORY, DEPARTMENT BOOK, ARENA
+// ==================================================
+
+function medschoolInitials(name){
+  return String(name||"M").trim().split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase()||"M";
+}
+function applyStudentAvatar(url,name){
+  const initials=medschoolInitials(name);
+  [$("welcomeAvatar"),$("profileAvatar"),$("profileAvatarPreview")].forEach(el=>{
+    if(!el)return;
+    el.textContent=url?"":initials;
+    el.style.backgroundImage=url?`url("${String(url).replace(/["\\]/g,"")}")`:"";
+    el.style.backgroundSize="cover";el.style.backgroundPosition="center";
+  });
+}
+
+async function loadStudentProfile(){
+  if(!currentUser)return;
+  const {data,error}=await supabaseClient.from("profiles").select("full_name,avatar_url").eq("id",currentUser.id).single();
+  if(error){setStatus("profileStatus","تعذر تحميل الملف الشخصي: "+error.message);return;}
+  const name=(data.full_name||currentUser.user_metadata?.full_name||currentUser.email?.split("@")[0]||"").trim();
+  $("profileFullNameInput").value=name;
+  $("profileEmailReadonly").value=currentUser.email||"";
+  $("profileStudentName").textContent=name||"اسم الطالب";
+  $("profileStudentEmail").textContent=currentUser.email||"";
+  $("welcomeStudentName").textContent=name||"دكتور";
+  $("identityStudentName").textContent=name||"الملف الشخصي";
+  applyStudentAvatar(data.avatar_url||"",name);
+}
+
+$("profileAvatarFile").addEventListener("change",function(){
+  const file=this.files?.[0];if(!file)return;
+  if(file.size>3*1024*1024){setStatus("profileStatus","حجم الصورة أكبر من 3 MB.");this.value="";return;}
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)){setStatus("profileStatus","اختر صورة PNG أو JPG أو WEBP.");this.value="";return;}
+  const reader=new FileReader();reader.onload=()=>{$("profileAvatarPreview").style.backgroundImage=`url("${reader.result}")`;$("profileAvatarPreview").textContent="";};reader.readAsDataURL(file);
+});
+
+$("studentProfileForm").addEventListener("submit",async function(e){
+  e.preventDefault();if(!currentUser)return;
+  const name=$("profileFullNameInput").value.trim();const file=$("profileAvatarFile").files?.[0];
+  if(!name){setStatus("profileStatus","اكتب الاسم بالكامل.");return;}
+  const btn=$("saveStudentProfileButton");btn.disabled=true;setStatus("profileStatus","جاري حفظ التعديلات...");
+  try{
+    let avatarUrl=null;
+    if(file){
+      const ext=file.type==="image/png"?"png":file.type==="image/webp"?"webp":"jpg";
+      const path=`${currentUser.id}/avatar.${ext}`;
+      const {error:uploadError}=await supabaseClient.storage.from("profile-avatars").upload(path,file,{upsert:true,contentType:file.type,cacheControl:"3600"});
+      if(uploadError)throw uploadError;
+      const {data:publicData}=supabaseClient.storage.from("profile-avatars").getPublicUrl(path);
+      avatarUrl=publicData.publicUrl+"?v="+Date.now();
+    }
+    const {error:saveError}=await supabaseClient.rpc("update_my_student_profile",{p_full_name:name,p_avatar_url:avatarUrl});
+    if(saveError)throw saveError;
+    await supabaseClient.auth.updateUser({data:{full_name:name,...(avatarUrl?{avatar_url:avatarUrl}:{})}});
+    $("profileAvatarFile").value="";await loadStudentProfile();
+    setStatus("profileStatus","تم حفظ بيانات الملف الشخصي بنجاح.");
+  }catch(err){setStatus("profileStatus","تعذر حفظ التعديلات: "+(err.message||String(err)));}
+  finally{btn.disabled=false;}
+});
+
+// Department Book MCQ is enabled independently for each college by the platform admin.
+async function getDepartmentBookEnabled(collegeId){
+  if(!collegeId)return false;
+  const {data,error}=await supabaseClient.from("college_question_bank_settings").select("department_book_enabled").eq("college_id",Number(collegeId)).maybeSingle();
+  if(error){console.warn("Department Book setting:",error.message);return false;}
+  return !!data?.department_book_enabled;
+}
+async function applyDepartmentBookOption(){
+  const option=$("studentDepartmentBookOption");if(!option)return;
+  const enabled=await getDepartmentBookEnabled(currentBrowsingCollegeId);
+  option.hidden=!enabled;option.disabled=!enabled;
+  if(!enabled && $("quizCategory").value==="Department Book MCQ"){$("quizCategory").value="";$("startQuizButton").disabled=true;}
+}
+async function loadAdminDepartmentBookSettings(){
+  const box=$("departmentBookCollegeSettings");if(!box||currentUserRole!=="admin")return;
+  box.textContent="جاري تحميل الكليات...";
+  const [{data:colleges,error:ce},{data:settings,error:se}]=await Promise.all([
+    supabaseClient.from("colleges").select("id,name,is_active").order("sort_order",{ascending:true,nullsFirst:false}).order("id"),
+    supabaseClient.from("college_question_bank_settings").select("college_id,department_book_enabled")
+  ]);
+  if(ce||se){box.textContent="تعذر تحميل الإعدادات: "+(ce?.message||se?.message);return;}
+  box.replaceChildren();
+  if(!colleges?.length){box.textContent="لا توجد كليات.";return;}
+  colleges.forEach(college=>{
+    const row=document.createElement("div");row.className="admin-setting-row";
+    const label=document.createElement("label");const checkbox=document.createElement("input");checkbox.type="checkbox";checkbox.checked=!!settings?.find(x=>String(x.college_id)===String(college.id))?.department_book_enabled;
+    const name=document.createElement("strong");name.textContent=college.name+(college.is_active?"":" (متوقفة)");label.append(checkbox,name);
+    const state=document.createElement("span");state.style.color=checkbox.checked?"#42d6b0":"#9fb0c5";state.textContent=checkbox.checked?"مفعّل":"متوقف";
+    checkbox.addEventListener("change",async()=>{
+      checkbox.disabled=true;const enabled=checkbox.checked;
+      const {error}=await supabaseClient.from("college_question_bank_settings").upsert({college_id:college.id,department_book_enabled:enabled,updated_at:new Date().toISOString()},{onConflict:"college_id"});
+      checkbox.disabled=false;
+      if(error){checkbox.checked=!enabled;setStatus("departmentBookSettingsStatus","تعذر حفظ إعداد "+college.name+": "+error.message);return;}
+      state.textContent=enabled?"مفعّل":"متوقف";state.style.color=enabled?"#42d6b0":"#9fb0c5";
+      setStatus("departmentBookSettingsStatus",`تم ${enabled?"تفعيل":"إيقاف"} Department Book MCQ لكلية ${college.name}.`);
+    });
+    row.append(label,state);box.appendChild(row);
+  });
+}
+
+// Student score history: append-only answer snapshots + previous exam attempts.
+function formatMedschoolDate(value){const d=new Date(value);return Number.isNaN(d.getTime())?"—":d.toLocaleString("ar-EG");}
+async function loadStudentHistory(){
+  if(!currentUser)return;const status=$("studentHistoryStatus");status.textContent="جاري تحميل سجل الدرجات...";
+  $("studentHistorySummary").replaceChildren();$("studentQuestionHistory").replaceChildren();$("studentExamHistory").replaceChildren();
+  try{
+    const [{data:answers,error:ae},{data:attempts,error:te}]=await Promise.all([
+      supabaseClient.from("question_answer_history").select("id,question_id,question_text,options,selected_option,is_correct,subject_name,created_at").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(200),
+      supabaseClient.from("exam_attempts").select("id,exam_id,mode,total_questions,correct_answers,score,started_at,submitted_at").eq("user_id",currentUser.id).order("started_at",{ascending:false}).limit(100)
+    ]);
+    if(ae)throw ae;if(te)throw te;
+    const attemptIds=(attempts||[]).map(x=>x.id);
+    let examAnswers=[];
+    if(attemptIds.length){const {data:ea,error:eae}=await supabaseClient.from("exam_attempt_answers").select("attempt_id,question_id,selected_option,is_correct,answered_at").in("attempt_id",attemptIds).order("answered_at",{ascending:true});if(eae)throw eae;examAnswers=ea||[];}
+    const correct=(answers||[]).filter(x=>x.is_correct).length;
+    const summary=document.createElement("div");summary.className="profile-panel";summary.innerHTML=`<strong>إجابات الأسئلة المسجلة: ${(answers||[]).length}</strong><div style="margin-top:7px;color:#42d6b0">صحيحة: ${correct} · غير صحيحة: ${(answers||[]).length-correct}</div>`;$("studentHistorySummary").appendChild(summary);
+    const performance={};(answers||[]).forEach(a=>{const k=a.subject_name||"غير محدد";performance[k]??={total:0,correct:0};performance[k].total++;if(a.is_correct)performance[k].correct++;});
+    if(Object.keys(performance).length){const p=document.createElement("div");p.className="history-card";p.innerHTML="<h4>الأداء حسب المادة</h4>";Object.entries(performance).sort((a,b)=>b[1].total-a[1].total).forEach(([name,v])=>{const line=document.createElement("div");line.className="history-answer";line.textContent=`${name}: ${v.correct}/${v.total} (${Math.round(v.correct/v.total*100)}%)`;p.appendChild(line);});$("studentHistorySummary").appendChild(p);}
+    const qbox=$("studentQuestionHistory");const qtitle=document.createElement("h3");qtitle.style.cssText="color:#42d6b0;margin:20px 0 10px";qtitle.textContent="سجل إجابات Medschool MCQ";qbox.appendChild(qtitle);
+    if(!answers?.length){const empty=document.createElement("div");empty.className="coming-soon";empty.textContent="لا توجد إجابات مسجلة حتى الآن.";qbox.appendChild(empty);}else answers.forEach(a=>{const card=document.createElement("article");card.className="history-card";const options=Array.isArray(a.options)?a.options:[];const selected=options[Number(a.selected_option)]??"غير متاح";card.innerHTML=`<h4>${String(a.question_text||"سؤال").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}</h4><div class="history-meta">${String(a.subject_name||"مادة غير محددة")} · ${formatMedschoolDate(a.created_at)}</div><div class="history-answer ${a.is_correct?"history-correct":"history-wrong"}">${a.is_correct?"إجابة صحيحة":"إجابة غير صحيحة"}: ${String(selected).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}</div>`;qbox.appendChild(card);});
+    const ebox=$("studentExamHistory");const etitle=document.createElement("h3");etitle.style.cssText="color:#42d6b0;margin:24px 0 10px";etitle.textContent="سجل Previous Exams";ebox.appendChild(etitle);
+    if(!attempts?.length){const empty=document.createElement("div");empty.className="coming-soon";empty.textContent="لا توجد محاولات امتحانات سابقة.";ebox.appendChild(empty);}else{
+      attempts.forEach(a=>{const card=document.createElement("article");card.className="history-card";const pct=Number(a.score??(a.total_questions?100*a.correct_answers/a.total_questions:0));card.innerHTML=`<h4>Previous Exam #${a.exam_id}</h4><div class="history-meta">Attempt #${a.id} · ${a.mode||"practice"} · ${formatMedschoolDate(a.started_at)} · ${a.submitted_at?"تم التسليم":"غير مكتمل"}</div><div style="margin-top:8px">النتيجة: <strong style="color:#42d6b0">${Number(a.correct_answers||0)} / ${Number(a.total_questions||0)}</strong> · ${Math.round(pct)}%</div>`;const detail=document.createElement("div");detail.style.marginTop="8px";const rows=examAnswers.filter(x=>String(x.attempt_id)===String(a.id));if(rows.length){const heading=document.createElement("strong");heading.textContent="تفاصيل الإجابات المحفوظة:";detail.appendChild(heading);rows.forEach(r=>{const line=document.createElement("div");line.className="history-answer "+(r.is_correct?"history-correct":"history-wrong");line.textContent=`السؤال #${r.question_id} — ${r.is_correct?"صحيح":"خطأ"} — إجابتك: ${String.fromCharCode(65+Number(r.selected_option||0))}`;detail.appendChild(line);});}else{detail.textContent="لا توجد تفاصيل إجابات محفوظة لهذه المحاولة.";}card.appendChild(detail);ebox.appendChild(card);});
+    }
+    status.textContent="تم تحميل سجل الدرجات.";
+  }catch(err){status.textContent="تعذر تحميل سجل الدرجات: "+(err.message||String(err));}
+}
+$("refreshStudentHistory").addEventListener("click",loadStudentHistory);
+
+// Arena admin: competitions belong to one college and one module.
+let arenaAdminCompetitions=[];let arenaAdminSelectedId=null;let arenaAdminQuestionRows=[];
+async function loadArenaAdminData(){if(currentUserRole!=="admin")return;await loadArenaAdminColleges();await loadArenaAdminCompetitions();}
+async function loadArenaAdminColleges(){
+  const sel=$("arenaAdminCollege");if(!sel)return;const {data,error}=await supabaseClient.from("colleges").select("id,name").order("name");if(error){setStatus("arenaAdminStatus",error.message);return;}
+  sel.innerHTML='<option value="">اختر الكلية</option>';(data||[]).forEach(c=>{const o=document.createElement("option");o.value=c.id;o.textContent=c.name;sel.appendChild(o);});
+}
+$("arenaAdminCollege").addEventListener("change",async function(){
+  const sel=$("arenaAdminModule");sel.innerHTML='<option value="">جاري تحميل الموديولات...</option>';sel.disabled=true;if(!this.value)return;
+  const {data:years,error}=await supabaseClient.from("years").select("id").eq("college_id",Number(this.value));if(error){setStatus("arenaAdminStatus",error.message);return;}
+  const ids=(years||[]).map(x=>x.id);if(!ids.length){sel.innerHTML='<option value="">لا توجد سنوات</option>';return;}
+  const {data:mods,error:me}=await supabaseClient.from("modules").select("id,name,year_id").in("year_id",ids).order("name");if(me){setStatus("arenaAdminStatus",me.message);return;}
+  sel.innerHTML='<option value="">اختر الموديول</option>';(mods||[]).forEach(m=>{const o=document.createElement("option");o.value=m.id;o.textContent=m.name;sel.appendChild(o);});sel.disabled=!(mods||[]).length;
+});
+$("arenaCompetitionForm").addEventListener("submit",async function(e){
+  e.preventDefault();if(currentUserRole!=="admin")return;
+  const college=Number($("arenaAdminCollege").value),module=Number($("arenaAdminModule").value),title=$("arenaAdminTitle").value.trim(),start=$("arenaAdminStarts").value,end=$("arenaAdminEnds").value;
+  if(!college||!module||!title||!start||!end){setStatus("arenaAdminStatus","أكمل بيانات المسابقة.");return;}
+  if(new Date(end)<=new Date(start)){setStatus("arenaAdminStatus","وقت الإغلاق يجب أن يكون بعد وقت الفتح.");return;}
+  const btn=$("createArenaCompetitionButton");btn.disabled=true;
+  const {data,error}=await supabaseClient.from("arena_competitions").insert({college_id:college,module_id:module,title,description:$("arenaAdminDescription").value.trim(),starts_at:new Date(start).toISOString(),ends_at:new Date(end).toISOString(),is_active:true,created_by:currentUser.id}).select("id").single();
+  btn.disabled=false;if(error){setStatus("arenaAdminStatus","تعذر إنشاء المسابقة: "+error.message);return;}
+  setStatus("arenaAdminStatus","تم إنشاء المسابقة. اختر الأسئلة المنشورة الآن.");this.reset();await loadArenaAdminCompetitions();await selectArenaAdminCompetition(data.id);
+});
+async function loadArenaAdminCompetitions(){
+  const box=$("arenaAdminCompetitions");if(!box||currentUserRole!=="admin")return;box.textContent="جاري التحميل...";
+  const {data,error}=await supabaseClient.from("arena_competitions").select("id,college_id,module_id,title,description,starts_at,ends_at,is_active").order("created_at",{ascending:false});if(error){box.textContent="تعذر تحميل المسابقات: "+error.message;return;}
+  arenaAdminCompetitions=data||[];box.replaceChildren();if(!data?.length){box.textContent="لا توجد مسابقات حتى الآن.";return;}
+  const [{data:colleges},{data:attempts}]=await Promise.all([supabaseClient.from("colleges").select("id,name"),supabaseClient.from("arena_attempts").select("competition_id,id,score,submitted_at")]);
+  data.forEach(c=>{const card=document.createElement("div");card.className="admin-record";const college=colleges?.find(x=>String(x.id)===String(c.college_id));const count=(attempts||[]).filter(a=>String(a.competition_id)===String(c.id)).length;card.innerHTML=`<strong>${String(c.title).replace(/[&<>]/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[x]))}</strong><small>${college?.name||"كلية"} · ${formatMedschoolDate(c.starts_at)} → ${formatMedschoolDate(c.ends_at)} · ${count} مشارك · ${c.is_active?"مفعّلة":"متوقفة"}</small><div class="admin-row-actions"><button type="button" class="edit-row" data-arena-manage="${c.id}">إدارة الأسئلة والنتائج</button><button type="button" class="toggle-row" data-arena-toggle="${c.id}">${c.is_active?"إيقاف":"تفعيل"}</button></div>`;box.appendChild(card);});
+  box.querySelectorAll("[data-arena-manage]").forEach(b=>b.addEventListener("click",()=>selectArenaAdminCompetition(Number(b.dataset.arenaManage))));
+  box.querySelectorAll("[data-arena-toggle]").forEach(b=>b.addEventListener("click",async()=>{const c=arenaAdminCompetitions.find(x=>x.id===Number(b.dataset.arenaToggle));const {error}=await supabaseClient.from("arena_competitions").update({is_active:!c.is_active}).eq("id",c.id);if(error){setStatus("arenaAdminStatus",error.message);return;}await loadArenaAdminCompetitions();}));
+}
+async function selectArenaAdminCompetition(id){
+  const c=arenaAdminCompetitions.find(x=>String(x.id)===String(id));if(!c)return;arenaAdminSelectedId=c.id;$("arenaQuestionAssignment").style.display="block";$("arenaSelectedCompetitionTitle").textContent=c.title;
+  const {data:questions,error}=await supabaseClient.from("questions").select("id,question_text,question_category").eq("module_id",c.module_id).eq("is_published",true).order("id");if(error){$("arenaQuestionChoices").textContent=error.message;return;}
+  const {data:existing,error:ee}=await supabaseClient.from("arena_competition_questions").select("question_id,question_order").eq("competition_id",c.id).order("question_order");if(ee){$("arenaQuestionChoices").textContent=ee.message;return;}
+  arenaAdminQuestionRows=questions||[];const chosen=new Set((existing||[]).map(x=>String(x.question_id)));const box=$("arenaQuestionChoices");box.replaceChildren();
+  if(!questions?.length){box.textContent="لا توجد أسئلة منشورة في هذا الموديول.";}
+  else questions.forEach(q=>{const label=document.createElement("label");label.className="arena-option";const cb=document.createElement("input");cb.type="checkbox";cb.value=q.id;cb.checked=chosen.has(String(q.id));const span=document.createElement("span");span.textContent=`#${q.id} · ${q.question_category||"Medschool MCQ"} · ${q.question_text}`;label.append(cb,span);box.appendChild(label);});
+  await loadArenaAdminResults(id);
+}
+$("saveArenaQuestionsButton").addEventListener("click",async()=>{
+  if(!arenaAdminSelectedId)return;const selected=Array.from($("arenaQuestionChoices").querySelectorAll('input[type="checkbox"]:checked')).map(x=>Number(x.value));if(!selected.length){setStatus("arenaQuestionAssignmentStatus","اختر سؤالاً واحداً على الأقل.");return;}
+  const {data:attempts,error:ae}=await supabaseClient.from("arena_attempts").select("id").eq("competition_id",arenaAdminSelectedId).limit(1);if(ae){setStatus("arenaQuestionAssignmentStatus",ae.message);return;}if(attempts?.length){setStatus("arenaQuestionAssignmentStatus","لا يمكن تغيير أسئلة المسابقة بعد بدء الطلاب للمحاولة، حفاظاً على النتائج.");return;}
+  const {error:de}=await supabaseClient.from("arena_competition_questions").delete().eq("competition_id",arenaAdminSelectedId);if(de){setStatus("arenaQuestionAssignmentStatus",de.message);return;}
+  const rows=selected.map((question_id,index)=>({competition_id:arenaAdminSelectedId,question_id,question_order:index+1}));const {error}=await supabaseClient.from("arena_competition_questions").insert(rows);if(error){setStatus("arenaQuestionAssignmentStatus","تعذر حفظ الأسئلة: "+error.message);return;}setStatus("arenaQuestionAssignmentStatus",`تم حفظ ${rows.length} سؤالاً للمسابقة.`);
+});
+async function loadArenaAdminResults(id){
+  const box=$("arenaAdminResults");box.textContent="جاري تحميل النتائج...";
+  const {data:attempts,error}=await supabaseClient.from("arena_attempts").select("id,user_id,score,total_questions,correct_answers,started_at,submitted_at").eq("competition_id",id).order("score",{ascending:false}).order("submitted_at",{ascending:true});if(error){box.textContent=error.message;return;}
+  if(!attempts?.length){box.textContent="لا يوجد مشاركون حتى الآن.";return;}
+  const ids=attempts.map(x=>x.user_id);const {data:profiles,error:pe}=await supabaseClient.from("profiles").select("id,full_name").in("id",ids);if(pe){box.textContent=pe.message;return;}
+  box.replaceChildren();attempts.forEach((a,index)=>{const row=document.createElement("div");row.className="admin-record";const p=profiles?.find(x=>x.id===a.user_id);row.textContent=`${index+1}. ${p?.full_name||"طالب"} — ${a.correct_answers||0}/${a.total_questions||0} — ${a.score??0}% — ${a.submitted_at?formatMedschoolDate(a.submitted_at):"لم ينهِ المسابقة"}`;box.appendChild(row);});
+}
+
+// Student Arena: only the registered college's competitions are listed/enterable.
+async function loadStudentArena(){
+  const box=$("studentArenaList");if(!box||currentUserRole!=="student")return;box.textContent="جاري تحميل المسابقات...";
+  if(!currentStudentCollegeId){box.textContent="حسابك غير مرتبط بكلية. تواصل مع الإدارة.";return;}
+  const {data,error}=await supabaseClient.from("arena_competitions").select("id,title,description,module_id,starts_at,ends_at,is_active").eq("college_id",Number(currentStudentCollegeId)).eq("is_active",true).order("starts_at");if(error){box.textContent="تعذر تحميل المسابقات: "+error.message;return;}
+  box.replaceChildren();if(!data?.length){box.textContent="لا توجد مسابقات متاحة لكليتك حالياً.";return;}
+  const now=Date.now();for(const c of data){const start=new Date(c.starts_at).getTime(),end=new Date(c.ends_at).getTime();const status=now<start?"لم تبدأ بعد":now>end?"انتهت":"متاحة الآن";const card=document.createElement("article");card.className="arena-card";const title=document.createElement("h4");title.textContent=c.title;const desc=document.createElement("p");desc.textContent=c.description||"مسابقة Medschool للكلية.";const meta=document.createElement("div");meta.className="arena-meta";meta.textContent=`${status} · تبدأ: ${formatMedschoolDate(c.starts_at)} · تنتهي: ${formatMedschoolDate(c.ends_at)}`;card.append(title,desc,meta);if(now>=start&&now<=end){const btn=document.createElement("button");btn.type="button";btn.className="button";btn.textContent="دخول المسابقة";btn.addEventListener("click",()=>startStudentArena(c));card.appendChild(btn);}box.appendChild(card);}
+}
+async function startStudentArena(comp){
+  setStatus("arenaStudentStatus","جاري بدء المسابقة...");const {data,error}=await supabaseClient.rpc("arena_start_competition",{p_competition_id:comp.id});if(error){setStatus("arenaStudentStatus",error.message);return;}
+  const rows=Array.isArray(data)?data:[];if(!rows.length){setStatus("arenaStudentStatus","المسابقة لا تحتوي على أسئلة بعد.");return;}
+  currentArenaCompetition=comp;arenaAttemptId=Number(rows[0].attempt_id);arenaQuestions=rows.map(r=>({id:r.question_id,text:r.question_text,options:r.options,order:r.question_order}));arenaQuestionIndex=0;$("studentArenaQuiz").style.display="block";$("arenaQuizTitle").textContent=comp.title;renderStudentArenaQuestion();$("studentArenaQuiz").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function renderStudentArenaQuestion(){
+  const q=arenaQuestions[arenaQuestionIndex];arenaAnsweredCurrent=false;$("arenaQuizProgress").textContent=`السؤال ${arenaQuestionIndex+1} من ${arenaQuestions.length}`;$("arenaQuestionText").textContent=q.text;const box=$("arenaOptions");box.replaceChildren();(Array.isArray(q.options)?q.options:[]).forEach((v,i)=>{const label=document.createElement("label");label.className="arena-option";const radio=document.createElement("input");radio.type="radio";radio.name="arenaAnswer";radio.value=i;const span=document.createElement("span");span.textContent=String.fromCharCode(65+i)+") "+v;label.append(radio,span);box.appendChild(label);});setStatus("arenaFeedback","");$("arenaSubmitAnswer").classList.remove("hidden");$("arenaSubmitAnswer").disabled=false;$("arenaNextQuestion").classList.add("hidden");$("arenaFinishButton").classList.add("hidden");
+}
+$("arenaSubmitAnswer").addEventListener("click",async()=>{
+  if(arenaAnsweredCurrent)return;const chosen=document.querySelector('input[name="arenaAnswer"]:checked');if(!chosen){setStatus("arenaFeedback","اختر إجابة أولاً.");return;}
+  const q=arenaQuestions[arenaQuestionIndex];$("arenaSubmitAnswer").disabled=true;const {data,error}=await supabaseClient.rpc("arena_submit_answer",{p_attempt_id:arenaAttemptId,p_question_id:q.id,p_selected_option:Number(chosen.value)});if(error){setStatus("arenaFeedback",error.message);$("arenaSubmitAnswer").disabled=false;return;}
+  const result=Array.isArray(data)?data[0]:data;arenaAnsweredCurrent=true;setStatus("arenaFeedback",result?.is_correct?"إجابة صحيحة ✓":"إجابة غير صحيحة ✕");$("arenaSubmitAnswer").classList.add("hidden");if(arenaQuestionIndex<arenaQuestions.length-1){$("arenaNextQuestion").classList.remove("hidden");}else{$("arenaFinishButton").classList.remove("hidden");}
+});
+$("arenaNextQuestion").addEventListener("click",()=>{arenaQuestionIndex++;renderStudentArenaQuestion();});
+$("arenaFinishButton").addEventListener("click",async()=>{
+  const {data,error}=await supabaseClient.rpc("arena_finish_competition",{p_attempt_id:arenaAttemptId});if(error){setStatus("arenaStudentStatus","تعذر إنهاء المسابقة: "+error.message);return;}
+  const result=Array.isArray(data)?data[0]:data;$("studentArenaQuiz").style.display="none";setStatus("arenaStudentStatus",`انتهت المسابقة. نتيجتك: ${result.correct_answers}/${result.total_questions} — ${result.score}%`);await loadStudentArena();
+});
+
+// Hook new pages into the existing student navigation without moving existing sections.
+const originalOpenStudentView=openStudentView;
+openStudentView=function(viewName){
+  originalOpenStudentView(viewName);
+  if(viewName==="profile")loadStudentProfile();
+  if(viewName==="history")loadStudentHistory();
+  if(viewName==="arena")loadStudentArena();
+};
+
+// Re-check college-specific question-bank visibility whenever a new college is selected.
+const originalSelectBrowsingCollege=selectBrowsingCollege;
+selectBrowsingCollege=async function(collegeId){await originalSelectBrowsingCollege(collegeId);await applyDepartmentBookOption();};
+
 
 </script>
 

@@ -3879,21 +3879,28 @@ $("questionForm").addEventListener("submit",async function(e){
 function parseBulkQuestionText(raw){
     const normalized=String(raw||"").replace(/\r/g,"").trim();
     if(!normalized)return [];
-    const chunks=normalized.split(/(?=^\s*Question\s*#?\s*\d+\s*:?\s*$)/gim).filter(x=>x.trim());
+    // Accept both formats: "Question 1:" on its own line, and
+    // "Question 1: Write the question here" on the same line.
+    const chunks=normalized.split(/(?=^\s*Question\s*#?\s*\d+\s*:?[^\n]*$)/gim).filter(x=>x.trim());
     return chunks.map((chunk,index)=>{
         const lines=chunk.split("\n");let question="",explanation="",correct=null,mode="question";
         const options=["","","",""];
-        for(const rawLine of lines){
-            const line=rawLine.trim();if(!line||/^Question\s*#?\s*\d+\s*:?$/i.test(line))continue;
+        lines.forEach((rawLine,lineIndex)=>{
+            let line=rawLine.trim();
+            if(!line)return;
+            if(lineIndex===0){
+                const header=line.match(/^Question\s*#?\s*\d+\s*:?\s*(.*)$/i);
+                if(header){line=header[1].trim();if(!line)return;}
+            }
             const a=line.match(/^Correct\s*Answer\s*:\s*([A-D])\s*(?:[).:-])?\s*(.*)$/i);
-            if(a){correct=a[1].toUpperCase().charCodeAt(0)-65;mode="afterAnswer";continue;}
+            if(a){correct=a[1].toUpperCase().charCodeAt(0)-65;mode="afterAnswer";return;}
             const ex=line.match(/^Explanation\s*:\s*(.*)$/i);
-            if(ex){explanation=ex[1].trim();mode="explanation";continue;}
+            if(ex){explanation=ex[1].trim();mode="explanation";return;}
             const o=line.match(/^([a-d])\s*[).:-]\s*(.*)$/i);
-            if(o){options[o[1].toLowerCase().charCodeAt(0)-97]=o[2].trim();mode="options";continue;}
+            if(o){options[o[1].toLowerCase().charCodeAt(0)-97]=o[2].trim();mode="options";return;}
             if(mode==="explanation")explanation+=(explanation?"\n":"")+line;
             else if(mode==="question")question+=(question?"\n":"")+line;
-        }
+        });
         return {number:index+1,question:question.trim(),options,correctOption:correct,explanation:explanation.trim()};
     });
 }
